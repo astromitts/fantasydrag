@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>{{participant.name}}</h1>
+			<h2><a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a></h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-4"></div>
+		<div class="col"><h3>Drafted Queens</h3></div>
+	</div>
+	<div class="row">
+		<div class="col-4 alert alert-success">
+			Current Total: {{total_score}}
+		</div>
+		<div class="col">
+			
+			<table class="table">
+				<tr><th>Queen</th><th>Current Score</th></tr>
+				{% for queen, score in draft_scores.items %}
+					<tr>
+						<td>{{queen.name}}</td>
+						<td>{{score}}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+
+{% endblock %}

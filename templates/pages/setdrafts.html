@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>{{panel.drag_race.display_name}}: {{panel.name}}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			{% if phase == 'set player' %}
+				<h3>Select a player</h3>
+			{% else %}
+				<h3>Select a queen for {{participant.name}}</h3>
+			{% endif %}
+			<form method="POST" action="">
+				{% csrf_token %}
+				{% if phase == 'set player' %}
+					<label for="participant">Select player:</label>
+					<select id="id_participant" name="participant" class="form-control">
+						{% for participant in panel.participants.all %}
+						<option value="{{participant.pk}}">{{participant.name}}</option>
+						{% endfor %}
+					</select>
+				{% elif phase == 'set queen' %}
+					<input type="hidden" id="id_participant" name="participant" value="{{participant.pk}}" />
+					<label for="queen">Select queen:</label>
+					<select id="id_queen" name="queen" class="form-control">
+						{% for queen in queens %}
+						<option value="{{queen.pk}}">{{queen.name}}</option>
+						{% endfor %}
+					</select>
+				{% endif %}
+				<input type="submit" class="form-control btn btn-success" 
+				{% if phase == 'set player' %}
+					value="select player"
+				{% else %}
+					value="select queen"
+				{% endif %} />
+			</form>
+		</div>
+		<div class="col">
+			<h3>Drafts</h3>
+			<table>
+				<tr>
+					<th>Player</th><th>Queen</th>
+				</tr>
+				{% for draft in drafts %}
+				<tr>
+					<td>{{draft.participant.name}}</td>
+					<td>{{draft.queen.name}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+
+{% endblock %}

@@ -16,6 +16,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from fantasydrag import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.LandingPage.as_view(), name='home'),
+    path('panel/<int:panel_id>/', views.PanelStats.as_view(), name='panel_stats'),
+    path('panel/<int:panel_id>/setdrafts/', views.SetDrafts.as_view(), name='panel_set_drafts'),
+    path(
+        'panel/<int:panel_id>/panelist/<int:participant_id>/',
+        views.ParticipantStats.as_view(),
+        name='participant_stats'
+    ),
+    path(
+        'dragrace/<int:dragrace_id>/',
+        views.DragRaceStats.as_view(),
+        name='dragrace_stats'
+    ),
+
 ]

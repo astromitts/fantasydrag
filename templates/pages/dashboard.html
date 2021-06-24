@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>Panels</h1>
+		</div>
+	</div>
+	{% for panel in panels %}
+		<div class="row">
+			<div class="col">
+				<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a>
+			</div>
+		</div>
+	{% endfor %}
+
+{% endblock %}

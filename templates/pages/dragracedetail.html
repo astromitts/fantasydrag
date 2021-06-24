@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>{{drag_race.display_name}}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col"><h3>Episodes</h3></div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<table class="table">
+				<tr>
+					<th>Queen</th>
+					{% for episode in scores %}
+						<th>Episode #{{episode.number}}</th>
+					{% endfor %}
+				</tr>
+				{% for queen in drag_race.queens.all %}
+					<tr>
+						<th>{{queen.name}}</th>
+						{% for episode, queens in scores.items %}
+						{% with queens|get:queen as this_queen %}
+						<td>
+							{% if this_queen.rules %}
+								{% for rule in this_queen.rules %}
+								<p>{{rule.name}} ({{rule.point_value}})</p>
+								{% endfor %}
+								<p>Total: {{this_queen.total}}</p>
+							{% endif %}
+						</td>
+						{% endwith %}
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+
+{% endblock %}
