@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+	{% if error %}
+	<div class="row">
+		<div class="col alert alert-danger">
+			{{error}}
+		</div>
+	</div>
+	{% endif %}
+	<div class="row">
+		<div class="col">
+		<form method="POST" action="">
+			{% csrf_token %}
+			{{form.as_p}}
+			<input type="submit" class="form-control btn btn-primary" value="Log In" />
+		</form>
+		</div>
+	</div>
+{% endblock %}

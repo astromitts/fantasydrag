@@ -7,54 +7,94 @@
 		</div>
 	</div>
 
+{% if panel.draft_data.can_go_to_next_round %}
+
+<div class="row">
+	<div class="col">
+	<form method="POST" action="">
+		{% csrf_token %}
+		<input type="submit" id="id_advanceround" name="advanceround" class="form-control btn btn-primary" value="advance to next round" />
+	</form>
+	</div>
+</div>
+		
+{% endif %}
+
+<div class="row">
+	<div class="col">
+	<form method="POST" action="">
+		{% csrf_token %}
+		<input type="submit" id="id_skip" name="skip" class="form-control btn btn-danger" value="skip round for {{panel.current_draft_player.name}}" />
+	</form>
+	</div>
+</div>
+
 	<div class="row">
+		<div class="col">
+			<table class="table table-bordered">
+				<tr><th>Draft Order</th></tr>
+				{% for draft_participant in panel.ordered_participants %}
+				<tr {%if draft_participant == panel.current_draft_player %}style="background-color: #f9b7b7;"{% endif %}><td>{{draft_participant.name}}</td></tr>
+				{% endfor %}
+			</table>
+		</div>
 		<div class="col">
 			{% if phase == 'set player' %}
 				<h3>Select a player</h3>
 			{% else %}
-				<h3>Select a queen for {{participant.name}}</h3>
+				<h3>Select a queen for {{panel.current_draft_player.name}}</h3>
 			{% endif %}
-			<form method="POST" action="">
-				{% csrf_token %}
-				{% if phase == 'set player' %}
-					<label for="participant">Select player:</label>
-					<select id="id_participant" name="participant" class="form-control">
-						{% for participant in panel.participants.all %}
-						<option value="{{participant.pk}}">{{participant.name}}</option>
-						{% endfor %}
-					</select>
-				{% elif phase == 'set queen' %}
-					<input type="hidden" id="id_participant" name="participant" value="{{participant.pk}}" />
-					<label for="queen">Select queen:</label>
-					<select id="id_queen" name="queen" class="form-control">
-						{% for queen in queens %}
-						<option value="{{queen.pk}}">{{queen.name}}</option>
-						{% endfor %}
-					</select>
-				{% endif %}
-				<input type="submit" class="form-control btn btn-success" 
-				{% if phase == 'set player' %}
-					value="select player"
-				{% else %}
-					value="select queen"
-				{% endif %} />
-			</form>
+			{% if phase == 'set queen' %}
+				<form method="POST" action="">
+					{% csrf_token %}
+						<input type="hidden" id="id_participant" name="participant" value="{{draft_participant.pk}}" />
+						<label for="queen">Select queen:</label>
+						<select id="id_queen" name="queen" class="form-control">
+							{% for queen in queens %}
+							<option value="{{queen.pk}}">{{queen.name}}</option>
+							{% endfor %}
+						</select>
+					<input type="submit" class="form-control btn btn-success" value="select queen" />
+				</form>
+			{% elif phase == 'advance' %}
+
+				<form method="POST" action="">
+					{% csrf_token %}
+					<input type="submit" id="id_selectagain" name="selectagain" class="form-control btn btn-primary" value="select another queen for {{panel.current_draft_player.name}}" />
+				</form>
+
+				<form method="POST" action="">
+					{% csrf_token %}
+					<input type="submit" id="id_advancedraft" name="advancedraft" class="form-control btn btn-success" value="advance to next participant" />
+				</form>
+			{% endif %}
 		</div>
 		<div class="col">
 			<h3>Drafts</h3>
-			<table>
+			<table class="table">
 				<tr>
-					<th>Player</th><th>Queen</th>
+					<th>Round</th><th>Player</th><th>Queen</th>
 				</tr>
 				{% for draft in drafts %}
 				<tr>
-					<td>{{draft.participant.name}}</td>
+					<td>{{draft.round_selected}}</td>
+					<td>{{draft.draft_participant.name}}</td>
 					<td>{{draft.queen.name}}</td>
 				</tr>
 				{% endfor %}
 			</table>
 		</div>
 	</div>
+	{% if panel.draft_data.can_end_draft %}
+		<div class="row">
+			<div class="col">
+				<form method="POST" action="">
+					{% csrf_token %}
+					<input type="submit" id="id_enddraft" name="enddraft" class="form-control btn btn-danger" value="END DRAFT" />
+				</form>
+			</div>
+		</div>
+	{% endif %}
 
 
 {% endblock %}

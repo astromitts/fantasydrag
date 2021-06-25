@@ -9,7 +9,35 @@
 	{% for panel in panels %}
 		<div class="row">
 			<div class="col">
-				<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a>
+				<p>
+					<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a>
+				</p>
+				<p>
+					<a href="{% url 'dragrace_rules' dragrace_id=panel.drag_race.pk %}">Rules</a>
+				</p>
+			</div>
+			{% if participant.site_admin %}
+				<div class="col">
+					<form action="{% url 'set_episode_scores_redirect' dragrace_id=panel.drag_race.pk %}" method="POST">
+						{%csrf_token %}
+						<label for="episode">Score Episodes:</label>
+						<select id="id_episode" name="episode" class="form-control">
+							<option>
+							</option>
+							{% for episode in panel.drag_race.episode_set.all %}
+							<option value="{{episode.pk}}">Episode #{{episode.number}}</option>
+							{% endfor %}
+						</select>
+						<input type="submit" value="Go" class="btn btn-primary"/>
+					</form>
+				</div>
+			{% endif %}
+			<div class="col">
+				<ul>
+				{% for episode in panel.drag_race.scored_episodes %}
+				<li><a href="{% url 'episode_detail' episode_id=episode.id %}">Episode #{{episode.number}}</a> </li>
+				{% endfor %}
+				</ul>
 			</div>
 		</div>
 	{% endfor %}

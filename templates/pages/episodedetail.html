@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+
+{% if episode.is_scored %}
+<div class="row">
+	<div class="col">
+		<form method="POST" action="">
+			{% csrf_token %}
+			{% if episode_is_visible%}
+				<input type="submit" id="id_hide" name="hide" value="Hide these scores" class="form-control btn btn-danger"/>
+			{% else %}
+				<input type="submit" id="id_ruveal" name="ruveal" value="RuVeal the scores!" class="form-control btn btn-success"/>
+			{% endif %}
+		</form>
+	</div>
+</div>
+<div class="row">
+	<div class="col">
+		<table class="table">
+			<tr>
+				<th>Queen</th><th>Score</th><th>Points</th>
+			</tr>
+			{% if episode_is_visible %}
+				{% for score in scores %}
+					<tr>
+						<th>{{score.queen.name}}</th>
+						<td>
+							<p>{{score.rule.name}}</p>
+							<p class="text-secondary">{{score.rule.description}}</p>
+						</td>
+						<td>{{score.rule.point_value}}</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
+		</table>
+	</div>
+</div>
+{% else %}
+<div class="row">
+	<div class="col alert alert-warning">
+		This episode isn't scored yet, come back later!
+	</div>
+</div>
+{% endif %}
+{% endblock %}

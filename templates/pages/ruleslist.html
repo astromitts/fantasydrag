@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col">
+		<h1>{{drag_race.display_name}}</h1>
+		<h2>Rules</h2>
+	</div>
+</div>
+<div class="row">
+	<div class="col">
+		<table class="table">
+			<tr><th>Rule</th><th>Description</th><th>Value</th></tr>
+			{% for rule in drag_race.rule_set.all %}
+				<tr>
+					<td>{{rule.name}}</td>
+					<td>{{rule.description}}</td>
+					<td>{{rule.point_value}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+{% endblock %}

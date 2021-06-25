@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load helper_tags %}
 
 {% block page_content %}
 	<div class="row">
@@ -7,6 +8,38 @@
 		</div>
 	</div>
 
+	{% if panel.status == 'open' and is_captain %}
+	<div class="row">
+		<div class="col">
+			<a href="{% url 'panel_set_drafts' panel_id=panel.pk %}">
+				<button class="form-control btn btn-success">BEGIN DRAFT</button>
+			</a>
+		</div>
+	</div>
+	{% endif %}
+
+	{% if panel.status == 'in draft' and is_captain %}
+	<div class="row">
+		<div class="col">
+			<a href="{% url 'panel_set_drafts' panel_id=panel.pk %}">
+				<button class="form-control btn btn-warning">CONTINUE DRAFT</button>
+			</a>
+		</div>
+	</div>
+	{% endif %}
+	
+	{% if panel.status == 'open' or panel.status == 'in draft' and is_captain %}
+		<div class="row">
+			<div class="col">
+				<form action="{% url 'panel_set_random_drafts' panel_id=panel.pk %}" method="POST">
+					{% csrf_token %}
+					<input type="submit" class="form-control btn btn-danger" value="ASSIGN DRAFT RANDOMLY" />
+					
+				</form>
+			</div>
+		</div>
+	{% endif %}
+
 	<div class="row">
 		<div class="col">
 			<h2><a href="{% url 'dragrace_stats' dragrace_id=panel.drag_race.pk %}">The Queens</a></h2>
@@ -14,7 +47,10 @@
 				<tr><th>Queen</th><th>Current Score</th></tr>
 				{% for queen, score in queen_scores.items %}
 					<tr>
-						<td>{{queen.name}}</td>
+						<td>
+							<p>{{queen.name}}</p>
+							<p class="text-secondary">{{queen|get_panelists_for_queen:panel}}</p>
+						</td>
 						<td>{{score}}</td>
 					</tr>
 				{% endfor %}
@@ -34,5 +70,15 @@
 		</div>
 	</div>
 
+	{% if is_captain %}
+	<div class="row">
+		<div class="col">
+			<form method="POST" action="">
+				{% csrf_token %}
+				<input type="submit" id="id_resetdraft" name="resetdraft" class="form-control btn btn-danger" value="RESET DRAFT" />
+			</form>
+		</div>
+	</div>
+	{% endif %}
 
 {% endblock %}

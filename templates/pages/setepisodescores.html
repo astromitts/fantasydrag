@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>{{drag_race.display_name}}</h1>
+		</div>
+	</div>
+
+	{% if participant.site_admin %}
+		<div class="row">
+			<div class="col">
+				<form method="POST" action="">
+					{% csrf_token %}
+					{% if episode.is_scored %}
+						<input type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as scored" class="form-control btn btn-danger"/>
+					{% else %}
+						<input type="submit" id="id_setscored" name="setscored" value="Set episode as scored" class="form-control btn btn-danger"/>
+					{% endif %}
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<form method="POST" action="">
+					{% csrf_token %}
+					<label for="rule">Rule:</label>
+					<select id="id_rule" name="rule" class="form-control">
+						<option></option>
+						{% for rule in drag_race.rule_set.all %}
+						<option value="{{rule.pk}}">({{rule.point_value}} pts) {{rule.name}}</option>
+						{% endfor %}
+					</select>
+					<label for="queen">Queen:</label>
+					<select id="id_queen" name="queen" class="form-control">
+						<option></option>
+						{% for queen in drag_race.queens.all %}
+						<option value="{{queen.pk}}">{{queen.name}}</option>
+						{% endfor %}
+					</select>
+					<input type="submit" value="add score" class="btn btn-primary" name="addscore" id="id_addscore" />
+				</form>
+			</div>
+		</div>
+	{% endif %}
+	<div class="row">
+		<div class="col">
+			<table class="table">
+				<tr>
+					<th>Queen</th><th>Score</th><th>Points</th><td></td>
+				</tr>
+				{% for score in scores %}
+					<tr>
+						<th>{{score.queen.name}}</th>
+						<td>
+							<p>{{score.rule.name}}</p>
+							<p class="text-secondary">{{score.rule.description}}</p>
+						</td>
+						<td>{{score.rule.point_value}}</td>
+						<td>
+							{% if participant.site_admin %}
+								<form method="POST" action="">
+									{% csrf_token %}
+									<input type="hidden" id="id_score" name="score" value="{{score.pk}}" />
+									<input type="submit" class="btn btn-sm btn-danger" value="remove" name="deletescore" id="id_deletescore">
+								</form>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+{% endblock %}
