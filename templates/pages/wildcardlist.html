@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col">
+			<h1>Wildcard Queens</h1>
+		</div>
+	</div>
+	{% for participant in panel.participants.all %}
+		<div class="row">
+			<div class="col-2">
+				<h3>{{participant.name}}</h3>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>Queens</h4>
+				{% with participant|wildcard_queens:panel as wildqueens %}
+					<ul>
+						{% for wildqueen in wildqueens %}
+							<li>{{wildqueen.queen.name}}</li>
+						{% endfor %}
+					</ul>
+				{% endwith %}
+				</div>
+			</div>
+			{% if is_captain %}
+			{% with participant|available_wildcard_queens:panel as availablequeens %}
+			<div class="col">
+				<form method="POST" action="">
+					{% csrf_token %}
+					<input type="hidden" id="id_participant" name="participant" value="{{participant.pk}}" />
+					<select name="wildcard_queen" id="id_wildcard_queen" class="form-control">
+						<option></option>
+						{% for queen in availablequeens %}
+							<option value="{{queen.pk}}">{{queen.name}}</option>
+						{% endfor %}
+					</select>
+					<input type="submit" id="id_addwildqueen" name="addwildqueen" value="Add to Wildcard Queen List" class="form-control btn btn-primary"/>
+				</form>
+			</div>
+			{% endwith %}
+			{% endif %}
+		</div>
+
+		<hr />
+	{% endfor %}
+{% endblock %}

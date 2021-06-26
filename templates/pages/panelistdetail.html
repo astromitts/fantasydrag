@@ -3,7 +3,7 @@
 {% block page_content %}
 	<div class="row">
 		<div class="col">
-			<h1>{{participant.name}}</h1>
+			<h1>{{this_participant.name}}</h1>
 			<h2><a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a></h2>
 		</div>
 	</div>

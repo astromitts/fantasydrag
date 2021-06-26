@@ -5,7 +5,14 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.template import loader
 from django.views import View
-from fantasydrag.models import Participant, Queen, DragRace, Episode, Score
+from fantasydrag.models import (
+    Participant,
+    Queen,
+    DragRace,
+    Episode,
+    Score,
+    WildCardQueen
+)
 from fantasydrag.forms import LoginPasswordForm
 
 
@@ -180,10 +187,11 @@ class SetDrafts(AuthenticatedView):
 class ParticipantStats(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
-        participant = panel.participants.get(pk=kwargs['participant_id'])
+        this_participant = panel.participants.get(pk=kwargs['participant_id'])
         template = loader.get_template('pages/panelistdetail.html')
-        scores = participant.get_formatted_scores_for_panel(panel)
+        scores = this_participant.get_formatted_scores_for_panel(panel, self.participant)
         self.context.update({
+            'this_participant': this_participant,
             'draft_scores': scores,
             'total_score': sum([v for d, v in scores.items()])
         })
@@ -280,3 +288,25 @@ class SetEpisodeScores(AuthenticatedView):
                 self.episode.save()
 
         return HttpResponse(self.template.render(self.context, request))
+
+
+class WildCardList(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(WildCardList, self).setup(request, *args, **kwargs)
+        self.template = loader.get_template('pages/wildcardlist.html')
+        self.queens = Queen.objects.exclude(pk__in=[q.pk for q in self.panel.drag_race.queens.all()])
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        if 'addwildqueen' in request.POST:
+            this_participant = Participant.objects.get(pk=request.POST['participant'])
+            queen = Queen.objects.get(pk=request.POST['wildcard_queen'])
+            new_wcq = WildCardQueen(
+                queen=queen,
+                participant=this_participant,
+                panel=self.panel
+            )
+            new_wcq.save()
+        return redirect(reverse('panel_wildcards', kwargs={'panel_id': self.panel.pk}))

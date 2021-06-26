@@ -6,6 +6,9 @@ import math
 class Queen(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ('name', )
+
     @classmethod
     def get_formatted_scores_for_drag_race(cls, drag_race, participant):
         scores = {q: 0 for q in drag_race.queens.all()}
@@ -117,10 +120,10 @@ class Participant(models.Model):
     site_admin = models.BooleanField(default=False)
     episodes = models.ManyToManyField(Episode)
 
-    def get_formatted_scores_for_panel(self, panel):
+    def get_formatted_scores_for_panel(self, panel, viewing_participant):
         drafts = Draft.objects.filter(participant=self, panel=panel).all()
         scores = {d.queen: 0 for d in drafts}
-        panel_episodes = panel.drag_race.participant_episodes(self)
+        panel_episodes = panel.drag_race.participant_episodes(viewing_participant)
         for episode in self.episodes.filter(id__in=[e.id for e in panel_episodes]):
             _scores = episode.score_set.filter(queen__in=list(scores.keys())).all()
             for s in _scores:
@@ -306,3 +309,20 @@ class Draft(models.Model):
 
     def __str__(self):
         return '{}, {}::{}'.format(self.panel, self.participant, self.queen)
+
+
+class WildCardQueen(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
+    panel = models.ForeignKey(Panel, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{}, {}::{}'.format(self.panel, self.participant, self.queen)
+
+
+class WildCardAppearance(models.Model):
+    queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} {}'.format(self.queen, self.episode)

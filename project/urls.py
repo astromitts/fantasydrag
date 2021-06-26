@@ -24,6 +24,7 @@ urlpatterns = [
     path('', views.LandingPage.as_view(), name='home'),
     path('panel/<int:panel_id>/', views.PanelStats.as_view(), name='panel_stats'),
     path('panel/<int:panel_id>/setdrafts/', views.SetDrafts.as_view(), name='panel_set_drafts'),
+    path('panel/<int:panel_id>/wildcards/', views.WildCardList.as_view(), name='panel_wildcards'),
     path('panel/<int:panel_id>/setdrafts/random/', views.AssignRandomDrafts.as_view(), name='panel_set_random_drafts'),
     path(
         'panel/<int:panel_id>/panelist/<int:participant_id>/',
