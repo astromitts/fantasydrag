@@ -1,5 +1,5 @@
 import os
-from project.settings import *  # noqa
+from settings import *  # noqa
 import dj_database_url
 
 SECRET_KEY = os.environ['PRODUCTION_KEY']
