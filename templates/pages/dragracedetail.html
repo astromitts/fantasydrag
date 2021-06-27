@@ -20,6 +20,23 @@
 						<th>{{episode.title}} ({{episode.number}})</th>
 					{% endfor %}
 				</tr>
+				<tr>
+					<th>Wildcards</th>
+				{% for episode in scores %}
+					{% with episode|wildcard_queens_for_episode as qw_scores %}
+						<td>
+						{% if qw_scores %}
+							{% for qw in qw_scores %}
+								{{qw.queen}}: {{qw.appearance_type}} ({{qw.point_value}}pts)
+								{% if not forloop.last %}
+								<br />
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+						</td>
+					{% endwith %}
+				{% endfor %}
+				</tr>
 				{% for queen in drag_race.queens.all %}
 					<tr>
 						<th>{{queen.name}}</th>
@@ -28,7 +45,7 @@
 						<td>
 							{% if this_queen.rules %}
 								{% for rule in this_queen.rules %}
-								<p>{{rule.name}} ({{rule.point_value}})</p>
+								<p>{{rule.name}} ({{rule.point_value}}pts)</p>
 								{% endfor %}
 								<p>Total: {{this_queen.total}}</p>
 							{% endif %}

@@ -1,5 +1,5 @@
 from django import template
-from fantasydrag.models import Draft, Queen, WildCardQueen
+from fantasydrag.models import Draft, Queen
 
 register = template.Library()
 
@@ -18,6 +18,11 @@ def get_panelists_for_queen(queen, panel):
 @register.filter(name='wildcard_queens')
 def wildcard_queens(participant, panel):
     return participant.wildcardqueen_set.filter(panel=panel).all()
+
+
+@register.filter(name='wildcard_queens_for_episode')
+def wildcard_queens_for_episode(episode):
+    return episode.wildcardappearance_set.all()
 
 
 @register.filter(name='available_wildcard_queens')
