@@ -67,6 +67,8 @@ class EpisodeAdmin(admin.ModelAdmin):
 
 class RuleAdmin(admin.ModelAdmin):
     form = RuleForm
+    list_display = ['name', 'score_type', 'point_value', 'drag_race']
+    list_editable = ['score_type', 'point_value']
 
 
 class ScoreAdmin(admin.ModelAdmin):

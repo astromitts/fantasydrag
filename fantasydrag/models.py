@@ -97,9 +97,16 @@ class Rule(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     point_value = models.IntegerField(default=1)
+    score_type = models.CharField(
+        max_length=10,
+        choices=(
+            ('episode', 'episode'),
+            ('season', 'season')
+        )
+    )
 
     class Meta:
-        ordering = ('point_value', 'name')
+        ordering = ('score_type', 'point_value', 'name')
 
     def __str__(self):
         return '{}, "{}": ({} points) {}'.format(self.drag_race, self.name, self.point_value, self.description)
