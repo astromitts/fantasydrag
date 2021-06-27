@@ -63,6 +63,8 @@ class QueenAdmin(admin.ModelAdmin):
 
 class EpisodeAdmin(admin.ModelAdmin):
     form = EpisodeForm
+    list_display = ['number', 'title', 'drag_race']
+    list_editable = ['title', ]
 
 
 class RuleAdmin(admin.ModelAdmin):

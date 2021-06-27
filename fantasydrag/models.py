@@ -83,6 +83,7 @@ class DragRace(models.Model):
 class Episode(models.Model):
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
     number = models.IntegerField()
+    title = models.CharField(max_length=100, blank=True, null=True)
     is_scored = models.BooleanField(default=False)
 
     class Meta:
