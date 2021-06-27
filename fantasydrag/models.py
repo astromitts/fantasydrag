@@ -139,6 +139,29 @@ class Participant(models.Model):
                 scores[s.queen] += s.rule.point_value
         return scores
 
+    def get_formatted_wildcard_scores_for_panel(self, panel, viewing_participant):
+        wq_drafts = WildCardQueen.objects.filter(participant=self, panel=panel).all()
+        scores = {d.queen: 0 for d in wq_drafts}
+        panel_episodes = panel.drag_race.participant_episodes(viewing_participant)
+        wildcard_appearances = WildCardAppearance.objects.filter(
+            episode__in=[e for e in panel_episodes],
+            queen__in=[wq.queen for wq in wq_drafts]
+        ).all()
+        for _score in wildcard_appearances:
+            scores[_score.queen] += _score.point_value
+        return scores
+
+    def get_all_formatted_scores_for_panel(self, panel, viewing_participant):
+        result = {
+            'draft_scores': self.get_formatted_scores_for_panel(panel, viewing_participant),
+            'wildcard_scores': self.get_formatted_wildcard_scores_for_panel(panel, viewing_participant),
+            'total_score': 0,
+        }
+        total_formal_score = sum([v for d, v in result['draft_scores'].items()])
+        total_wq_score = sum([v for d, v in result['wildcard_scores'].items()])
+        result['total_score'] = total_formal_score + total_wq_score
+        return result
+
     def __str__(self):
         return self.name
 
@@ -297,13 +320,9 @@ class Panel(models.Model):
             return self.participants.get(pk=self.draft_data['current_participant'])
 
     def get_formatted_scores_for_panelists(self, participant):
-        queen_scores = Queen.get_formatted_scores_for_drag_race(self.drag_race, participant)
         scores = {p: 0 for p in self.participants.all()}
-        for participant in self.participants.all():
-            drafts = Draft.objects.filter(
-                queen__in=list(queen_scores.keys()), participant=participant)
-            for draft in drafts:
-                scores[participant] += queen_scores[draft.queen]
+        for _participant in self.participants.all():
+            scores[_participant] = _participant.get_all_formatted_scores_for_panel(self, participant)
         return scores
 
     def __str__(self):
@@ -332,6 +351,15 @@ class WildCardQueen(models.Model):
 class WildCardAppearance(models.Model):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
+    appearance_type = models.CharField(
+        max_length=30,
+        choices=(
+            ('Flashback', 'Flashback'),
+            ('IRL', 'IRL'),
+            ('Lipsync Assassin', 'Lipsync Assassin')
+        )
+    )
+    point_value = models.IntegerField(default=1)
 
     def __str__(self):
         return '{} {}'.format(self.queen, self.episode)

@@ -211,11 +211,10 @@ class ParticipantStats(AuthenticatedView):
         panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
         this_participant = panel.participants.get(pk=kwargs['participant_id'])
         template = loader.get_template('pages/panelistdetail.html')
-        scores = this_participant.get_formatted_scores_for_panel(panel, self.participant)
+        scores = this_participant.get_all_formatted_scores_for_panel(panel, self.participant)
         self.context.update({
             'this_participant': this_participant,
-            'draft_scores': scores,
-            'total_score': sum([v for d, v in scores.items()])
+            'scores': scores
         })
         return HttpResponse(template.render(self.context, request))
 

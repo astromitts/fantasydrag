@@ -14,13 +14,30 @@
 	</div>
 	<div class="row">
 		<div class="col-4 alert alert-success">
-			Current Total: {{total_score}}
+			Current Total: {{scores.total_score}}
 		</div>
 		<div class="col">
-			
+			<div class="row">
+				<table class="table">
+					<tr><th>Queen</th><th>Current Score</th></tr>
+					{% for queen, score in scores.draft_scores.items %}
+						<tr>
+							<td>{{queen.name}}</td>
+							<td>{{score}}</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-4"></div>
+		<div class="col">
+			<hr />
+			<h4>Wildcard Queens</h4>
 			<table class="table">
 				<tr><th>Queen</th><th>Current Score</th></tr>
-				{% for queen, score in draft_scores.items %}
+				{% for queen, score in scores.wildcard_scores.items %}
 					<tr>
 						<td>{{queen.name}}</td>
 						<td>{{score}}</td>
