@@ -39,7 +39,9 @@
 				</tr>
 				{% for queen in drag_race.queens.all %}
 					<tr>
-						<th>{{queen.name}}</th>
+						<th>
+							{{queen.name}}
+						</th>
 						{% for episode, queens in scores.items %}
 						{% with queens|get:queen as this_queen %}
 						<td>
@@ -47,7 +49,7 @@
 								{% for rule in this_queen.rules %}
 								<p>{{rule.name}} ({{rule.point_value}}pts)</p>
 								{% endfor %}
-								<p>Total: {{this_queen.total}}</p>
+								<p>Episode Total: {{this_queen.total}}pts</p>
 							{% endif %}
 						</td>
 						{% endwith %}
