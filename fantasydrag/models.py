@@ -124,8 +124,9 @@ class Participant(models.Model):
         drafts = Draft.objects.filter(participant=self, panel=panel).all()
         scores = {d.queen: 0 for d in drafts}
         panel_episodes = panel.drag_race.participant_episodes(viewing_participant)
-        for episode in self.episodes.filter(id__in=[e.id for e in panel_episodes]):
-            _scores = episode.score_set.filter(queen__in=list(scores.keys())).all()
+
+        for episode in panel.drag_race.episode_set.filter(id__in=[e.id for e in panel_episodes]).all():
+            _scores = episode.score_set.filter(queen__in=[k for k, v in scores.items()]).all()
             for s in _scores:
                 scores[s.queen] += s.rule.point_value
         return scores
