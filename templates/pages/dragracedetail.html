@@ -17,7 +17,7 @@
 				<tr>
 					<th>Queen</th>
 					{% for episode in scores %}
-						<th>Episode #{{episode.number}}</th>
+						<th>{{episode.title}} ({{episode.number}})</th>
 					{% endfor %}
 				</tr>
 				{% for queen in drag_race.queens.all %}

@@ -75,8 +75,15 @@ class LandingPage(AuthenticatedView):
 
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/dashboard.html')
+        all_races = DragRace.objects.all()
+
+        formatted_races = {}
+        for drag_race in all_races:
+            formatted_races[drag_race] = {'participant_panels': []}
+            formatted_races[drag_race]['participant_panels'] = self.participant.panel_set.filter(
+                drag_race=drag_race).all()
         self.context.update({
-            'panels': self.participant.panel_set.all()
+            'drag_races': formatted_races
         })
         return HttpResponse(template.render(self.context, request))
 

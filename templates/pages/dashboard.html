@@ -3,28 +3,34 @@
 {% block page_content %}
 	<div class="row">
 		<div class="col">
-			<h1>Panels</h1>
+			<h1>Drag Races</h1>
 		</div>
 	</div>
-	{% for panel in panels %}
+	{% for drag_race, data in drag_races.items %}
 		<div class="row">
-			<div class="col">
+			<div class="col-12">
+				<h2>
+					{{drag_race.display_name}}
+				</h2>
+			</div>
+			<div class="col-2">
 				<p>
-					<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a>
+					<a href="{% url 'dragrace_rules' dragrace_id=drag_race.pk %}">Rules</a>
 				</p>
 				<p>
-					<a href="{% url 'dragrace_rules' dragrace_id=panel.drag_race.pk %}">Rules</a>
+					<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
+					Stats</a>
 				</p>
 			</div>
 			{% if participant.site_admin %}
 				<div class="col">
-					<form action="{% url 'set_episode_scores_redirect' dragrace_id=panel.drag_race.pk %}" method="POST">
+					<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
 						{%csrf_token %}
-						<label for="episode">Score Episodes:</label>
+						<label for="episode"><h4>Score Episodes</h4></label>
 						<select id="id_episode" name="episode" class="form-control">
 							<option>
 							</option>
-							{% for episode in panel.drag_race.episode_set.all %}
+							{% for episode in drag_race.episode_set.all %}
 							<option value="{{episode.pk}}">Episode #{{episode.number}}</option>
 							{% endfor %}
 						</select>
@@ -33,11 +39,27 @@
 				</div>
 			{% endif %}
 			<div class="col">
+				<h4>Episodes</h4>
 				<ul>
-				{% for episode in panel.drag_race.scored_episodes %}
-				<li><a href="{% url 'episode_detail' episode_id=episode.id %}">Episode #{{episode.number}}</a> </li>
+				{% for episode in drag_race.scored_episodes %}
+				<li><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> </li>
 				{% endfor %}
 				</ul>
+			</div>
+
+			<div class="col">
+				<h4>Panels</h4>
+				<ul>
+					{% for panel in data.participant_panels %}
+						<li>
+							<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+
+			<div class="col-12">
+				<hr />
 			</div>
 		</div>
 	{% endfor %}
