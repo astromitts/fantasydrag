@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'fantasydrag.middleware.session_request_validation',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -128,3 +129,13 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures'), ]
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_EXEMPT_VIEWS = [
+    'login',
+]
+
+MIDDLEWARE_DEBUG = False
+AUTHENTICATION_REQUIRED_REDIRECT = 'login'
+LOGIN_SUCCESS_REDIRECT = 'dashboard'
+# PW_RESET_SUCCESS_REDIRECT = 'dashboard'
+DEFAULT_ERROR_TEMPLATE = 'error.html'

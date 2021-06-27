@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.http import HttpResponse
@@ -38,6 +38,7 @@ class LogIn(View):
                 password_check = user.check_password(password)
                 if password_check:
                     login(request, user)
+                    request.session['user_is_authenticated'] = True
                     return redirect(reverse('home'))
                 else:
                     error = 'Password did not match.'
@@ -48,6 +49,13 @@ class LogIn(View):
         self.context['form'] = form
         self.context['error'] = '{} Please check your information and try again'.format(error)
         return HttpResponse(self.template.render(self.context, request))
+
+
+class LogOut(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        request.session['user_is_authenticated'] = False
+        return redirect(reverse('login'))
 
 
 class AuthenticatedView(View):
