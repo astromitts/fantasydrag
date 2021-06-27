@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page_content %}
 	<div class="row">
-		<div class="col alert alert-danger">Oh, henny! Something went wrong here.</div>
+		<div class="col alert alert-danger">
+			<div style="width: 400px"  class="mx-auto">
+			<p>Oh, henny! Something went wrong here.</p>
+			<img src="{% static 'site_images/error-asia.jpg' %}"  width="300px" /></div>
+		</div>
 	</div>
 {% endblock %}

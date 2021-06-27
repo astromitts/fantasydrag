@@ -16,6 +16,13 @@ from fantasydrag.models import (
 from fantasydrag.forms import LoginPasswordForm
 
 
+class Error(View):
+    def get(self, request, *args, **kwargs):
+        template = loader.get_template('error.html')
+        context = {}
+        return HttpResponse(template.render(context, request))
+
+
 class LogIn(View):
     def setup(self, request, *args, **kwargs):
         super(LogIn, self).setup(request, *args, **kwargs)

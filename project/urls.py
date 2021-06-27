@@ -20,6 +20,7 @@ from fantasydrag import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('error/', views.Error.as_view(), name='error'),
     path('login/', views.LogIn.as_view(), name='login'),
     path('logout/', views.LogOut.as_view(), name='logout'),
     path('', views.LandingPage.as_view(), name='home'),
