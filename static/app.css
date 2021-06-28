@@ -1,0 +1,123 @@
+.marker {
+  font-family: "Rock Salt", sans-serif;
+}
+.marker a {
+  font-size: 1.7rem;
+}
+
+form label {
+  font-family: "Rock Salt", sans-serif;
+}
+form label a {
+  font-size: 1.7rem;
+}
+
+.container {
+  margin-top: 1rem !important;
+  padding-bottom: 3rem !important;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: #000000 !important;
+}
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: #b6bdfb !important;
+}
+
+.navbar-dark {
+  color: #333333;
+  font-family: "Lato", sans-serif;
+  font-size: 1.2rem;
+}
+.navbar-dark .navbar-brand {
+  font-family: "Rock Salt", sans-serif;
+  color: #dc61d3;
+  font-size: 2.6rem;
+  -webkit-text-stroke-width: 0.25px;
+  -webkit-text-stroke-color: #000000;
+}
+.navbar-dark .navbar-brand a {
+  font-size: 1.7rem;
+}
+.navbar-dark .navbar-brand:hover {
+  color: #b6bdfb !important;
+}
+
+body {
+  background-color: #ffffff !important;
+}
+body a {
+  color: #dc61d3;
+  font-weight: bold;
+  text-decoration: none;
+}
+body a:hover {
+  text-decoration: none;
+  color: #5767ef;
+}
+
+.bg-dark {
+  background-color: #5767ef !important;
+}
+
+.btn {
+  color: #333333;
+  border-color: #807b7b;
+}
+.btn:hover {
+  color: #333333;
+}
+.btn-danger {
+  background-color: #f76e51;
+}
+.btn-danger:hover {
+  background-color: #fd5531;
+}
+.btn-success {
+  background-color: #2dad4c;
+}
+.btn-success:hover {
+  background-color: #148c31;
+}
+.btn-primary {
+  background-color: #dc61d3;
+}
+.btn-primary:hover {
+  background-color: #ea4fe0;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+h1, .h1 {
+  color: #333333;
+  font-family: "Lato", sans-serif;
+  font-size: 2.1rem;
+}
+
+h2, .h2 {
+  color: #333333;
+  font-family: "Lato", sans-serif;
+  font-size: 1.7rem;
+}
+
+h3, .h3 {
+  color: #333333;
+  font-family: "Lato", sans-serif;
+  font-size: 1.5rem;
+}
+
+h4, .h4 {
+  color: #333333;
+  font-family: "Lato", sans-serif;
+  font-size: 1.3rem;
+}
+
+/*# sourceMappingURL=app.css.map */

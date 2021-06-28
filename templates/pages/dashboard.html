@@ -14,10 +14,10 @@
 				</h2>
 			</div>
 			<div class="col-2">
-				<p>
+				<p class="marker">
 					<a href="{% url 'dragrace_rules' dragrace_id=drag_race.pk %}">Rules</a>
 				</p>
-				<p>
+				<p class="marker">
 					<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
 					Stats</a>
 				</p>
@@ -26,7 +26,7 @@
 				<div class="col">
 					<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
 						{%csrf_token %}
-						<label for="episode"><h4>Score Episodes</h4></label>
+						<label for="episode"><h4 class="marker">Score Episodes</h4></label>
 						<select id="id_episode" name="episode" class="form-control">
 							<option>
 							</option>
@@ -39,7 +39,7 @@
 				</div>
 			{% endif %}
 			<div class="col">
-				<h4>Episodes</h4>
+				<h4 class="marker">Episodes</h4>
 				<ul>
 				{% for episode in drag_race.scored_episodes %}
 				<li><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> </li>
@@ -48,7 +48,7 @@
 			</div>
 
 			<div class="col">
-				<h4>Panels</h4>
+				<h4 class="marker">Panels</h4>
 				<ul>
 					{% for panel in data.participant_panels %}
 						<li>

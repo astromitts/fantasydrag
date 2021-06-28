@@ -42,7 +42,7 @@
 
 	<div class="row">
 		<div class="col">
-			<h2><a href="{% url 'dragrace_stats' dragrace_id=panel.drag_race.pk %}">Queen Scorecard</a></h2>
+			<h2><a href="{% url 'dragrace_stats' dragrace_id=panel.drag_race.pk %}" class="marker">Queen Scorecard</a></h2>
 			<table class="table">
 				<tr><th>Queen</th><th>Current Score</th></tr>
 				{% for queen, score in queen_scores.items %}
@@ -57,7 +57,7 @@
 			</table>
 		</div>
 		<div class="col">
-			<h2>Participants</h2>
+			<h2 class="marker">Participants</h2>
 			<table class="table">
 				<tr><th>Player</th><th>Current Score</th></tr>
 				{% for participant, score in panel_scores.items %}

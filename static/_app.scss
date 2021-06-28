@@ -1,0 +1,130 @@
+$background-color: #5767ef;
+$highlight-color: #dc61d3;
+$app-black: #333333;
+$true-black: #000000;
+$app-white: #ffffff;
+
+$danger: #f76e51;
+$danger-hover: #fd5531;
+
+$success: #2dad4c;
+$success-hover: #148c31;
+
+@mixin header {
+	color: $app-black;
+	font-family: 'Lato', sans-serif;
+}
+
+@mixin marker {
+	font-family: 'Rock Salt', sans-serif;
+	a {
+		font-size: 1.7rem;
+	}
+}
+
+.marker {
+	@include marker;
+}
+
+form label {
+	@include marker;
+}
+
+.container {
+	margin-top: 1rem !important;
+	padding-bottom: 3rem !important;
+}
+.container-fluid {
+	padding: 0;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+	color: $true-black !important;
+	&:hover {
+		color: #b6bdfb !important;
+	}
+}
+
+.navbar-dark {
+	@include header;
+	font-size: 1.2rem;
+	.navbar-brand {
+		@include marker;
+		color: $highlight-color;
+		font-size: 2.6rem;
+		-webkit-text-stroke-width: .25px;
+	 	-webkit-text-stroke-color: $true-black;
+	 	&:hover {
+			color: #b6bdfb !important;
+	 	}
+	}	
+}
+
+body {
+	background-color: $app-white !important;
+	a {
+		color: $highlight-color;
+		font-weight: bold;
+		text-decoration: none;
+		&:hover {
+			text-decoration: none;
+			color: $background-color;
+		}
+	}
+}
+
+.bg-dark {
+	background-color: $background-color !important;
+}
+
+.btn {
+	color: $app-black;
+	&:hover {
+		color: $app-black;
+	}
+	border-color: #807b7b;
+	&-danger {
+		background-color: $danger;
+		&:hover {
+			background-color: $danger-hover;
+		}
+	}
+	&-success {
+		background-color: $success;
+		&:hover {
+			background-color: $success-hover;
+		}
+	}
+	&-primary {
+		background-color: $highlight-color;
+		&:hover {
+			background-color: #ea4fe0;
+		}
+	}
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+h1, .h1 {
+	@include header;
+	font-size: 2.1rem;
+}
+
+h2, .h2 {
+	@include header;
+	font-size: 1.7rem;
+}
+
+h3, .h3 {
+	@include header;
+	font-size: 1.5rem;
+}
+
+h4, .h4 {
+	@include header;
+	font-size: 1.3rem;
+}
