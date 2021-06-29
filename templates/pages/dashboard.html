@@ -1,17 +1,12 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
-	<div class="row">
-		<div class="col">
-			<h1>Drag Races</h1>
-		</div>
-	</div>
 	{% for drag_race, data in drag_races.items %}
 		<div class="row">
 			<div class="col-12">
-				<h2>
+				<h1>
 					{{drag_race.display_name}}
-				</h2>
+				</h1>
 			</div>
 			<div class="col-2">
 				<p class="marker">
@@ -22,22 +17,6 @@
 					Stats</a>
 				</p>
 			</div>
-			{% if participant.site_admin %}
-				<div class="col">
-					<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
-						{%csrf_token %}
-						<label for="episode"><h4 class="marker">Score Episodes</h4></label>
-						<select id="id_episode" name="episode" class="form-control">
-							<option>
-							</option>
-							{% for episode in drag_race.episode_set.all %}
-							<option value="{{episode.pk}}">Episode #{{episode.number}}</option>
-							{% endfor %}
-						</select>
-						<input type="submit" value="Go" class="btn btn-primary"/>
-					</form>
-				</div>
-			{% endif %}
 			<div class="col">
 				<h4 class="marker">Episodes</h4>
 				<ul>
@@ -57,11 +36,30 @@
 					{% endfor %}
 				</ul>
 			</div>
+		</div>
+		{% if participant.site_admin %}
+			<div class="spacer spacer-medium"></div>
+			<div class="row">
+				<div class="col">
+					<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+						{%csrf_token %}
+						<label for="episode"><h4 class="marker">Score Episodes</h4></label>
+						<select id="id_episode" name="episode" class="form-control">
+							<option>
+							</option>
+							{% for episode in drag_race.episode_set.all %}
+							<option value="{{episode.pk}}">Episode #{{episode.number}}</option>
+							{% endfor %}
+						</select>
+						<input type="submit" value="Go" class="btn btn-primary"/>
+					</form>
+				</div>
+			</div>
+		{% endif %}
 
 			<div class="col-12">
 				<hr />
 			</div>
-		</div>
 	{% endfor %}
 
 {% endblock %}
