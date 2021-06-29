@@ -27,7 +27,7 @@
 						<td>
 						{% if qw_scores %}
 							{% for qw in qw_scores %}
-								{{qw.queen}}: {{qw.appearance_type}} ({{qw.point_value}}pts)
+								{{qw.queen}}: {{qw.appearance.name}} ({{qw.appearance.point_value}}pts)
 								{% if not forloop.last %}
 								<br />
 								{% endif %}
