@@ -126,7 +126,7 @@ class Participant(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     site_admin = models.BooleanField(default=False)
-    episodes = models.ManyToManyField(Episode)
+    episodes = models.ManyToManyField(Episode, blank=True, null=True)
 
     def get_formatted_scores_for_panel(self, panel, viewing_participant):
         drafts = Draft.objects.filter(participant=self, panel=panel).all()
