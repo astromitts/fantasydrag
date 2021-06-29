@@ -136,6 +136,15 @@ table {
 	}
 }
 
+.alert {
+	&-success {
+		@include marker;
+		background-color: $highlight-color;
+		color: $true-black;
+		border-color: $app-black;
+	}
+}
+
 ul {
 	list-style-type: none;
 	margin: 0;

@@ -126,6 +126,16 @@ table {
   background-color: #ea4fe0;
 }
 
+.alert-success {
+  font-family: "Rock Salt", sans-serif;
+  background-color: #dc61d3;
+  color: #000000;
+  border-color: #333333;
+}
+.alert-success a {
+  font-size: 1.7rem;
+}
+
 ul {
   list-style-type: none;
   margin: 0;
