@@ -2,14 +2,14 @@
   font-family: "Rock Salt", sans-serif;
 }
 .marker a {
-  font-size: 1.7rem;
+  /* font-size: 1.7rem; */
 }
 
 form label {
   font-family: "Rock Salt", sans-serif;
 }
 form label a {
-  font-size: 1.7rem;
+  /* font-size: 1.7rem; */
 }
 
 .container {
@@ -28,21 +28,6 @@ form label a {
   color: #b6bdfb !important;
 }
 
-ul.navbar-nav {
-  display: block;
-  float: right;
-}
-ul.navbar-nav li {
-  display: inline-block;
-  margin-left: 3rem;
-  font-size: 40px;
-}
-@media (max-width: 767.98px) {
-  ul.navbar-nav li {
-    font-size: 30px;
-  }
-}
-
 .navbar-dark {
   color: #333333;
   font-family: "Lato", sans-serif;
@@ -51,25 +36,50 @@ ul.navbar-nav li {
 .navbar-dark .navbar-brand {
   font-family: "Rock Salt", sans-serif;
   color: #dc61d3;
-  font-size: 3rem;
+  font-size: 1.5rem;
   -webkit-text-stroke-width: 0.5px;
   -webkit-text-stroke-color: #000000;
 }
 .navbar-dark .navbar-brand a {
-  font-size: 1.7rem;
+  /* font-size: 1.7rem; */
 }
 .navbar-dark .navbar-brand:hover {
   color: #b6bdfb !important;
 }
-@media (max-width: 767.98px) {
+@media (min-width: 767.98px) {
   .navbar-dark .navbar-brand {
     -webkit-text-stroke-width: 0.25px;
     font-size: 2.6rem;
   }
 }
 
+ul.navbar-nav {
+  display: block;
+  float: right;
+}
+ul.navbar-nav li {
+  display: inline-block;
+  margin-left: 1rem;
+  font-size: 15px;
+}
+@media (min-width: 767.98px) {
+  ul.navbar-nav li {
+    font-size: 30px;
+    margin-left: 3rem;
+  }
+}
+
+.row {
+  margin: 0;
+}
+@media (min-width: 767.98px) {
+  .row {
+    margin: 0 -15px;
+  }
+}
+
 body {
-  font-size: 30px !important;
+  font-size: 20px;
   background-color: #ffffff !important;
 }
 body a {
@@ -81,18 +91,18 @@ body a:hover {
   text-decoration: none;
   color: #5767ef;
 }
-@media (max-width: 767.98px) {
+@media (min-width: 767.98px) {
   body {
-    font-size: 18px !important;
+    font-size: 16px;
   }
 }
 
 table {
-  font-size: 30px !important;
+  font-size: 20px;
 }
-@media (max-width: 767.98px) {
+@media (min-width: 767.98px) {
   table {
-    font-size: 18px !important;
+    font-size: 16px;
   }
 }
 
@@ -133,7 +143,7 @@ table {
   border-color: #333333;
 }
 .alert-success a {
-  font-size: 1.7rem;
+  /* font-size: 1.7rem; */
 }
 
 ul {

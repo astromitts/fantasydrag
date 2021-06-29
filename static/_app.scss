@@ -1,7 +1,7 @@
 $small-phone: 767.98px;
 
-$small-screen-font-size: 30px;
-$large-screen-font-size: 18px;
+$small-screen-font-size: 20px;
+$large-screen-font-size: 16px;
 
 $background-color: #5767ef;
 $highlight-color: #dc61d3;
@@ -23,7 +23,7 @@ $success-hover: #148c31;
 @mixin marker {
 	font-family: 'Rock Salt', sans-serif;
 	a {
-		font-size: 1.7rem;
+		/* font-size: 1.7rem; */
 	}
 }
 
@@ -50,40 +50,48 @@ form label {
 	}
 }
 
-ul.navbar-nav {
-	display: block;
-	float: right;
-	li {
-		display: inline-block;
-		margin-left: 3rem;
-		font-size: 40px;
-		@media (max-width: $small-phone) {
-			font-size: 30px;
-		}
-	}
-}
-
 .navbar-dark {
 	@include header;
 	font-size: 1.2rem;
 	.navbar-brand {
 		@include marker;
 		color: $highlight-color;
-		font-size: 3rem;
+		font-size: 1.5rem;
 		-webkit-text-stroke-width: .5px;
 	 	-webkit-text-stroke-color: $true-black;
 	 	&:hover {
 			color: #b6bdfb !important;
 	 	}
-		@media (max-width: $small-phone) {
+		@media (min-width: $small-phone) {
 			-webkit-text-stroke-width: .25px;
 			font-size: 2.6rem;
 		}
 	}
 }
 
+ul.navbar-nav {
+	display: block;
+	float: right;
+	li {
+		display: inline-block;
+		margin-left: 1rem;
+		font-size: 15px;
+		@media (min-width: $small-phone) {
+			font-size: 30px;
+			margin-left: 3rem;
+		}
+	}
+}
+
+.row {
+	margin: 0;
+	@media (min-width: $small-phone) {
+		margin: 0 -15px;
+	}
+}
+
 body {
-	font-size: $small-screen-font-size !important;
+	font-size: $small-screen-font-size;
 	background-color: $app-white !important;
 	a {
 		color: $highlight-color;
@@ -94,15 +102,15 @@ body {
 			color: $background-color;
 		}
 	}
-	@media (max-width: $small-phone) {
-		font-size: $large-screen-font-size !important;
+	@media (min-width: $small-phone) {
+		font-size: $large-screen-font-size;
 	}
 }
 
 table {
-	font-size: $small-screen-font-size !important;
-	@media (max-width: $small-phone) {
-		font-size: $large-screen-font-size !important;
+	font-size: $small-screen-font-size;
+	@media (min-width: $small-phone) {
+		font-size: $large-screen-font-size;
 	}
 }
 
