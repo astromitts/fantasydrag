@@ -348,18 +348,16 @@ class WildCardQueen(models.Model):
         return '{}, {}::{}'.format(self.panel, self.participant, self.queen)
 
 
+class AppearanceType(models.Model):
+    name = models.CharField(max_length=50)
+    point_value = models.DecimalField(max_digits=2, decimal_places=1)
+    description = models.TextField()
+
+
 class WildCardAppearance(models.Model):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
-    appearance_type = models.CharField(
-        max_length=30,
-        choices=(
-            ('Flashback', 'Flashback'),
-            ('IRL', 'IRL'),
-            ('Lipsync Assassin', 'Lipsync Assassin')
-        )
-    )
-    point_value = models.IntegerField(default=1)
+    appearance = models.ForeignKey(AppearanceType, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return '{} {}'.format(self.queen, self.episode)

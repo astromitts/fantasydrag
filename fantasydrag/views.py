@@ -11,7 +11,7 @@ from fantasydrag.models import (
     DragRace,
     Episode,
     Score,
-    WildCardQueen
+    WildCardQueen,
 )
 from fantasydrag.forms import LoginPasswordForm
 

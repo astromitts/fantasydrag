@@ -11,6 +11,7 @@ from fantasydrag.models import (
     Draft,
     WildCardQueen,
     WildCardAppearance,
+    AppearanceType,
 )
 
 
@@ -58,6 +59,10 @@ class WildCardAppearanceForm(FormBase):
     pass
 
 
+class AppearanceTypeForm(FormBase):
+    pass
+
+
 class DragRaceAdmin(admin.ModelAdmin):
     form = DragRaceForm
 
@@ -100,7 +105,12 @@ class WildCardQueenAdmin(admin.ModelAdmin):
 
 class WildCardAppearanceAdmin(admin.ModelAdmin):
     form = WildCardAppearanceForm
-    list_display = ['queen', 'episode', 'appearance_type', 'point_value']
+    list_display = ['queen', 'episode']
+
+
+class AppearanceTypeAdmin(admin.ModelAdmin):
+    form = AppearanceTypeForm
+    list_display = ['name', 'point_value', 'description']
 
 
 admin.site.register(DragRace, DragRaceAdmin)
@@ -113,3 +123,4 @@ admin.site.register(Panel, PanelAdmin)
 admin.site.register(Draft, DraftAdmin)
 admin.site.register(WildCardQueen, WildCardQueenAdmin)
 admin.site.register(WildCardAppearance, WildCardAppearanceAdmin)
+admin.site.register(AppearanceType, AppearanceTypeAdmin)
