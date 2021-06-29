@@ -22,7 +22,7 @@ form label a {
 }
 
 .navbar-dark .navbar-nav .nav-link {
-  color: #000000 !important;
+  color: #dc61d3 !important;
 }
 .navbar-dark .navbar-nav .nav-link:hover {
   color: #b6bdfb !important;
@@ -97,7 +97,7 @@ table {
 }
 
 .bg-dark {
-  background-color: #5767ef !important;
+  background-color: #000000 !important;
 }
 
 .btn {
@@ -156,10 +156,15 @@ h4, .h4 {
   font-size: 1.3rem;
 }
 
-.spacer-medium {
+.spacer {
   display: block;
   width: 100%;
+}
+.spacer-medium {
   height: 2.5rem;
+}
+.spacer-small {
+  height: 1.5rem;
 }
 
 /*# sourceMappingURL=app.css.map */
