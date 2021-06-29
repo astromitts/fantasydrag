@@ -15,33 +15,27 @@
   </head>
 	<body>
 		<div class="container-fluid">
-			<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<nav class="navbar navbar-dark bg-dark">
 			  <a class="navbar-brand" href="{% url 'home' %}">
 			  	FantasyDrag
 			  </a>
-			  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-			    <span class="navbar-toggler-icon"></span>
-			  </button>
-
-			  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-			    <ul class="navbar-nav mr-auto">
+		    <ul class="navbar-nav">
+				<li class="nav-item">
+				  <a class="nav-link" href="{% url 'home' %}">Home</a>
+				</li>
+				{% if user.is_authenticated %}					
 					<li class="nav-item">
-					  <a class="nav-link" href="{% url 'home' %}">Home</a>
+					  <a class="nav-link" href="{% url 'logout' %}">Log out</a>
 					</li>
-					{% if user.is_authenticated %}					
-						<li class="nav-item">
-						  <a class="nav-link" href="{% url 'logout' %}">Log out</a>
-						</li>
-					{% else %}				
-						<li class="nav-item">
-						  <a class="nav-link" href="{% url 'login' %}">Log in</a>
-						</li>
-					{% endif %}
-			    </ul>
-			  </div>
+				{% else %}				
+					<li class="nav-item">
+					  <a class="nav-link" href="{% url 'login' %}">Log in</a>
+					</li>
+				{% endif %}
+		    </ul>
 			</nav>
 		</div>
-		<div id="page_content" class="container">
+		<div id="page_content" class="container container-fluid">
 			{% block page_content %}{% endblock %}
 		</div>
 	</body>

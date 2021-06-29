@@ -1,3 +1,8 @@
+$small-phone: 767.98px;
+
+$small-screen-font-size: 30px;
+$large-screen-font-size: 18px;
+
 $background-color: #5767ef;
 $highlight-color: #dc61d3;
 $app-black: #333333;
@@ -45,22 +50,40 @@ form label {
 	}
 }
 
+ul.navbar-nav {
+	display: block;
+	float: right;
+	li {
+		display: inline-block;
+		margin-left: 3rem;
+		font-size: 40px;
+		@media (max-width: $small-phone) {
+			font-size: 30px;
+		}
+	}
+}
+
 .navbar-dark {
 	@include header;
 	font-size: 1.2rem;
 	.navbar-brand {
 		@include marker;
 		color: $highlight-color;
-		font-size: 2.6rem;
-		-webkit-text-stroke-width: .25px;
+		font-size: 3rem;
+		-webkit-text-stroke-width: .5px;
 	 	-webkit-text-stroke-color: $true-black;
 	 	&:hover {
 			color: #b6bdfb !important;
 	 	}
-	}	
+		@media (max-width: $small-phone) {
+			-webkit-text-stroke-width: .25px;
+			font-size: 2.6rem;
+		}
+	}
 }
 
 body {
+	font-size: $small-screen-font-size !important;
 	background-color: $app-white !important;
 	a {
 		color: $highlight-color;
@@ -70,6 +93,16 @@ body {
 			text-decoration: none;
 			color: $background-color;
 		}
+	}
+	@media (max-width: $small-phone) {
+		font-size: $large-screen-font-size !important;
+	}
+}
+
+table {
+	font-size: $small-screen-font-size !important;
+	@media (max-width: $small-phone) {
+		font-size: $large-screen-font-size !important;
 	}
 }
 
