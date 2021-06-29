@@ -38,9 +38,9 @@ class LogIn(View):
         form = self.form(request.POST)
         error = None
         if form.is_valid():
-            username = request.POST.get('username')
+            username = request.POST.get('username').lower()
             password = request.POST.get('password')
-            user = User.objects.get(username=username)
+            user = User.objects.get(username__iexact=username)
             if user:
                 password_check = user.check_password(password)
                 if password_check:
