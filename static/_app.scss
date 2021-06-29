@@ -9,11 +9,11 @@ $app-black: #333333;
 $true-black: #000000;
 $app-white: #ffffff;
 
-$danger: #f76e51;
-$danger-hover: #fd5531;
+$danger: #8ae3f7;
+$danger-hover: #1cb9dc;
 
-$success: #2dad4c;
-$success-hover: #148c31;
+$success: #f5d16c;
+$success-hover: #f3e3b7;
 
 @mixin header {
 	color: $app-black;
@@ -57,13 +57,10 @@ form label {
 		@include marker;
 		color: $highlight-color;
 		font-size: 1.5rem;
-		-webkit-text-stroke-width: .5px;
-	 	-webkit-text-stroke-color: $true-black;
 	 	&:hover {
 			color: #b6bdfb !important;
 	 	}
 		@media (min-width: $small-phone) {
-			-webkit-text-stroke-width: .25px;
 			font-size: 2.6rem;
 		}
 	}
@@ -120,8 +117,10 @@ table {
 
 .btn {
 	color: $app-black;
+	border-color: $true-black;
 	&:hover {
 		color: $app-black;
+		border-color: $true-black;
 	}
 	border-color: #807b7b;
 	&-danger {

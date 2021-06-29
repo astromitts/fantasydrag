@@ -37,8 +37,6 @@ form label a {
   font-family: "Rock Salt", sans-serif;
   color: #dc61d3;
   font-size: 1.5rem;
-  -webkit-text-stroke-width: 0.5px;
-  -webkit-text-stroke-color: #000000;
 }
 .navbar-dark .navbar-brand a {
   /* font-size: 1.7rem; */
@@ -48,7 +46,6 @@ form label a {
 }
 @media (min-width: 767.98px) {
   .navbar-dark .navbar-brand {
-    -webkit-text-stroke-width: 0.25px;
     font-size: 2.6rem;
   }
 }
@@ -112,22 +109,24 @@ table {
 
 .btn {
   color: #333333;
+  border-color: #000000;
   border-color: #807b7b;
 }
 .btn:hover {
   color: #333333;
+  border-color: #000000;
 }
 .btn-danger {
-  background-color: #f76e51;
+  background-color: #8ae3f7;
 }
 .btn-danger:hover {
-  background-color: #fd5531;
+  background-color: #1cb9dc;
 }
 .btn-success {
-  background-color: #2dad4c;
+  background-color: #f5d16c;
 }
 .btn-success:hover {
-  background-color: #148c31;
+  background-color: #f3e3b7;
 }
 .btn-primary {
   background-color: #dc61d3;
