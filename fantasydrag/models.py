@@ -148,7 +148,7 @@ class Participant(models.Model):
             queen__in=[wq.queen for wq in wq_drafts]
         ).all()
         for _score in wildcard_appearances:
-            scores[_score.queen] += _score.point_value
+            scores[_score.queen] += _score.appearancetype.point_value
         return scores
 
     def get_all_formatted_scores_for_panel(self, panel, viewing_participant):
