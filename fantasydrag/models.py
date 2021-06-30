@@ -118,6 +118,9 @@ class Score(models.Model):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     rule = models.ForeignKey(Rule, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ('-pk', )
+
     def __str__(self):
         return '{}: {} // {}'.format(self.queen, self.episode, self.rule)
 
