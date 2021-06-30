@@ -11,6 +11,15 @@ episodeScoreApp.controller(
 
 		$scope.episodeId = document.getElementById('id_episodeId').value;
 
+		$scope.setEpisodeProperties = function(responseData) {
+			$scope.episode = {
+				'pk': responseData.pk,
+				'is_scored': responseData.is_scored,
+				'title': responseData.title,
+				'number': responseData.number
+			}
+		}
+
 		$scope.addScore = function(rule, queen){
 			$http.put(
 				'/api/episode/' + $scope.episodeId + '/score/', 
@@ -46,22 +55,18 @@ episodeScoreApp.controller(
 			)
 		}
 
-		$scope.toggleScored = function() {
+		$scope.patchEpisode = function(data) {
 			$http.patch(
-				'/api/episode/' + $scope.episodeId + '/setscored/', 
-			).then(function pushScore(response){
-					$scope.episode.is_scored = response.data.is_scored
+				'/api/episode/' + $scope.episodeId + '/score/',
+				data 
+			).then(function updateEpisode(response){
+					$scope.setEpisodeProperties(response.data)
 				}
 			)
 		}
 
 		$http.get('/api/episode/' + $scope.episodeId + '/score/').then(function setAlerts(response){
-			$scope.episode = {
-				'pk': response.data.pk,
-				'is_scored': response.data.is_scored,
-				'title': response.data.title,
-				'number': response.data.number
-			}
+			$scope.setEpisodeProperties(response.data)
 			$scope.queens = response.data.queens;
 			$scope.scores = response.data.scores;
 			$scope.rules = response.data.rules;

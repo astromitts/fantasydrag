@@ -36,10 +36,10 @@ class NewsPostApi(APIView):
 
     def patch(self, request, *args, **kwargs):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
-        if episode.is_scored:
-            episode.is_scored = False
-        else:
-            episode.is_scored = True
+        if 'is_scored' in request.data:
+            episode.is_scored = request.data['is_scored']
+        if 'title' in request.data:
+            episode.title = request.data['title']
         episode.save()
         serializer = EpisodeScore(instance=episode, many=False)
         response = serializer.data

@@ -12,16 +12,41 @@
 
 	<div class="row">
 		<div class="col">
-			<h1>{{drag_race.display_name}}</h1>
+			<h3>{{drag_race.display_name}}</h3>
 		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			{% verbatim %}
+			<h1 ng-show="!editTitle">Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}</span></h1>
+			{% endverbatim %}
+
+			{% if participant.site_admin %}
+			{% verbatim %}
+				<input ng-show="editTitle" type="text" class="form-control" ng-model="episode.title" />
+			{% endverbatim %}
+			{% endif %}
+		</div>
+		{% if participant.site_admin %}
+		<div class="col">
+			<button class="btn btn-danger btn-sm" 
+				ng-click="editTitle=true"
+				ng-show="!editTitle">[E]</button>
+			<button class="btn btn-primary btn-sm" 
+				ng-click="editTitle=false; patchEpisode({'title': episode.title})"
+				ng-show="editTitle"
+				>[S]</button>
+		</div>
+		{% endif %}
 	</div>
 
 	{% if participant.site_admin %}
 		<div class="row">
 			<div class="col">
-				<input ng-if="episode.is_scored" type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as scored" class="form-control btn btn-danger" ng-click="toggleScored()"/>
+				<input ng-if="episode.is_scored" type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as scored" class="form-control btn btn-danger" ng-click="patchEpisode({'is_scored': false})"/>
 
-				<input ng-if="!episode.is_scored" type="submit" id="id_setscored" name="setscored" value="Set episode as scored" class="form-control btn btn-danger" ng-click="toggleScored()"/>
+				<input ng-if="!episode.is_scored" type="submit" id="id_setscored" name="setscored" value="Set episode as scored" class="form-control btn btn-danger" ng-click="patchEpisode({'is_scored': true})"/>
 			</div>
 		</div>
 		<div class="row">
