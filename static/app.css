@@ -135,13 +135,13 @@ table {
   background-color: #ea4fe0;
 }
 
-.alert-success {
+.alert-success, .alert-info {
   font-family: "Rock Salt", sans-serif;
   background-color: #dc61d3;
   color: #000000;
   border-color: #333333;
 }
-.alert-success a {
+.alert-success a, .alert-info a {
   /* font-size: 1.7rem; */
 }
 

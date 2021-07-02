@@ -144,7 +144,7 @@ table {
 }
 
 .alert {
-	&-success {
+	&-success, &-info {
 		@include marker;
 		background-color: $highlight-color;
 		color: $true-black;
