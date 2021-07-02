@@ -87,6 +87,7 @@ panelDraftApp.controller(
 			$scope.draft = responseData.panel.draft_data;
 
 			$scope.currentParticipant = $scope.participants[0].participant;
+			$scope.isCurrentPlayer = responseData.meta.is_current_participant;
 			$scope.availableQueens = $scope.participants[0].available_queens;
 			$scope.participants.forEach(function checkIfCurrent(p){
 				if(p.participant.pk == $scope.panel.draft_data.current_participant) {

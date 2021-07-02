@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/setdrafts.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+<span id='panelDraftModule' ng-controller='panelDraftController'>
+	<input type="hidden" id="id_panelId" value="{{panel.pk}}" />
+	<div class="row">
+		<div class="col">
+			{% verbatim %}
+			<h1>{{dragRace.display_name}}: {{panel.name}}</h1>
+			{% endverbatim %}
+		</div>
+	</div>
+
+	<span ng-show="panel.status=='open' && (isCaptain || isAdmin)">
+		{% include 'pages/setdrafts/includes/initiatedraft.html' %}
+	</span>
+
+
+	<span ng-show="panel.status=='open' && !(isCaptain || isAdmin)">
+		<div class="row">
+			<div class="col alert alert-danger">
+				Hang tight! A team captain needs to start the draft.
+			</div>
+		</div>
+	</span>
+
+	<span ng-show="panel.status!='open'">
+		{% include 'pages/setdrafts/includes/draft.html' %}
+	</span>
+
+</span>
+{% endblock %}

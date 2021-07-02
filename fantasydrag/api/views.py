@@ -20,7 +20,7 @@ from fantasydrag.api.serializers import (
 )
 
 
-class NewsPostApi(APIView):
+class EpisodeApi(APIView):
     def get(self, request, *args, **kwargs):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
         serializer = EpisodeScore(instance=episode, many=False)
@@ -66,6 +66,7 @@ class PanelDraftApi(APIView):
         self.request_participant = Participant.objects.get(user=self.user)
         self.is_site_admin = self.request_participant.site_admin
         self.is_captain = self.request_participant in self.panel.captains.all()
+        self.is_current_participant = self.request_participant == self.panel.current_draft_player
 
     def _get_available_queens(self, participant):
         participant_drafts = self.panel.draft_set.filter(participant=participant)
@@ -121,7 +122,8 @@ class PanelDraftApi(APIView):
             'status': response_status,
             'message': response_message,
             'is_site_admin': self.is_site_admin,
-            'is_captain': self.is_captain
+            'is_captain': self.is_captain,
+            'is_current_participant': self.is_current_participant,
         }
         return {
             'meta': request_status,

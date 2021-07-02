@@ -145,7 +145,7 @@ class SetDrafts(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(SetDrafts, self).setup(request, *args, **kwargs)
         self.user = request.user
-        self.template = loader.get_template('pages/setdrafts.html')
+        self.template = loader.get_template('pages/setdrafts/setdrafts.html')
 
     def get(self, request, *args, **kwargs):
         return HttpResponse(self.template.render(self.context, request))

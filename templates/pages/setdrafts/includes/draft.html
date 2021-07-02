@@ -1,0 +1,60 @@
+<div class="row"><div class="spacer-small"></div></div>
+<div class="row">
+	{% verbatim %}
+	<div class="col alert alert-success">
+		<h3 class="marker">Round {{draft.draft_index}}</h3>
+	</div>
+	{% endverbatim %}
+</div>
+<div class="row"><div class="spacer-small"></div></div>
+
+<div class="row">
+	<div ng-if="isCaptain" class="col alert alert-warning">
+		<h4 class="marker">Captain tools</h4>
+		{% verbatim %}
+		<input type="submit" class="btn btn-danger form-control" value="Restart" ng-click="draftPut('reset_draft')"/>
+		{% endverbatim %}
+	</div>
+	<div class="col">
+		<table class="table table-bordered">
+			<tr><th>Draft Order</th></tr>
+			{% verbatim %}
+			<tr ng-repeat="participant in participants"
+			ng-class="{'current-draft-participant': participant.participant == currentParticipant}">
+				<td>
+				{{participant.participant.name}}
+				</td>
+			</tr>
+			{% endverbatim %}
+		</table>
+	</div>
+	{% verbatim %}
+		<div class="col" ng-show="panel.status=='in draft' && (isCaptain || isAdmin || isCurrentPlayer)">
+			<label for="queen"><h3>Select a queen for {{currentParticipant.name}}</h3></label>
+			<select id="id_queen" name="queen" class="form-control">
+				<option ng-repeat="queen in availableQueens" value="{{queen.pk}}">{{queen.name}}</option>
+			</select>
+			<input type="submit" class="form-control btn btn-success" value="select queen" ng-click="selectQueen()"/>
+		</div>
+	{% endverbatim %}
+	<div class="col" ng-show="panel.status=='active'">
+		<div class="alert alert-info">
+			Draft is closed!
+		</div>
+	</div>
+	<div class="col">
+		<h3>Drafts</h3>
+		<table class="table">
+			<tr>
+				<th>Round</th><th>Player</th><th>Queen</th>
+			</tr>
+			{% verbatim %}
+			<tr ng-repeat="draft in drafts">
+				<td>{{draft.round_selected}}</td>
+				<td>{{draft.participant.name}}</td>
+				<td>{{draft.queen.name}}</td>
+			</tr>
+			{% endverbatim %}
+		</table>
+	</div>
+</div>	
