@@ -186,4 +186,8 @@ h4, .h4 {
   height: 1.5rem;
 }
 
+.current-draft-participant {
+  background-color: #f5a2f2;
+}
+
 /*# sourceMappingURL=app.css.map */

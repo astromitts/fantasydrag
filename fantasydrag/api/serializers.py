@@ -1,19 +1,44 @@
 from rest_framework import serializers
 
 from fantasydrag.models import (
+    DragRace,
+    Draft,
     Episode,
     Rule,
     Score,
-    Queen
+    Queen,
+    Panel,
+    Participant,
 )
 
 
-class QueenSerlaizer(serializers.HyperlinkedModelSerializer):
+class QueenSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Queen
         fields = [
             'pk',
             'name'
+        ]
+
+
+class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
+    queens = QueenSerializer(many=True)
+
+    class Meta:
+        model = DragRace
+        fields = [
+            'pk',
+            'display_name',
+            'queens'
+        ]
+
+
+class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = DragRace
+        fields = [
+            'pk',
+            'display_name',
         ]
 
 
@@ -29,7 +54,7 @@ class RuleSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScoreSerializer(serializers.HyperlinkedModelSerializer):
-    queen = QueenSerlaizer(many=False)
+    queen = QueenSerializer(many=False)
     rule = RuleSerializer(many=False)
 
     class Meta:
@@ -44,7 +69,7 @@ class ScoreSerializer(serializers.HyperlinkedModelSerializer):
 class EpisodeScore(serializers.HyperlinkedModelSerializer):
     rules = RuleSerializer(source='drag_race.rule_set', many=True)
     scores = ScoreSerializer(source='score_set', many=True)
-    queens = QueenSerlaizer(source='drag_race.queens', many=True)
+    queens = QueenSerializer(source='drag_race.queens', many=True)
 
     class Meta:
         model = Episode
@@ -56,4 +81,36 @@ class EpisodeScore(serializers.HyperlinkedModelSerializer):
             'queens',
             'scores',
             'rules'
+        ]
+
+
+class ParticipantSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['pk', 'name']
+
+
+class DraftSerializer(serializers.HyperlinkedModelSerializer):
+    participant = ParticipantSerializer(many=False)
+    queen = QueenSerializer(many=False)
+
+    class Meta:
+        model = Draft
+        fields = ['pk', 'participant', 'queen', 'round_selected']
+
+
+class PanelSerializer(serializers.HyperlinkedModelSerializer):
+    drag_race = DragRaceSerializer(many=False)
+
+    class Meta:
+        model = Panel
+        fields = [
+            'pk',
+            'name',
+            'status',
+            'draft_type',
+            'draft_data',
+            'queen_draft_allowance',
+            'team_size',
+            'drag_race',
         ]

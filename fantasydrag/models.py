@@ -178,6 +178,10 @@ class Panel(models.Model):
         default=1,
         help_text='The number of times a Queen can be drafted to a unique player'
     )
+    team_size = models.IntegerField(
+        default=1,
+        help_text='The number of drafts per team'
+    )
     draft_data = models.JSONField(default=dict, blank=True, null=True)
     status = models.CharField(
         max_length=25,
@@ -188,6 +192,13 @@ class Panel(models.Model):
             ('closed', 'closed'),
         ],
         default='open'
+    )
+    draft_type = models.CharField(
+        max_length=25,
+        choices=[
+            ('byTeamSize', 'byTeamSize'),
+            ('byQueenCount', 'byQueenCount')
+        ]
     )
 
     def set_random_drafts(self):
@@ -242,11 +253,12 @@ class Panel(models.Model):
     def default_draft_data(self):
         return {
             'participant_order': [],
+            'max_queen_draft': 0,
             'current_participant': None,
             'draft_index': 1,
             'can_go_to_next_round': False,
             'can_end_draft': False,
-            'round 1': []
+            'rounds': {}
         }
 
     @property
@@ -256,9 +268,24 @@ class Panel(models.Model):
             participants.append(self.participants.get(pk=participant_pk))
         return participants
 
-    def start_draft(self):
+    def start_draft(self, draft_type, variable_number, draft_rule_set):
         self.draft_set.all().delete()
         self.draft_data = self.default_draft_data
+        if draft_type == 'byQueenCount':
+            self.draft_type = 'byQueenCount'
+            self.queen_draft_allowance = variable_number
+            self.team_size = 0
+            self.draft_data['max_queen_draft'] = variable_number
+        else:
+            self.draft_type = 'byTeamSize'
+            self.team_size = variable_number
+            self.queen_draft_allowance = 0
+            participant_count = self.participants.count()
+            queen_count = self.drag_race.queens.count()
+            total_draft_count = self.team_size * participant_count
+            players_per_queen = math.ceil(total_draft_count / queen_count)
+            self.draft_data['max_queen_draft'] = players_per_queen
+
         self.status = 'in draft'
 
         random_order_participants = self.participants.order_by('?').all()
@@ -269,38 +296,78 @@ class Panel(models.Model):
                 self.draft_data['current_participant'] = p.pk
 
             i += 1
+
+        if self.draft_type == 'byQueenCount':
+            special_second_round_participants = []
+            non_second_round_participants = []
+            draft_counts = set([d['numDrafts'] for d in draft_rule_set])
+            min_drafts = min(draft_counts)
+            total_drafts = max(draft_counts)
+            special_second_round = min_drafts != total_drafts
+            i = 0
+            for data in draft_rule_set:
+                participant_pk = self.draft_data['participant_order'][i]
+                num_drafts = data['numDrafts']
+                if special_second_round and num_drafts == total_drafts:
+                    special_second_round_participants.append(participant_pk)
+                else:
+                    non_second_round_participants.append(participant_pk)
+                i += 1
+
+            participant_draft_counts = {}
+            for i in range(1, total_drafts + 1):
+                participant_draft_counts[i] = []
+                self.draft_data['rounds'][i] = {}
+                for participant_pk in self.draft_data['participant_order']:
+                    if i == 2 and special_second_round:
+                        if participant_pk in special_second_round_participants:
+                            participant_draft_counts[i].append(participant_pk)
+                            self.draft_data['rounds'][i][participant_pk] = None
+                    else:
+                        participant_draft_counts[i].append(participant_pk)
+                        self.draft_data['rounds'][i][participant_pk] = None
+        else:
+            for i in range(1, self.team_size + 1):
+                self.draft_data['rounds'][i] = {}
+                for participant_pk in self.draft_data['participant_order']:
+                    self.draft_data['rounds'][i][participant_pk] = None
+        self.save()
+
+    def reset_draft(self):
+        self.draft_set.all().delete()
+        self.draft_data = self.default_draft_data
+        self.status = 'open'
         self.save()
 
     def advance_draft(self):
-        if self.draft_data['current_participant'] == self.draft_data['participant_order'][-1]:
-            self.draft_data['current_participant'] = self.draft_data['participant_order'][0]
+        def get_participant_order_for_round(draft_index):
+            current_round = self.draft_data['rounds'][str(draft_index)]
+            round_participants = [int(k) for k in current_round.keys()]
+            round_order = []
+            for p in self.draft_data['participant_order']:
+                if p in round_participants:
+                    round_order.append(p)
+            return round_order
+
+        draft_index = self.draft_data['draft_index']
+        this_round_order = get_participant_order_for_round(draft_index)
+        if self.draft_data['current_participant'] == this_round_order[-1]:
+            next_round_index = str(draft_index + 1)
+            next_round = self.draft_data['rounds'].get(next_round_index)
+            if next_round:
+                next_round_order = get_participant_order_for_round(next_round_index)
+                self.draft_data['current_participant'] = next_round_order[0]
+                self.draft_data['draft_index'] += 1
+            else:
+                self.end_draft()
         else:
-            current_index = self.draft_data['participant_order'].index(self.draft_data['current_participant'])
-            self.draft_data['current_participant'] = self.draft_data['participant_order'][current_index + 1]
+            current_index = this_round_order.index(self.draft_data['current_participant'])
+            self.draft_data['current_participant'] = this_round_order[current_index + 1]
         self.save()
 
     def end_draft(self):
         self.status = 'active'
         self.save()
-
-    def advance_round(self):
-        self.draft_data['draft_index'] += 1
-        roundkey = 'round {}'.format(self.draft_data['draft_index'])
-        self.draft_data[roundkey] = []
-        self.draft_data['can_go_to_next_round'] = False
-        self.save()
-
-    def check_round_status(self):
-        can_advance = True
-        roundkey = 'round {}'.format(self.draft_data['draft_index'])
-        this_round = self.draft_data[roundkey] = self.draft_data.get(roundkey, [])
-        for participant in self.participants.all():
-            if participant.pk not in this_round:
-                can_advance = False
-        if can_advance:
-            self.draft_data['can_go_to_next_round'] = True
-            self.draft_data['can_end_draft'] = True
-            self.save()
 
     def save_player_draft(self, participant, queen):
         new_draft = Draft(
@@ -310,12 +377,8 @@ class Panel(models.Model):
             round_selected=self.draft_data['draft_index']
         )
         new_draft.save()
-        roundkey = 'round {}'.format(self.draft_data['draft_index'])
-        self.draft_data[roundkey] = self.draft_data.get(roundkey, [])
-        if participant.pk not in self.draft_data[roundkey]:
-            self.draft_data[roundkey].append(participant.pk)
+        self.draft_data['rounds'][str(self.draft_data['draft_index'])][str(participant.pk)] = queen.pk
         self.save()
-        self.check_round_status()
 
     @property
     def current_draft_player(self):
@@ -337,6 +400,9 @@ class Draft(models.Model):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     panel = models.ForeignKey(Panel, on_delete=models.CASCADE)
     round_selected = models.IntegerField(default=1)
+
+    class Meta:
+        unique_together = ('panel', 'participant', 'queen')
 
     def __str__(self):
         return '{}, {}::{}'.format(self.panel, self.participant, self.queen)

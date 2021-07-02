@@ -99,7 +99,8 @@
 
 							{% verbatim %}
 								<input type="submit" class="btn btn-sm btn-danger" value="remove" name="deletescore" id="id_deletescore_{{score.pk}}"
-								ng-click="deleteScore(score)">
+								ng-click="deleteScore(score)"
+								ng-mouseover="alert('hello')">
 							{% endverbatim %}
 						{% endif %}
 					</td>

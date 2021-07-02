@@ -11,6 +11,10 @@ episodeScoreApp.controller(
 
 		$scope.episodeId = document.getElementById('id_episodeId').value;
 
+		$scope.alert = function(message) {
+			alert(message);
+		}
+
 		$scope.setEpisodeProperties = function(responseData) {
 			$scope.episode = {
 				'pk': responseData.pk,

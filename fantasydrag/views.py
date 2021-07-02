@@ -10,7 +10,6 @@ from fantasydrag.models import (
     Queen,
     DragRace,
     Episode,
-    Score,
     WildCardQueen,
 )
 from fantasydrag.forms import LoginPasswordForm
@@ -131,7 +130,7 @@ class PanelStats(AuthenticatedView):
 
     def post(self, request, *args, **kwargs):
         if 'resetdraft' in request.POST and self.is_captain:
-            self.panel.start_draft()
+            self.panel.reset_draft()
         return redirect(reverse('panel_stats', kwargs={'panel_id': self.panel.pk}))
 
 
@@ -146,63 +145,9 @@ class SetDrafts(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(SetDrafts, self).setup(request, *args, **kwargs)
         self.user = request.user
-        self.queens = self.panel.drag_race.queens.all()
-        self.drafts = self.panel.draft_set.all()
-        queens_by_draft_count = {}
-        for draft in self.drafts:
-            this_count = queens_by_draft_count.get(draft.queen, 0)
-            this_count += 1
-            queens_by_draft_count[draft.queen] = this_count
-
-        self.available_queens = []
-        for queen in self.queens:
-            if queens_by_draft_count.get(queen, 0) < self.panel.queen_draft_allowance:
-                self.available_queens.append(queen)
-
-        self.phase = 'set player'
-        self.context.update({
-            'queens': self.available_queens,
-            'drafts': self.drafts,
-            'phase': self.phase,
-            'draft_participant': None,
-        })
         self.template = loader.get_template('pages/setdrafts.html')
 
     def get(self, request, *args, **kwargs):
-        if self.panel.status == 'open':
-            self.panel.start_draft()
-        self.context['phase'] = 'set queen'
-        return HttpResponse(self.template.render(self.context, request))
-
-    def post(self, request, *args, **kwargs):
-        participant = self.panel.current_draft_player
-        if request.POST.get('queen'):
-            queen = Queen.objects.get(pk=request.POST.get('queen'))
-            self.panel.save_player_draft(participant, queen)
-            self.context['phase'] = 'advance'
-            self.context['drafts'] = self.panel.draft_set.all()
-        elif request.POST.get('skip'):
-            self.context['phase'] = 'set queen'
-            self.panel.advance_draft()
-        elif request.POST.get('advancedraft'):
-            self.panel.advance_draft()
-            participant = self.panel.current_draft_player
-            self.context['phase'] = 'set queen'
-        elif request.POST.get('selectagain'):
-            self.context['phase'] = 'set queen'
-        elif request.POST.get('advanceround'):
-            self.context['phase'] = 'set queen'
-            self.panel.advance_round()
-        elif request.POST.get('enddraft'):
-            self.panel.end_draft()
-            return redirect(reverse('panel_stats', kwargs={'panel_id': self.panel.pk}))
-
-        self.context['draft_participant'] = participant
-        participant_drafts = self.panel.draft_set.filter(participant=participant)
-        drafted_queens = [pd.queen for pd in participant_drafts]
-        self.available_queens = [q for q in self.available_queens if q not in drafted_queens]
-        self.context['queens'] = self.available_queens
-
         return HttpResponse(self.template.render(self.context, request))
 
 
@@ -280,34 +225,6 @@ class SetEpisodeScores(AuthenticatedView):
         })
 
     def get(self, request, *args, **kwargs):
-        return HttpResponse(self.template.render(self.context, request))
-
-    def post(self, request, *args, **kwargs):
-        if self.is_site_admin:
-            if 'deletescore' in request.POST:
-                Score.objects.get(episode=self.episode, pk=request.POST['score']).delete()
-                return redirect(
-                    reverse(
-                        'set_episode_scores',
-                        kwargs={'dragrace_id': self.episode.drag_race.pk, 'episode_id': self.episode.pk}
-                    )
-                )
-            elif 'addscore' in request.POST:
-                queen = self.episode.drag_race.queens.get(pk=request.POST['queen'])
-                rule = self.episode.drag_race.rule_set.get(pk=request.POST['rule'])
-                new_score = Score(
-                    episode=self.episode,
-                    rule=rule,
-                    queen=queen
-                )
-                new_score.save()
-            elif 'setscored' in request.POST:
-                self.episode.is_scored = True
-                self.episode.save()
-            elif 'unsetscored' in request.POST:
-                self.episode.is_scored = False
-                self.episode.save()
-
         return HttpResponse(self.template.render(self.context, request))
 
 
