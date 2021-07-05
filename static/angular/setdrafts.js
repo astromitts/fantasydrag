@@ -78,6 +78,7 @@ panelDraftApp.controller(
 		}
 
 		$scope.updateDraftMeta = function(responseData) {
+			$scope.panel.status = responseData.panel.status;
 			$scope.drafts = responseData.drafts;
 			$scope.isCurrentPlayer = responseData.is_current_participant;
 			$scope.currentParticipant = $scope.participants[responseData.participant_pk];

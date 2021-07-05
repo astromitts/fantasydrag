@@ -112,7 +112,10 @@ class DraftMetaApi(APIView):
             'is_current_participant': self.is_current_participant,
             'request_participant': self.request_participant.pk,
             'participant_pk': participant_pk,
-            'drafts': drafts_data
+            'drafts': drafts_data,
+            'panel': {
+                'status': self.panel.status
+            }
         }
         return Response(response)
 
