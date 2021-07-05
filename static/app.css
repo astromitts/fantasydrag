@@ -27,6 +27,9 @@ form label a {
 .navbar-dark .navbar-nav .nav-link:hover {
   color: #b6bdfb !important;
 }
+.navbar-dark .navbar-nav .nav-link img {
+  width: 60px;
+}
 
 .navbar-dark {
   color: #333333;
@@ -195,6 +198,44 @@ h4, .h4 {
 }
 .selectable-selected {
   background-color: #f5d16c;
+}
+
+.editable {
+  border-bottom: 1px dotted #333333;
+}
+.editable-icon {
+  background: url(../static/site_images/lipstick.png) no-repeat top right;
+  background-size: 2.2rem 2.2rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  margin-top: -1rem;
+  float: right;
+  padding-right: 5rem;
+}
+.editable-label {
+  padding-right: 1rem;
+}
+.editable-submit {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  color: #f5d16c;
+  background: none;
+  font-size: 3rem;
+  margin-top: -1rem;
+  float: right;
+  padding-right: 5rem;
+}
+
+.as-table {
+  display: table;
+}
+.as-table .as-row {
+  display: table-row;
+}
+.as-table .as-cell {
+  display: table-cell;
 }
 
 /*# sourceMappingURL=app.css.map */

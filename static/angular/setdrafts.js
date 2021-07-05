@@ -82,6 +82,7 @@ panelDraftApp.controller(
 			$scope.drafts = responseData.drafts;
 			$scope.isCurrentPlayer = responseData.is_current_participant;
 			$scope.currentParticipant = $scope.participants[responseData.participant_pk];
+			$scope.draft.round = $scope.panel.round;
 		}
 
 		$scope.setAvailableQueens = function(responseData) {

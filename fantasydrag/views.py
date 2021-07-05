@@ -85,6 +85,12 @@ class AuthenticatedView(View):
             )
 
 
+class Profile(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        template = loader.get_template('pages/profile.html')
+        return HttpResponse(template.render(self.context, request))
+
+
 class LandingPage(AuthenticatedView):
 
     def get(self, request, *args, **kwargs):

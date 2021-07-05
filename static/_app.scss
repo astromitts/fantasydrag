@@ -17,6 +17,8 @@ $success-hover: #f3e3b7;
 
 $selected: #f5a2f2;
 
+$edit-icon-size: 2.2rem;
+
 @mixin header {
 	color: $app-black;
 	font-family: 'Lato', sans-serif;
@@ -49,6 +51,9 @@ form label {
 	color: $highlight-color !important;
 	&:hover {
 		color: #b6bdfb !important;
+	}
+	img {
+		width: 60px;
 	}
 }
 
@@ -200,5 +205,43 @@ h4, .h4 {
 	}
 	&-selected {
 		background-color: $success;
+	}
+}
+
+.editable {
+	border-bottom: 1px dotted $app-black;
+	&-icon {
+	    background: url(../static/site_images/lipstick.png) no-repeat top right;
+	    background-size: $edit-icon-size $edit-icon-size;
+	    width: $edit-icon-size;
+	    height: $edit-icon-size;
+	    border: 0;
+	    margin-top: -1rem;
+	    float: right;
+	    padding-right: 5rem;
+	}
+	&-label {
+		padding-right: 1rem;
+	}
+	&-submit {
+		width: $edit-icon-size;
+	    height: $edit-icon-size;
+	    border: 0;
+	    color: $success;
+	    background: none;
+	    font-size: 3rem;
+	    margin-top: -1rem;
+	    float: right;
+	    padding-right: 5rem;
+	}
+}
+
+.as-table {
+	display: table;
+	.as-row {
+		display: table-row;
+	}
+	.as-cell {
+		display: table-cell;
 	}
 }

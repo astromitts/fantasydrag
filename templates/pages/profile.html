@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'profileUtils.js' %}"></script>
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/profile.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+
+<span id='profileModule' ng-controller='profileController'>
+<div class="row"><div class="spacer-small"></div></div>
+<div class="row">
+	<div class="col">
+		<h1 class="marker">Profile</h1>
+	</div>
+	<div class="col">
+		<button ng-if="editProfile" class="editable-submit" ng-click="updateUser()">&#10003;</button>
+		<button class="editable-icon as-cell" ng-show="!editProfile" ng-click="editProfile=true;error=null;"></button>
+	</div>
+</div>
+{% verbatim %}
+<div class="row" ng-show="error">
+	<div class="col">
+		<div class="alert alert-danger">
+			{{error}}
+		</div>
+	</div>
+</div>
+
+<div class="row" ng-show="success">
+	<div class="col">
+		<div class="alert alert-success">
+			{{success}}
+		</div>
+	</div>
+</div>
+
+<div class="row as-table">
+	<div class="col">
+		<div class="as-row editable">
+			<span class="editable-label as-cell">
+				<label for="display_name">Display Name: </label>
+			</span>
+			<span class="editable-content as-cell">
+				<span ng-show="!editProfile">{{user.display_name}}</span>
+				<input ng-show="editProfile" class="form-control" type="text" ng-model="user.display_name" />
+			</span>
+		</div>
+
+		<div class="as-row editable">
+			<span class="editable-label as-cell">
+				<label for="display_name">Name: </label>
+			</span>
+			<span class="editable-content as-cell">
+				<span ng-show="!editProfile">{{user.first_name}} {{user.last_name}}</span>
+				<input ng-show="editProfile" class="form-control" type="text" ng-model="user.first_name" />
+				<input ng-show="editProfile" class="form-control" type="text" ng-model="user.last_name" />
+			</span>
+		</div>
+
+		<div class="as-row editable">
+			<span class="editable-label as-cell">
+				<label for="email">Email: </label>
+			</span>
+			<span class="editable-content as-cell">
+				<span ng-show="!editProfile">{{user.email}}</span>
+				<input ng-show="editProfile" class="form-control" type="text" ng-model="user.email" />
+			</span>
+		</div>
+	</div>
+</div>
+<div class="spacer-medium"></div>
+
+<div class="row" ng-show="!editProfile">
+	<div class="col">
+		<button class="btn btn-primary form-control" ng-click="editPassword=true;" ng-show="!editPassword">Reset Password</button>
+		<button class="btn btn-danger form-control" ng-click="editPassword=false;" ng-show="editPassword">Cancel</button>
+	</div>
+</div>
+
+<div class="spacer-medium"></div>
+<div class="row" ng-show="passwordErrors">
+	<div class="col">
+		<div class="alert alert-danger">
+			<ul>
+				<li ng-repeat="error in passwordErrors">{{error}}</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="row as-table" ng-show="editPassword">
+	<div class="col">
+		<div class="as-row">
+			<span class="editable-label as-cell">
+				Current Password:
+			</span>
+			<span class="editable-content as-cell">
+				<input class="form-control" type="password" ng-model="currentPassword" />
+			</span>
+		</div>
+		<div class="as-row">
+			<span class="editable-label as-cell">
+				New Password:
+			</span>
+			<span class="editable-content as-cell">
+				<input class="form-control" type="password" ng-model="newPassword" />
+			</span>
+		</div>
+		<div class="as-row">
+			<span class="editable-label as-cell">
+				Confirm Password:
+			</span>
+			<span class="editable-content as-cell">
+				<input class="form-control" type="password" ng-model="confirmPassword" />
+			</span>
+		</div>
+	</div>
+</div>
+<div class="spacer-medium"></div>
+<div class="row" ng-show="editPassword">
+	<div class="col">
+		<button class="btn btn-primary form-control" ng-click="checkPassword(currentPassword, newPassword, confirmPassword);">Confirm</button>
+	</div>
+</div>
+{% endverbatim %}
+<div class="spacer-medium"></div>
+<div class="row">
+	<div class="col">
+		<a href="{% url 'logout' %}"><button class="btn btn-danger form-control">Log Out</button></a>
+	</div>
+</div>
+</span>
+{% endblock %}

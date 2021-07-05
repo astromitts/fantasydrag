@@ -12,6 +12,18 @@ from fantasydrag.models import (
 )
 
 
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Participant
+        fields = [
+            'pk',
+            'display_name',
+            'first_name',
+            'last_name',
+            'email',
+        ]
+
+
 class QueenSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Queen

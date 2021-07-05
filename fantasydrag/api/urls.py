@@ -3,6 +3,7 @@ from django.urls import path
 from fantasydrag.api import views
 
 urlpatterns = [
+    path('api/profile/', views.ProfileApi.as_view(), name='api_profile'),
     path(
         'api/panel/<int:panel_id>/availablequeens/',
         views.DraftAvailableQueensApi.as_view(),

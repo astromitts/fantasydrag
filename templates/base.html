@@ -21,16 +21,13 @@
 			  	FantasyDrag
 			  </a>
 		    <ul class="navbar-nav">
-				<li class="nav-item">
-				  <a class="nav-link" href="{% url 'home' %}">Home</a>
-				</li>
 				{% if user.is_authenticated %}					
 					<li class="nav-item">
-					  <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+					  <a class="nav-link" href="{% url 'profile' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
 					</li>
 				{% else %}				
 					<li class="nav-item">
-					  <a class="nav-link" href="{% url 'login' %}">Log in</a>
+					  <a class="nav-link" href="{% url 'login' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
 					</li>
 				{% endif %}
 		    </ul>

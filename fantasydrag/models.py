@@ -126,10 +126,27 @@ class Score(models.Model):
 
 
 class Participant(models.Model):
-    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100, unique=True)
+    normalized_display_name = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     site_admin = models.BooleanField(default=False)
     episodes = models.ManyToManyField(Episode, blank=True, null=True)
+
+    @property
+    def name(self):
+        return self.display_name
+
+    @property
+    def first_name(self):
+        return self.user.first_name
+
+    @property
+    def last_name(self):
+        return self.user.last_name
+
+    @property
+    def email(self):
+        return self.user.email
 
     def get_formatted_scores_for_panel(self, panel, viewing_participant):
         drafts = Draft.objects.filter(participant=self, panel=panel).all()
@@ -167,6 +184,11 @@ class Participant(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.user.username = self.display_name.lower()
+        self.user.save()
+        super(Participant, self).save(*args, **kwargs)
 
 
 class Panel(models.Model):

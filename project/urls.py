@@ -11,6 +11,7 @@ urlpatterns = [
     path('login/', views.LogIn.as_view(), name='login'),
     path('logout/', views.LogOut.as_view(), name='logout'),
     path('', views.LandingPage.as_view(), name='home'),
+    path('profile/', views.Profile.as_view(), name='profile'),
     path('panel/<int:panel_id>/', views.PanelStats.as_view(), name='panel_stats'),
     path('panel/<int:panel_id>/setdrafts/', views.SetDrafts.as_view(), name='panel_set_drafts'),
     path('panel/<int:panel_id>/wildcards/', views.WildCardList.as_view(), name='panel_wildcards'),

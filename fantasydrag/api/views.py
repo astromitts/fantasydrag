@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db import IntegrityError
 
 from fantasydrag.models import (
     Episode,
@@ -17,6 +18,7 @@ from fantasydrag.api.serializers import (
     PanelSerializer,
     QueenSerializer,
     ParticipantSerializer,
+    UserSerializer,
 )
 
 
@@ -114,7 +116,8 @@ class DraftMetaApi(APIView):
             'participant_pk': participant_pk,
             'drafts': drafts_data,
             'panel': {
-                'status': self.panel.status
+                'status': self.panel.status,
+                'round': self.panel.draft_data.get('draft_index', 0)
             }
         }
         return Response(response)
@@ -254,3 +257,92 @@ class PanelDraftApi(APIView):
 
         response = self._get_draft_data(response_status, response_message)
         return Response(response)
+
+
+class ProfileApi(APIView):
+    def _setup(self, request):
+        self.user = request.user
+        self.participant = Participant.objects.get(user=self.user)
+
+    def get(self, request, *args, **kwargs):
+        self._setup(request)
+        participant = UserSerializer(instance=self.participant, many=False)
+        return Response(participant.data)
+
+    def post(self, request, *args, **kwargs):
+        request_type = request.data['request']
+        if request_type == 'check-password':
+            valid_pw = request.user.check_password(request.data['password'])
+            if not valid_pw:
+                response = {
+                    'status': 'error',
+                    'message': 'Current password is incorrect.'
+                }
+            else:
+                response = {
+                    'status': 'ok',
+                    'message': None
+                }
+        elif request_type == 'set-password':
+            try:
+                request.user.set_password(request.data['password'])
+                response = {
+                    'status': 'ok',
+                    'message': None
+                }
+            except Exception:
+                response = {
+                    'status': 'error',
+                    'message': 'Could not update password. Check your input and try again.'
+                }
+        else:
+            response = {
+                'status': 'error',
+                'message': 'Unrecognized request.'
+            }
+
+        return Response(response)
+
+    def patch(self, request, *args, **kwargs):
+        self._setup(request)
+        user_updated = False
+        participant_updated = False
+        user_fields = ['first_name', 'last_name', 'email']
+        participant_fields = ['display_name']
+
+        status = 'ok'
+        message = None
+
+        for field in user_fields:
+            if request.data.get(field):
+                setattr(self.participant.user, field, request.data.get(field))
+                user_updated = True
+        if user_updated:
+
+            try:
+                self.participant.user.save()
+            except IntegrityError:
+                status = 'error'
+                message = 'That email address is in use by another participant'
+
+        for field in participant_fields:
+            if request.data.get(field):
+                setattr(self.participant, field, request.data.get(field))
+                participant_updated = True
+
+        if participant_updated:
+            try:
+                self.participant.save()
+            except IntegrityError:
+                status = 'error'
+                message = 'That username is in use by another participant'
+
+        participant = UserSerializer(instance=self.participant, many=False)
+        return Response(
+            {
+                'status': status,
+                'message': message,
+                'participant': participant.data,
+
+            }
+        )
