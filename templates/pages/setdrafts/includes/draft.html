@@ -19,22 +19,35 @@
 		<table class="table table-bordered">
 			<tr><th>Draft Order</th></tr>
 			{% verbatim %}
-			<tr ng-repeat="participant in participants"
-			ng-class="{'current-draft-participant': participant.participant == currentParticipant}">
+			<tr ng-repeat="participantpk in draft.participant_order"
+			ng-class="{'current-draft-participant': participantpk == currentParticipant.pk}">
 				<td>
-				{{participant.participant.name}}
+				{{participants[participantpk].name}}
 				</td>
 			</tr>
 			{% endverbatim %}
 		</table>
 	</div>
 	{% verbatim %}
-		<div class="col" ng-show="panel.status=='in draft' && (isCaptain || isAdmin || isCurrentPlayer)">
-			<label for="queen"><h3>Select a queen for {{currentParticipant.name}}</h3></label>
-			<select id="id_queen" name="queen" class="form-control">
-				<option ng-repeat="queen in availableQueens" value="{{queen.pk}}">{{queen.name}}</option>
-			</select>
-			<input type="submit" class="form-control btn btn-success" value="select queen" ng-click="selectQueen()"/>
+		<div class="col" ng-repeat="participant in participants" ng-show="panel.status=='in draft' && participant == currentParticipant">
+			<span ng-show="(isCaptain || isAdmin) || isCurrentPlayer">
+				<label for="queen"><h3>Select a queen for {{participant.name}}</h3></label>
+				<table class="table">
+					<tr 
+						class="selectable"
+						ng-class="{'selectable-selected': queen == selectedQueen}"
+						ng-repeat="queen in participant.availableQueens"
+						ng-click="selectQueen(queen)">
+						<td>{{queen.name}}</td>
+					</tr>
+				</table>
+				<input type="submit" class="form-control btn btn-success" value="select queen" ng-click="draftQueen()"/>
+			</span>
+			<span ng-show="!(isCaptain || isAdmin) && !isCurrentPlayer">
+				<div class="alert alert-info">
+					Waiting for {{participant.name}} to make a selection
+				</div>
+			</span>
 		</div>
 	{% endverbatim %}
 	<div class="col" ng-show="panel.status=='active'">

@@ -20,6 +20,46 @@ from fantasydrag.api.serializers import (
 )
 
 
+def get_available_queens(view, participant):
+    participant_drafts = view.panel.draft_set.filter(participant=participant)
+    drafted_queens = [pd.queen for pd in participant_drafts]
+
+    queens_by_draft_count = {}
+    for draft in view.panel.draft_set.all():
+        this_count = queens_by_draft_count.get(draft.queen, 0)
+        this_count += 1
+        queens_by_draft_count[draft.queen] = this_count
+
+    available_queens = []
+    if view.panel.draft_type == 'byQueenCount':
+        for queen in view.panel.drag_race.queens.all():
+            if queens_by_draft_count.get(queen, 0) < view.panel.queen_draft_allowance and queen not in drafted_queens:  # noqa
+                available_queens.append(queen)
+    else:
+        for queen in view.panel.drag_race.queens.all():
+            this_count = queens_by_draft_count.get(queen, 0)
+            if this_count < view.panel.draft_data['max_queen_draft'] and queen not in drafted_queens:
+                available_queens.append(queen)
+
+    return available_queens
+
+
+def get_serialized_available_queens(view, participant):
+    available_queens = get_available_queens(view, participant)
+    available_queens_serialized = QueenSerializer(instance=available_queens, many=True)
+    available_queens_data = available_queens_serialized.data
+    return available_queens_data
+
+
+def set_user_context(view, request, panel_id):
+    view.panel = Panel.objects.get(pk=panel_id)
+    view.user = request.user
+    view.request_participant = Participant.objects.get(user=view.user)
+    view.is_site_admin = view.request_participant.site_admin
+    view.is_captain = view.request_participant in view.panel.captains.all()
+    view.is_current_participant = view.request_participant == view.panel.current_draft_player
+
+
 class EpisodeApi(APIView):
     def get(self, request, *args, **kwargs):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
@@ -59,43 +99,41 @@ class EpisodeApi(APIView):
         return Response(response)
 
 
-class PanelDraftApi(APIView):
-    def _set_user_context(self, request, panel_id):
-        self.panel = Panel.objects.get(pk=panel_id)
-        self.user = request.user
-        self.request_participant = Participant.objects.get(user=self.user)
-        self.is_site_admin = self.request_participant.site_admin
-        self.is_captain = self.request_participant in self.panel.captains.all()
-        self.is_current_participant = self.request_participant == self.panel.current_draft_player
-
-    def _get_available_queens(self, participant):
-        participant_drafts = self.panel.draft_set.filter(participant=participant)
-        drafted_queens = [pd.queen for pd in participant_drafts]
-
-        queens_by_draft_count = {}
-        for draft in self.panel.draft_set.all():
-            this_count = queens_by_draft_count.get(draft.queen, 0)
-            this_count += 1
-            queens_by_draft_count[draft.queen] = this_count
-
-        available_queens = []
-        if self.panel.draft_type == 'byQueenCount':
-            for queen in self.panel.drag_race.queens.all():
-                if queens_by_draft_count.get(queen, 0) < self.panel.queen_draft_allowance and queen not in drafted_queens:  # noqa
-                    available_queens.append(queen)
+class DraftMetaApi(APIView):
+    def get(self, request, *args, **kwargs):
+        set_user_context(self, request, kwargs['panel_id'])
+        panel_drafts = Draft.objects.filter(panel=self.panel).order_by('-round_selected', '-pk').all()
+        drafts_data = DraftSerializer(instance=panel_drafts, many=True).data
+        if self.panel.current_draft_player:
+            participant_pk = self.panel.current_draft_player.pk
         else:
-            for queen in self.panel.drag_race.queens.all():
-                this_count = queens_by_draft_count.get(queen, 0)
-                if this_count < self.panel.draft_data['max_queen_draft'] and queen not in drafted_queens:
-                    available_queens.append(queen)
+            participant_pk = 0
+        response = {
+            'is_current_participant': self.is_current_participant,
+            'request_participant': self.request_participant.pk,
+            'participant_pk': participant_pk,
+            'drafts': drafts_data
+        }
+        return Response(response)
 
-        return available_queens
 
-    def _get_serialized_available_queens(self, participant):
-        available_queens = self._get_available_queens(participant)
-        available_queens_serialized = QueenSerializer(instance=available_queens, many=True)
-        available_queens_data = available_queens_serialized.data
-        return available_queens_data
+class DraftAvailableQueensApi(APIView):
+    def get(self, request, *args, **kwargs):
+        set_user_context(self, request, kwargs['panel_id'])
+        participants = []
+        for participant in self.panel.participants.all():
+            participant_data = ParticipantSerializer(instance=participant, many=False).data
+            participant_available_queens = get_serialized_available_queens(self, participant)
+            participants.append(
+                {'participant': participant_data, 'available_queens': participant_available_queens}
+            )
+        response = {
+            'participants': participants
+        }
+        return Response(response)
+
+
+class PanelDraftApi(APIView):
 
     def _get_draft_data(self, response_status='ok', response_message=None):
         panel_data = PanelSerializer(instance=self.panel, many=False).data
@@ -104,14 +142,14 @@ class PanelDraftApi(APIView):
             for participant_order in self.panel.draft_data['participant_order']:
                 participant = self.panel.participants.get(pk=participant_order)
                 participant_data = ParticipantSerializer(instance=participant, many=False).data
-                participant_available_queens = self._get_serialized_available_queens(participant)
+                participant_available_queens = get_serialized_available_queens(self, participant)
                 participants.append(
                     {'participant': participant_data, 'available_queens': participant_available_queens}
                 )
         else:
             for participant in self.panel.participants.all():
                 participant_data = ParticipantSerializer(instance=participant, many=False).data
-                participant_available_queens = self._get_serialized_available_queens(participant)
+                participant_available_queens = get_serialized_available_queens(self, participant)
                 participants.append(
                     {'participant': participant_data, 'available_queens': participant_available_queens}
                 )
@@ -124,6 +162,7 @@ class PanelDraftApi(APIView):
             'is_site_admin': self.is_site_admin,
             'is_captain': self.is_captain,
             'is_current_participant': self.is_current_participant,
+            'request_participant': self.request_participant.pk,
         }
         return {
             'meta': request_status,
@@ -133,16 +172,21 @@ class PanelDraftApi(APIView):
         }
 
     def get(self, request, *args, **kwargs):
-        self._set_user_context(request, kwargs['panel_id'])
+        set_user_context(self, request, kwargs['panel_id'])
         data = self._get_draft_data()
         return Response(data)
 
     def put(self, request, *args, **kwargs):
-        self._set_user_context(request, kwargs['panel_id'])
-        if self.is_captain or self.is_site_admin:
-            request_type = request.data.get('request')
-            response_status = 'ok'
-            response_message = None
+        set_user_context(self, request, kwargs['panel_id'])
+        request_type = request.data.get('request')
+        response_status = 'ok'
+        response_message = None
+
+        has_super_perms = self.is_captain or self.is_site_admin
+        has_participant_perms = has_super_perms or self.is_current_participant
+        participants_actions = ['add_draft', ]
+
+        if request_type in participants_actions and has_participant_perms:
             if request_type == 'add_draft':
                 """
                 {
@@ -161,14 +205,16 @@ class PanelDraftApi(APIView):
                 participant = Participant.objects.get(
                     pk=request.data.get('participant_id', self.panel.draft_data['current_participant'])
                 )
-                available_queens = self._get_available_queens(participant)
+                available_queens = get_available_queens(self, participant)
                 if queen not in available_queens:
                     response_status = 'error'
                     response_message = '{} is not an available draft for {}'.format(queen.name, participant.name)
                 else:
                     self.panel.save_player_draft(participant, queen)
                     self.panel.advance_draft()
-            elif request_type == 'end_draft':
+
+        elif has_super_perms:
+            if request_type == 'end_draft':
                 """
                 {
                 "request": "end_draft"

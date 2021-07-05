@@ -21,7 +21,7 @@ panelDraftApp.controller(
 			$scope.draftPreview = [];
 			var queenCount = $scope.dragRace.queens.length;
 			var queenDraftCount = queenAllowance * queenCount;
-			var participantCount = $scope.participants.length;
+			var participantCount = Object.keys($scope.participants).length;
 			var queensPP = Math.floor(queenDraftCount / participantCount);
 			var numPlayersGetExtra = queenDraftCount % participantCount;
 			
@@ -37,7 +37,7 @@ panelDraftApp.controller(
 		$scope.setPreviewForTeamSize = function(teamSize) {
 			$scope.draftPreview = [];
 			var queenCount = $scope.dragRace.queens.length;
-			var participantCount = $scope.participants.length;
+			var participantCount = Object.keys($scope.participants).length;
 
 			// the number of drafts that will happen, if each participant gets teamSize drafts
 			var totalDraftCount = teamSize * participantCount;
@@ -77,29 +77,61 @@ panelDraftApp.controller(
 			}
 		}
 
-		$scope.setAppData = function(responseData) {
+		$scope.updateDraftMeta = function(responseData) {
+			$scope.drafts = responseData.drafts;
+			$scope.isCurrentPlayer = responseData.is_current_participant;
+			$scope.currentParticipant = $scope.participants[responseData.participant_pk];
+		}
+
+		$scope.setAvailableQueens = function(responseData) {
+			responseData.participants.forEach(function setQueens(p){
+				$scope.participants[p.participant.pk] = {
+					'pk': p.participant.pk,
+					'name': p.participant.name,
+					'availableQueens': p.available_queens
+
+				}
+			});
+		}
+
+		$scope.updateAvailableQueens = function(responseData) {
+			responseData.participants.forEach(function updateQueens(p){
+				var availableQueensPks = []
+				p.available_queens.forEach(function pushQueenPks(queen){
+					availableQueensPks.push(queen.pk);
+				});
+				$scope.participants[p.participant.pk].availableQueens.forEach(function checkQueen(queen) {
+					if(!availableQueensPks.includes(queen.pk)) {
+						$scope.participants[p.participant.pk]['availableQueens']
+							.splice($scope.participants[p.participant.pk]['availableQueens'].indexOf(queen), 1);
+					}
+				});
+			});
+		}
+
+		$scope.initAppData = function(responseData) {
 			$scope.panel = responseData.panel;
 			$scope.dragRace = responseData.panel.drag_race;
 			$scope.isCaptain = responseData.meta.is_captain;
 			$scope.isAdmin = responseData.meta.is_site_admin;
-			$scope.participants = responseData.participants;
+			$scope.participants = {};
 			$scope.drafts = responseData.drafts;
 			$scope.draft = responseData.panel.draft_data;
-
-			$scope.currentParticipant = $scope.participants[0].participant;
 			$scope.isCurrentPlayer = responseData.meta.is_current_participant;
-			$scope.availableQueens = $scope.participants[0].available_queens;
-			$scope.participants.forEach(function checkIfCurrent(p){
-				if(p.participant.pk == $scope.panel.draft_data.current_participant) {
-					$scope.currentParticipant = p.participant;
-					$scope.availableQueens = p.available_queens;
-				}
-			});
+			$scope.setAvailableQueens(responseData);
 			if($scope.panel.status == 'open') {
 				$scope.draftType = 'byQueenCount';
 				$scope.draftVariable = 0;
 				$scope.setPreview($scope.draftType, 0);
 			}
+		}
+
+		$scope.updateApp = function(){
+			$http.get('/api/panel/' + $scope.panelId + '/drafts/').then(function initAppData(response){
+				$scope.updateDraftMeta(response.data);
+			});$http.get('/api/panel/' + $scope.panelId + '/availablequeens/').then(function initAppData(response){
+				$scope.updateAvailableQueens(response.data);
+			});
 		}
 
 		$scope.startDraft = function(draftType, variableNumber) {
@@ -112,8 +144,8 @@ panelDraftApp.controller(
 					'variable_number': variableNumber,
 					'draft_rules': $scope.draftPreview,
 				}
-			).then(function resetAppData(response){
-				$scope.setAppData(response.data);
+			).then(function reinitAppData(response){
+				$scope.initAppData(response.data);
 			});
 		}
 		$scope.draftPut = function(request_type) {	
@@ -121,8 +153,12 @@ panelDraftApp.controller(
 			$http.put(
 				'/api/panel/' + $scope.panelId + '/draft/',
 				{'request': request_type}
-			).then(function resetAppData(response){
-				$scope.setAppData(response.data);
+			).then(function reinitAppData(response){
+				if (request_type == 'reset') {
+					$scope.initAppData(response.data);
+				} else {
+					$scope.updateApp();
+				}
 			});
 
 		}
@@ -137,21 +173,30 @@ panelDraftApp.controller(
 
 		}
 
-		$scope.selectQueen = function() {
-			var selected = document.getElementById('id_queen');
-			var queenId = selected.options[selected.selectedIndex].value;
+		$scope.selectQueen = function(queen) {
+			$scope.selectedQueen = queen;
+		}
+
+		$scope.draftQueen = function() {
 			$http.put(
 				'/api/panel/' + $scope.panelId + '/draft/',
-				{'request': 'add_draft', 'queen_id': queenId}
-			).then(function resetAppData(response){
-				$scope.setAppData(response.data);
+				{'request': 'add_draft', 'queen_id': $scope.selectedQueen.pk}
+			).then(function reinitAppData(response){
+				if(response.status == 'ok'){
+					$scope.updateApp();
+					$scope.selectedQueen = null;
+				}
 			});
 
 		}
 
-		$http.get('/api/panel/' + $scope.panelId + '/draft/').then(function setAppData(response){
-			$scope.setAppData(response.data);
+		$http.get('/api/panel/' + $scope.panelId + '/draft/').then(function initAppData(response){
+			$scope.initAppData(response.data);
+			var draftLoop = window.setInterval(function startDraftLoop(){
+				$scope.updateApp();
+			}, 1000);
 		});
+
 
 	}
 );
