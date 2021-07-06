@@ -4,6 +4,10 @@ from fantasydrag.api import views
 
 urlpatterns = [
     path('api/profile/', views.ProfileApi.as_view(), name='api_profile'),
+    path('api/dragrace/', views.DragRaceApi.as_view(), name='api_drag_race'),
+    path('api/dragrace/<int:dragrace_id>/', views.DragRaceApi.as_view(), name='api_drag_race'),
+    path('api/defaultrules/', views.DefaultRulesApi.as_view(), name='api_default_rules'),
+    path('api/queens/', views.QueenApi.as_view(), name='api_queens'),
     path(
         'api/panel/<int:panel_id>/availablequeens/',
         views.DraftAvailableQueensApi.as_view(),

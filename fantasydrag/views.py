@@ -91,6 +91,14 @@ class Profile(AuthenticatedView):
         return HttpResponse(template.render(self.context, request))
 
 
+class DragRaceAddEdit(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        dragrace_id = kwargs.get('dragrace_id')
+        template = loader.get_template('pages/newdragrace.html')
+        self.context.update({'dragrace_id': dragrace_id})
+        return HttpResponse(template.render(self.context, request))
+
+
 class LandingPage(AuthenticatedView):
 
     def get(self, request, *args, **kwargs):

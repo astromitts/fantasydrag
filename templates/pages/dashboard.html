@@ -63,4 +63,15 @@
 			</div>
 	{% endfor %}
 
+	{% if participant.site_admin %}
+		<div class="spacer spacer-medium"></div>
+		<div class="row">
+			<div class="col">
+				<a href="{% url 'drag_race_new' %}">
+					<button class="btn btn-primary form-control">New Drag Race</button>
+				</a>
+			</div>
+		</div>
+	{% endif %}
+
 {% endblock %}

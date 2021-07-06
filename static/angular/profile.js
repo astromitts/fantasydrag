@@ -7,7 +7,7 @@ profileApp.config(['$httpProvider', function($httpProvider) {
 
 profileApp.controller(
 	'profileController',
-	function($scope, $http) {		
+	function($scope, $http) {
 		$scope.editProfile = false;
 		$scope.error = null;
 

@@ -33,15 +33,31 @@ class QueenSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
+class RuleSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Rule
+        fields = [
+            'pk',
+            'name',
+            'description',
+            'point_value'
+        ]
+
+
 class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
     queens = QueenSerializer(many=True)
+    rules = RuleSerializer(many=True, source='rule_set')
 
     class Meta:
         model = DragRace
         fields = [
             'pk',
             'display_name',
-            'queens'
+            'season',
+            'franchise',
+            'race_type',
+            'queens',
+            'rules'
         ]
 
 
@@ -51,17 +67,6 @@ class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
         fields = [
             'pk',
             'display_name',
-        ]
-
-
-class RuleSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Rule
-        fields = [
-            'pk',
-            'name',
-            'description',
-            'point_value'
         ]
 
 

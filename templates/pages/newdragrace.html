@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/editdragrace.js' %}"></script>
+
+{% endblock %}
+
+{% block page_content %}
+<input type="hidden" name="dragrace_id" id="id_dragrace_id" value="{{dragrace_id}}" />
+<span id='addEditDragRaceModule' ng-controller='addEditDragRaceController'>
+
+	{% verbatim %}	
+	<div class="row"><div class="spacer-small"></div></div>
+	<div class="row"> 
+		<div class="col">
+			<h1 class="marker" ng-show="createNew">Add Drag Race</h1>
+			<h1 class="marker" ng-show="!createNew">Edit Drag Race</h1>
+		</div>
+	</div>
+	<div class="row" ng-show="errors.length > 0">
+		<div class="col">
+			<div class="alert alert-danger">
+				<ul>
+					<li ng-repeat="error in errors">{{error}}</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-show="successMessage">
+		<div class="col">
+			<div class="alert alert-success">
+				{{successMessage}}
+			</div>
+		</div>
+	</div>
+	<form method="POST" action="" ng-submit="createUpdateDragRace($event)">
+		<div class="row">
+			<div class="col">
+				<label for="season" class="label-plain">Season#:</label>
+				<input type="number" class="form-control" id="id_season" name="season" ng-model="dragRace.season" required/>
+			</div>
+			<div class="col">
+				<label for="franchise" class="label-plain">Franchise:</label>
+				<select class="form-control" id="id_franchse" name="franchise" ng-model="dragRace.franchise" required>
+					<option ng-repeat="franchiseOption in franchiseOptions" value="{{franchiseOption}}">{{franchiseOption}}</option>
+				</select>
+			</div>
+			<div class="col">
+				<label for="race_type" class="label-plain">Type:</label>
+				<select class="form-control" id="id_race_type" name="race_type" ng-model="dragRace.race_type" required>
+					<option ng-repeat="typeOption in typeOptions" value="{{typeOption}}">{{typeOption}}</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="spacer-small"></div>
+		<div class="row">
+			<div class="col">
+				<label for="queens" class="label-plain">Queens:</label>
+				<div class="input-group">
+				  <select class="custom-select" id="id_queens" name="queens" ng-model="existingQueenSelect">
+				    <option></option>
+					<option ng-repeat="queen in existingQueens" value="{{queen}}">{{queen.name}}</option>
+				  </select>
+				  <div class="input-group-append">
+				    <button class="btn btn-primary" type="button" ng-click="addExistingQueen(existingQueenSelect)">+</button>
+				  </div>
+				</div>
+
+			</div>
+		</div>
+		<div class="spacer-small"></div>
+		<div class="row">
+			<div class="col">
+				<label for="new_queen" class="label-plain">Add Queen:</label>
+				<div class="input-group">
+				  <input type="text" class="form-control" id="id_new_queen" name="new_queen" ng-model="newQueen" />
+				  <div class="input-group-append">
+				    <button class="btn btn-primary" type="button" ng-click="addNewQueen()">+</button>
+				  </div>
+				</div>
+
+			</div>
+		</div>	
+	<div class="spacer-medium" ng-show="dragRace.queens.length > 0"></div>
+	<div class="row">
+		<div class="col">
+			<table class="table">
+				<tr ng-repeat="queen in dragRace.queens">
+					<td>{{queen.name}}</td>
+					<td>
+						<button 
+							class="btn btn-danger btn-sm"
+							ng-click="removeQueen(queen)">-</button>
+					</td>
+				</tr>
+			</table>
+			
+		</div>
+	</div>
+
+	<div class="spacer-medium"></div>
+	<div class="row">
+		<div class="col">
+			<p class="marker">Rules</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<label for="new_rule" class="label-plain">Add Rule:</label>
+			<div class="input-group">
+			  <input type="text" class="form-control" id="id_new_rule" name="new_rule" ng-model="newRule" />
+			  <div class="input-group-append">
+			    <button class="btn btn-primary" type="button" ng-click="addNewRule()">+</button>
+			  </div>
+			</div>
+
+		</div>
+	</div>	
+
+	<div class="row">
+		<div class="col">
+			<table class="table-every-other">
+				<tbody ng-repeat="rule in dragRace.rules">
+				<tr class="no-border">
+					<td><input type="text" ng-model="rule.name" class="form-control" /></td>
+					<td><input type="number" ng-model="rule.point_value" class="form-control form-control-small" /></td>
+					<td>
+						<button 
+							class="btn btn-danger btn-sm form-control-small"
+							ng-click="removeRule(rule)">-</button>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="100%">
+						<p class="text-secondary">
+						<textarea ng-model="rule.description" class="form-control">{{rule.description}}</textarea></p>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			
+		</div>
+	</div>
+	<div class="spacer-small"></div>
+	<div class="row">
+		<div class="col">
+			<input ng-show="createNew" type="submit" class="btn btn-primary form-control" value="Submit Drag Race" />
+			<input ng-show="!createNew" type="submit" class="btn btn-primary form-control" value="Update Drag Race" />
+		</div>
+	</div>
+	</form>
+	{% endverbatim %}
+</span>
+{% endblock %}

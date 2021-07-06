@@ -4,7 +4,7 @@ import math
 
 
 class Queen(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         ordering = ('name', )
@@ -50,6 +50,9 @@ class DragRace(models.Model):
         default='US'
     )
 
+    class Meta:
+        unique_together = ('season', 'race_type', 'franchise')
+
     def __str__(self):
         return self.display_name
 
@@ -93,8 +96,7 @@ class Episode(models.Model):
         return '{} episode #{}'.format(self.drag_race, self.number)
 
 
-class Rule(models.Model):
-    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+class RuleBase(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     point_value = models.IntegerField(default=1)
@@ -107,7 +109,16 @@ class Rule(models.Model):
     )
 
     class Meta:
+        abstract = True
         ordering = ('score_type', 'point_value', 'name')
+
+
+class DefaultRule(RuleBase):
+    pass
+
+
+class Rule(RuleBase):
+    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{}, "{}": ({} points) {}'.format(self.drag_race, self.name, self.point_value, self.description)

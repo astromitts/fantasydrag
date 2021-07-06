@@ -4,7 +4,9 @@ from django.db import IntegrityError
 
 from fantasydrag.models import (
     Episode,
+    DragRace,
     Draft,
+    DefaultRule,
     Rule,
     Score,
     Queen,
@@ -12,6 +14,7 @@ from fantasydrag.models import (
     Participant,
 )
 from fantasydrag.api.serializers import (
+    DragRaceSerializer,
     DraftSerializer,
     EpisodeScore,
     ScoreSerializer,
@@ -19,6 +22,7 @@ from fantasydrag.api.serializers import (
     QueenSerializer,
     ParticipantSerializer,
     UserSerializer,
+    RuleSerializer,
 )
 
 
@@ -60,6 +64,168 @@ def set_user_context(view, request, panel_id):
     view.is_site_admin = view.request_participant.site_admin
     view.is_captain = view.request_participant in view.panel.captains.all()
     view.is_current_participant = view.request_participant == view.panel.current_draft_player
+
+
+class DragRaceApi(APIView):
+    def get(self, request, *args, **kwargs):
+        drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+        response = DragRaceSerializer(instance=drag_race)
+        return Response(response.data)
+
+    def _create_drag_race(self, request):
+        status = 'ok'
+        message = None
+        drag_race_data = {}
+
+        season = request.data['season']
+        franchise = request.data['franchise']
+        race_type = request.data['race_type']
+
+        try:
+            drag_race = DragRace(
+                season=season,
+                franchise=franchise,
+                race_type=race_type
+            )
+            drag_race.save()
+            for posted_rule in request.data['rules']:
+                rule = Rule(
+                    name=posted_rule['name'],
+                    description=posted_rule['description'],
+                    point_value=posted_rule['point_value'],
+                    drag_race=drag_race
+                )
+                rule.save()
+
+            for queen in request.data['queens']:
+                if queen['pk']:
+                    queen = Queen.objects.get(pk=queen['pk'])
+                else:
+                    queen = Queen(
+                        name=queen['name']
+                    )
+                    try:
+                        queen.save()
+                    except IntegrityError:
+                        queen = Queen.objects.get(name=queen['name'])
+                drag_race.queens.add(queen)
+
+            drag_race_data = DragRaceSerializer(instance=drag_race).data
+
+            message = 'Created Drag Race {} {} season {}'.format(
+                franchise, race_type, season
+            )
+
+        except IntegrityError:
+            status = 'error'
+            message = 'Drag Race {} {} season {} already exists'.format(
+                franchise, race_type, season
+            )
+        response = {
+            'status': status,
+            'message': message,
+            'drag_race': drag_race_data,
+        }
+        return response
+
+    def _update_drag_race(self, request):
+        drag_race = DragRace.objects.get(pk=request.data['pk'])
+
+        status = 'ok'
+        message = None
+        drag_race_data = {}
+
+        season = request.data['season']
+        franchise = request.data['franchise']
+        race_type = request.data['race_type']
+
+        try:
+            drag_race.season = season
+            drag_race.franchise = franchise
+            drag_race.race_type = race_type
+            drag_race.save()
+            current_queens = {q.pk: q for q in drag_race.queens.all()}
+            posted_queens = {}
+            for posted_queen in request.data['queens']:
+                new_queen = posted_queen['pk'] is None
+                if new_queen:
+                    queen = Queen(
+                        name=posted_queen['name']
+                    )
+                    try:
+                        queen.save()
+                    except IntegrityError:
+                        queen = Queen.objects.get(name=posted_queen['name'])
+                    drag_race.queens.add(queen)
+                elif posted_queen['pk'] not in current_queens.keys():
+                    queen = Queen.objects.get(pk=posted_queen['pk'])
+                    drag_race.queens.add(queen)
+                else:
+                    queen = None
+                    posted_queens[posted_queen['pk']] = {}
+                if queen:
+                    posted_queens[queen.pk] = queen
+
+            for pk, queen in current_queens.items():
+                if pk not in posted_queens:
+                    drag_race.queens.remove(queen)
+
+            posted_rule_pks = []
+            for posted_rule in request.data['rules']:
+                new_rule = posted_rule['pk'] is None
+                if new_rule:
+                    rule = Rule(
+                        name=posted_rule['name'],
+                        description=posted_rule['description'],
+                        point_value=posted_rule['point_value'],
+                        drag_race=drag_race
+                    )
+                    rule.save()
+                    posted_rule_pks.append(rule.pk)
+                else:
+                    posted_rule_pks.append(posted_rule['pk'])
+            for rule in drag_race.rule_set.all():
+                if rule.pk not in posted_rule_pks:
+                    rule.delete()
+
+            message = 'Updated Drag Race {} {} season {}'.format(
+                franchise, race_type, season
+            )
+        except IntegrityError:
+            status = 'error'
+            message = 'Drag Race {} {} season {} already exists'.format(
+                franchise, race_type, season
+            )
+
+        drag_race_data = DragRaceSerializer(instance=drag_race).data
+        response = {
+            'status': status,
+            'message': message,
+            'drag_race': drag_race_data,
+        }
+        return response
+
+    def post(self, request, *args, **kwargs):
+        update = request.data['pk'] != 'None'
+        if not update:
+            response = self._create_drag_race(request)
+        elif update:
+            response = self._update_drag_race(request)
+        return Response(response)
+
+
+class QueenApi(APIView):
+    def get(self, request, *args, **kwargs):
+        queens = Queen.objects.all()
+        serializer = QueenSerializer(instance=queens, many=True)
+        return Response(serializer.data)
+
+
+class DefaultRulesApi(APIView):
+    def get(self, request, *args, **kwargs):
+        rules = DefaultRule.objects.all()
+        serializer = RuleSerializer(instance=rules, many=True)
+        return Response(serializer.data)
 
 
 class EpisodeApi(APIView):
