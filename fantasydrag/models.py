@@ -91,6 +91,7 @@ class Episode(models.Model):
 
     class Meta:
         ordering = ('number', )
+        unique_together = ('drag_race', 'number')
 
     def __str__(self):
         return '{} episode #{}'.format(self.drag_race, self.number)

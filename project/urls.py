@@ -34,7 +34,7 @@ urlpatterns = [
         name='dragrace_rules'
     ),
     path(
-        'dragrace/<int:dragrace_id>/episode/redirect',
+        'dragrace/<int:dragrace_id>/episode/redirect/',
         views.SetEpisodeRedirect.as_view(),
         name='set_episode_scores_redirect'
     ),
@@ -42,6 +42,11 @@ urlpatterns = [
         'dragrace/episode/<int:episode_id>/',
         views.EpisodeDetail.as_view(),
         name='episode_detail'
+    ),
+    path(
+        'dragrace/<int:dragrace_id>/episode/new/',
+        views.CreateEpisode.as_view(),
+        name='create_episode'
     ),
     path(
         'dragrace/<int:dragrace_id>/episode/<int:episode_id>/score/',

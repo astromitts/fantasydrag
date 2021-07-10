@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.template import loader
 from django.views import View
+from django.db import IntegrityError
 from fantasydrag.models import (
     Participant,
     Queen,
@@ -12,7 +13,7 @@ from fantasydrag.models import (
     Episode,
     WildCardQueen,
 )
-from fantasydrag.forms import LoginPasswordForm
+from fantasydrag.forms import LoginPasswordForm, CreateEpisodeForm
 
 
 class Error(View):
@@ -251,6 +252,46 @@ class SetEpisodeScores(AuthenticatedView):
         })
 
     def get(self, request, *args, **kwargs):
+        return HttpResponse(self.template.render(self.context, request))
+
+
+class CreateEpisode(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(CreateEpisode, self).setup(request, *args, **kwargs)
+        self.template = loader.get_template('pages/create-episode.html')
+        self.form = CreateEpisodeForm
+
+    def get(self, request, *args, **kwargs):
+        self.context.update({'form': self.form()})
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        form = self.form(request.POST)
+        if form.is_valid():
+            try:
+                new_episode = Episode(
+                    drag_race=self.drag_race,
+                    number=request.POST['number'],
+                    title=request.POST['title']
+                )
+                new_episode.save()
+                return redirect(
+                    reverse(
+                        'set_episode_scores',
+                        kwargs={
+                            'dragrace_id': self.drag_race.pk,
+                            'episode_id': new_episode.pk,
+                        }
+                    )
+                )
+            except IntegrityError:
+                error = 'Episode #{} for {} already exists'.format(
+                    request.POST['number'], self.drag_race.display_name
+                )
+        self.context.update({
+            'form': form,
+            'error': error,
+        })
         return HttpResponse(self.template.render(self.context, request))
 
 

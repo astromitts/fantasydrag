@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_content %}
+{% if error %}
+<div class="row">
+	<div class="col">
+		<div class="alert alert-danger">{{error}}</div>
+	</div>
+</div>
+{% endif %}
+<div class="row">
+	<div class="col">
+		<form method="POST" action="">
+			{% csrf_token %}
+			<table class="table">
+				{{form.as_table}}
+				<tr>
+					<td colspan="100%">
+						<input type="submit" value="Submit" class="form-control btn btn-primary"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
