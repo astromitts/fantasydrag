@@ -53,4 +53,9 @@ urlpatterns = [
         views.SetEpisodeScores.as_view(),
         name='set_episode_scores'
     ),
+    path(
+        'dragrace/<int:dragrace_id>/episode/<int:episode_id>/wildcards/',
+        views.WildCards.as_view(),
+        name='set_episode_wildcards'
+    ),
 ] + api_urls

@@ -9,11 +9,14 @@ $app-black: #333333;
 $true-black: #000000;
 $app-white: #ffffff;
 
-$danger: #8ae3f7;
-$danger-hover: #1cb9dc;
+$danger: #a08af7;
+$danger-hover: #7f62f1;
 
 $success: #f5d16c;
 $success-hover: #f3e3b7;
+
+$info: #2dbfd6;
+$info-hover: #2cc9e2;
 
 $selected: #f5a2f2;
 
@@ -155,6 +158,12 @@ table {
 			background-color: #ea4fe0;
 		}
 	}
+	&-info {
+		background-color: $info;		
+		&:hover {
+			background-color: $info-hover;
+		}
+	}
 }
 
 .alert {
@@ -163,6 +172,9 @@ table {
 		background-color: $highlight-color;
 		color: $true-black;
 		border-color: $app-black;
+	}
+	&-info {
+		background-color: $info;
 	}
 }
 

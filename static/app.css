@@ -125,10 +125,10 @@ table {
   border-color: #000000;
 }
 .btn-danger {
-  background-color: #8ae3f7;
+  background-color: #a08af7;
 }
 .btn-danger:hover {
-  background-color: #1cb9dc;
+  background-color: #7f62f1;
 }
 .btn-success {
   background-color: #f5d16c;
@@ -142,6 +142,12 @@ table {
 .btn-primary:hover {
   background-color: #ea4fe0;
 }
+.btn-info {
+  background-color: #2dbfd6;
+}
+.btn-info:hover {
+  background-color: #2cc9e2;
+}
 
 .alert-success, .alert-info {
   font-family: "Rock Salt", sans-serif;
@@ -151,6 +157,9 @@ table {
 }
 .alert-success a, .alert-info a {
   /* font-size: 1.7rem; */
+}
+.alert-info {
+  background-color: #2dbfd6;
 }
 
 ul {

@@ -14,6 +14,9 @@
 		<div class="col">
 			<h3>{{drag_race.display_name}}</h3>
 		</div>
+		<div class="col-1">
+			<a href="{% url 'set_episode_wildcards' dragrace_id=drag_race.pk episode_id=episode.pk%}" class="marker">Widlcards</a>
+		</div>
 	</div>
 
 	<div class="row">

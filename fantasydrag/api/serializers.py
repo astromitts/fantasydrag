@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from fantasydrag.models import (
+    AppearanceType,
     DragRace,
     Draft,
     Episode,
@@ -9,7 +10,19 @@ from fantasydrag.models import (
     Queen,
     Panel,
     Participant,
+    WildCardAppearance,
 )
+
+
+class AppearanceTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AppearanceType
+        fields = [
+            'pk',
+            'name',
+            'point_value',
+            'description',
+        ]
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -67,6 +80,19 @@ class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
         fields = [
             'pk',
             'display_name',
+        ]
+
+
+class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
+    drag_race = DragRaceSerializerShort()
+
+    class Meta:
+        model = Episode
+        fields = [
+            'pk',
+            'drag_race',
+            'number',
+            'title',
         ]
 
 
@@ -130,4 +156,19 @@ class PanelSerializer(serializers.HyperlinkedModelSerializer):
             'queen_draft_allowance',
             'team_size',
             'drag_race',
+        ]
+
+
+class AppearanceSerializer(serializers.HyperlinkedModelSerializer):
+    queen = QueenSerializer()
+    appearance = AppearanceTypeSerializer()
+    episode = EpisodeSerializer()
+
+    class Meta:
+        model = WildCardAppearance
+        fields = [
+            'pk',
+            'queen',
+            'episode',
+            'appearance',
         ]

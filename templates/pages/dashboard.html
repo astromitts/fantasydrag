@@ -40,22 +40,26 @@
 		{% if participant.site_admin %}
 			<div class="spacer spacer-medium"></div>
 			<div class="row">
-				<div class="col">
-					<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+				<div class="col"><h4 class="marker">Score Episodes</h4>
+				</div>
+			</div>
+			<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+				<div class="row">
+					<div class="col">
 						{%csrf_token %}
-						<label for="episode"><h4 class="marker">Score Episodes</h4></label>
 						<select id="id_episode" name="episode" class="form-control">
 							<option>
 							</option>
 							{% for episode in drag_race.episode_set.all %}
-							<option value="{{episode.pk}}">Episode #{{episode.number}}</option>
+							<option value="{{episode.pk}}">Episode #{{episode.number}} {{episode.title}}</option>
 							{% endfor %}
 						</select>
-						<div class="spacer spacer-small"></div>
+					</div>
+					<div class="col-3">
 						<input type="submit" value="Go" class="form-control btn btn-primary"/>
-					</form>
+					</div>
 				</div>
-			</div>
+			</form>
 			<div class="row">
 				<div class="col">
 					<a href="{% url 'create_episode' dragrace_id=drag_race.pk%}" class="form-control btn btn-info">Add episode</a>

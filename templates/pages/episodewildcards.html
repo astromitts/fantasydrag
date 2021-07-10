@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static helper_tags %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/episodewildcards.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+<span id='episodeWildQueensModule' ng-controller='episodeWildQueensController'>
+	<input type="hidden" id="id_episodeId" value="{{episode.pk}}" />
+
+	<div class="row">
+		<div class="col">
+			<a class="marker" href="{% url 'set_episode_scores' dragrace_id=drag_race.pk episode_id=episode.pk %}">< Score</a>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<h3>{{drag_race.display_name}}</h3>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			{% verbatim %}
+			<h1 ng-show="!editTitle">Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}</span> Wildcards</h1>
+			{% endverbatim %}
+		</div>
+	</div>
+
+	{% if participant.site_admin %}
+		<div class="row">
+			<div class="col">
+				{% verbatim %}
+				<label for="queen">Queen:</label>
+				<select 
+					id="id_queen" 
+					name="queen" 
+					class="form-control"
+					ng-change="updateCurrentQueen()"
+					ng-model="queenSelector">>
+					<option ng-model="currentQueen" ng-repeat="queen in allQueens track by $index" value="{{$index}}">{{queen.name}}</option>
+				</select>
+				<label for="rule">Appearance Type:</label>
+				<select 
+					id="id_appearance" 
+					name="appearance" 
+					class="form-control"
+					ng-change="updateCurrentType()"
+					ng-model="typeSelector">
+					<option 
+					ng-model="currentType" ng-repeat="type in appearanceTypes track by $index" value="{{$index}}">({{type.point_value}} pts) {{type.name}}</option>
+				</select>
+				
+				<div class="spacer-medium"></div>
+				<input ng-if="currentQueen && currentType" type="submit" value="add appearance" class="form-control btn btn-primary" name="addscore" id="id_addscore" ng-click="addAppearance(currentRule, currentQueen)"/>
+				{% endverbatim %}
+			</div>
+		</div>
+	{% endif %}
+	<div class="row">
+		<div class="col">
+			<table class="table">
+				<tr>
+					<th>Queen</th><th>Appearance Type</th><th>Points</th><td></td>
+				</tr>
+				<tr ng-repeat="appearance in appearances">
+					{% verbatim %}
+					<th>{{appearance.queen.name}}</th>
+					<td>
+						<p>{{appearance.appearance.name}}</p>
+						<p class="text-secondary">{{appearance.appearance.description}}</p>
+					</td>
+					<td>{{appearance.appearance.point_value}}</td>
+
+					{% endverbatim %}
+					<td>
+						{% if participant.site_admin %}
+
+							{% verbatim %}
+								<input type="submit" class="btn btn-sm btn-danger" value="remove" name="deletescore" id="id_deleteappearance_{{appearance.pk}}"
+								ng-click="deleteAppearance(appearance)">
+							{% endverbatim %}
+						{% endif %}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</span>
+{% endblock %}

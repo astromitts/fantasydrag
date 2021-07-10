@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/dragrace/<int:dragrace_id>/', views.DragRaceApi.as_view(), name='api_drag_race'),
     path('api/defaultrules/', views.DefaultRulesApi.as_view(), name='api_default_rules'),
     path('api/queens/', views.QueenApi.as_view(), name='api_queens'),
+    path('api/appearancetypes/', views.AppearanceTypeApi.as_view(), name='api_appearance_types'),
     path(
         'api/panel/<int:panel_id>/availablequeens/',
         views.DraftAvailableQueensApi.as_view(),
@@ -16,6 +17,12 @@ urlpatterns = [
     path('api/panel/<int:panel_id>/drafts/', views.DraftMetaApi.as_view(), name='api_panel_draft_list'),
     path('api/panel/<int:panel_id>/draft/', views.PanelDraftApi.as_view(), name='api_panel_draft'),
     path('api/episode/<int:episode_id>/score/', views.EpisodeApi.as_view(), name='api_episode_scores'),
+    path('api/episode/<int:episode_id>/appearances/', views.EpisodeAppearanceApi.as_view(), name='api_episode_wqs'),
+    path(
+        'api/episode/<int:episode_id>/appearances/<int:wqa_id>/delete/',
+        views.EpisodeAppearanceApi.as_view(),
+        name='api_episode_wqs_delete'
+    ),
     path(
         'api/episode/<int:episode_id>/score/<int:score_id>/delete/',
         views.EpisodeApi.as_view(),

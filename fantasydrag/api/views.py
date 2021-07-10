@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from django.db import IntegrityError
 
 from fantasydrag.models import (
+    AppearanceType,
     Episode,
     DragRace,
     Draft,
@@ -12,8 +13,11 @@ from fantasydrag.models import (
     Queen,
     Panel,
     Participant,
+    WildCardAppearance,
 )
 from fantasydrag.api.serializers import (
+    AppearanceSerializer,
+    AppearanceTypeSerializer,
     DragRaceSerializer,
     DraftSerializer,
     EpisodeScore,
@@ -212,6 +216,42 @@ class DragRaceApi(APIView):
         elif update:
             response = self._update_drag_race(request)
         return Response(response)
+
+
+class AppearanceTypeApi(APIView):
+    def get(self, request, *args, **kwargs):
+        appearances = AppearanceType.objects.all()
+        serializer = AppearanceTypeSerializer(instance=appearances, many=True)
+        return Response(serializer.data)
+
+
+class EpisodeAppearanceApi(APIView):
+    def _setcontext(self, request, *args, **kwargs):
+        self.episode = Episode.objects.get(pk=kwargs['episode_id'])
+
+    def get(self, request, *args, **kwargs):
+        self._setcontext(request, *args, **kwargs)
+        appearances = WildCardAppearance.objects.filter(episode=self.episode).order_by('-pk').all()
+        serializer = AppearanceSerializer(instance=appearances, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        self._setcontext(request, *args, **kwargs)
+        appearance = AppearanceType.objects.get(pk=request.data['appearance'])
+        queen = Queen.objects.get(pk=request.data['queen'])
+        new_wqa = WildCardAppearance(
+            appearance=appearance,
+            queen=queen,
+            episode=self.episode
+        )
+        new_wqa.save()
+        response = AppearanceSerializer(instance=new_wqa, many=False)
+        return Response(response.data)
+
+    def delete(self, request, *args, **kwargs):
+        self._setcontext(request, *args, **kwargs)
+        WildCardAppearance.objects.get(pk=kwargs['wqa_id']).delete()
+        return Response({'status': 'ok'})
 
 
 class QueenApi(APIView):

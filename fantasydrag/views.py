@@ -295,6 +295,17 @@ class CreateEpisode(AuthenticatedView):
         return HttpResponse(self.template.render(self.context, request))
 
 
+class WildCards(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(WildCards, self).setup(request, *args, **kwargs)
+        self.episode = Episode.objects.get(pk=kwargs['episode_id'], drag_race__id=kwargs['dragrace_id'])
+        self.context.update({'episode': self.episode})
+        self.template = loader.get_template('pages/episodewildcards.html')
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self.template.render(self.context, request))
+
+
 class WildCardList(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(WildCardList, self).setup(request, *args, **kwargs)
