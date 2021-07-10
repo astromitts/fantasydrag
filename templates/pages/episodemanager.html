@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/manageepisodes.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+<span id='episodeManagerModule' ng-controller='episodeManagerController'>
+{% verbatim %}
+	<input type="hidden" id="id_panelId" value="{{panel.pk}}" />
+	<div class="row">
+		<div class="col">
+			<h1>{{dragRace.display_name}}</h1>
+		</div>
+	</div>
+
+{% endverbatim %}
+</span>
+{% endblock %}

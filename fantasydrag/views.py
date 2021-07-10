@@ -84,6 +84,12 @@ class AuthenticatedView(View):
                 }
             )
 
+        if 'dragrace_id' in kwargs:
+            self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+            self.context.update(
+                {'drag_race': self.drag_race}
+            )
+
 
 class Profile(AuthenticatedView):
     def get(self, request, *args, **kwargs):
@@ -224,6 +230,12 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
             self.participant.save()
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
+        return HttpResponse(self.template.render(self.context, request))
+
+
+class Episodes(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        self.template = loader.get_template('pages/episodemanager.html')
         return HttpResponse(self.template.render(self.context, request))
 
 
