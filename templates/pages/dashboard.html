@@ -16,6 +16,12 @@
 					<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
 					Stats</a>
 				</p>
+				{% if participant.site_admin %}
+				<p class="marker">
+					<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
+					Edit Drag Race</a>
+				</p>
+				{% endif %}
 			</div>
 			<div class="col">
 				<h4 class="marker">Episodes</h4>
