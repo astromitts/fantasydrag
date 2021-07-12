@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/dashboard.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+<span id='dashboardModule' ng-controller='dashboardController'>
+<div class="row">
+	<div class="col-2">
+		<a href="{% url 'drag_race_new' %}">
+			<button class="btn btn-primary form-control">New Drag Race</button>
+		</a>
+	</div>
+	<div class="col">
+		{% for drag_race, data in current_drag_races.items %}
+			{% include 'pages/dashboard/includes/drag_race.html' %}
+		{% endfor %}
+		<div class="row">
+			<div class="col">
+				<button class="btn btn-info form-control" ng-show="!showAll" ng-click="showAll=true;">Show Past Seasons</button>
+				<button class="btn btn-info form-control" ng-show="showAll" ng-click="showAll=false;">Hide Past Seasons</button>
+			</div>
+		</div>
+		<span ng-if="showAll">
+			{% for drag_race, data in past_drag_races.items %}
+				{% include 'pages/dashboard/includes/drag_race.html' %}
+			{% endfor %}
+		</span>
+	</div>
+</div>
+</span>
+{% endblock %}

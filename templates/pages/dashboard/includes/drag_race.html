@@ -1,0 +1,81 @@
+<div class="row">
+<div class="col-12">
+	<h1>
+		{{drag_race.display_name}}
+	</h1>
+</div>
+<div class="col">
+	<p class="marker">
+		<a href="{% url 'dragrace_rules' dragrace_id=drag_race.pk %}">Rules</a>
+	</p>
+	<p class="marker">
+		<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
+		Stats</a>
+	</p>
+	{% if participant.site_admin %}
+	<p class="marker">
+		<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
+		Edit Drag Race</a>
+	</p>
+	{% endif %}
+</div>
+<div class="col">
+	<h4 class="marker">Episodes</h4>
+	<ul>
+	{% for episode in drag_race.scored_episodes %}
+	<li><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> </li>
+	{% endfor %}
+	</ul>
+</div>
+
+<div class="col">
+	<h4 class="marker">Panels</h4>
+	<ul>
+		{% for panel in data.participant_panels %}
+			<li>
+				<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a>
+				{% if panel.status == 'in draft' or panel.status == 'wildcards' %}
+				<a href="{% url 'panel_set_drafts' panel_id=panel.pk %} "><button class="btn btn-primary form-control">Go to draft</button></a>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+	<div class="spacer-small"></div>
+	<div>
+		<a href="{% url 'panel_create' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+	</div>
+</div>
+</div>
+{% if participant.site_admin %}
+<div class="spacer spacer-medium"></div>
+<div class="row">
+	<div class="col"><h4 class="marker">Score Episodes</h4>
+	</div>
+</div>
+<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+	<div class="row">
+		<div class="col">
+			{%csrf_token %}
+			<select id="id_episode" name="episode" class="form-control">
+				<option>
+				</option>
+				{% for episode in drag_race.episode_set.all %}
+				<option value="{{episode.pk}}">Episode #{{episode.number}} {{episode.title}}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="col-3">
+			<input type="submit" value="Go" class="form-control btn btn-primary"/>
+		</div>
+	</div>
+</form>
+<div class="row">
+	<div class="col">
+		<a href="{% url 'create_episode' dragrace_id=drag_race.pk%}" class="form-control btn btn-info">Add episode</a>
+	</div>
+</div>
+{% endif %}
+
+<div class="col-12">
+	<hr />
+</div>	

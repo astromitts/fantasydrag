@@ -137,17 +137,23 @@ class DragRaceAddEdit(AuthenticatedView):
 
 class LandingPage(AuthenticatedView):
 
-    def get(self, request, *args, **kwargs):
-        template = loader.get_template('pages/dashboard.html')
-        all_races = DragRace.objects.all()
-
-        formatted_races = {}
-        for drag_race in all_races:
-            formatted_races[drag_race] = {'participant_panels': []}
-            formatted_races[drag_race]['participant_panels'] = self.participant.panel_set.filter(
+    def _format_drag_races(self, drag_races):
+        formatted_drag_races = {}
+        for drag_race in drag_races:
+            formatted_drag_races[drag_race] = {'participant_panels': []}
+            formatted_drag_races[drag_race]['participant_panels'] = self.participant.panel_set.filter(
                 drag_race=drag_race).all()
+        return formatted_drag_races
+
+    def get(self, request, *args, **kwargs):
+        template = loader.get_template('pages/dashboard/dashboard.html')
+        current_races = DragRace.objects.filter(is_current=True).order_by('-season').all()
+        past_races = DragRace.objects.filter(is_current=False).order_by('-season').all()
+        formatted_current_races = self._format_drag_races(current_races)
+        formatted_past_races = self._format_drag_races(past_races)
         self.context.update({
-            'drag_races': formatted_races
+            'current_drag_races': formatted_current_races,
+            'past_drag_races': formatted_past_races
         })
         return HttpResponse(template.render(self.context, request))
 

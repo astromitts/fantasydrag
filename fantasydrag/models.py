@@ -50,6 +50,7 @@ class DragRace(models.Model):
         ],
         default='US'
     )
+    is_current = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('season', 'race_type', 'franchise')
