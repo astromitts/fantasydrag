@@ -397,16 +397,15 @@ class Panel(models.Model):
             return round_order
 
         def check_wq_next_round():
-            participant_wq_counts = {p: 0 for p in self.participants.all()}
+            fully_selected = True
+            participant_wq_counts = {p.pk: 0 for p in self.participants.all()}
             wq_drafts = self.wildcardqueen_set.all()
             for wq in wq_drafts:
-                participant_wq_counts[wq.participant] += 1
-            fully_selected = True
+                participant_wq_counts[wq.participant.pk] += 1
             for p, count in participant_wq_counts.items():
                 if count < self.wildcard_allowance:
                     fully_selected = False
-            if fully_selected:
-                self.end_draft()
+            return not fully_selected
 
         draft_index = self.draft_data['draft_index']
         this_round_order = get_participant_order_for_round(draft_index)
@@ -422,10 +421,10 @@ class Panel(models.Model):
                 self.draft_data['current_participant'] = next_round_order[0]
                 self.draft_data['draft_index'] += 1
             else:
-                if self.panel.status == 'in draft' and self.wildcard_allowance > 0:
+                if self.status == 'in draft' and self.wildcard_allowance > 0:
                     next_round_order = get_participant_order_for_round(1)
-                    self.draft_data['current_participant'] = next_round_order[next_round_order]
-                    self.close_draft()
+                    self.draft_data['current_participant'] = next_round_order[0]
+                    self.status = 'wildcards'
                 else:
                     self.end_draft()
         else:

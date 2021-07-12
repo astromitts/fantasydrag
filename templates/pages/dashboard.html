@@ -32,6 +32,9 @@
 					{% for panel in data.participant_panels %}
 						<li>
 							<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a>
+							{% if panel.status == 'in draft' or panel.status == 'wildcards' %}
+							<a href="{% url 'panel_set_drafts' panel_id=panel.pk %} "><button class="btn btn-primary form-control">Go to draft</button></a>
+							{% endif %}
 						</li>
 					{% endfor %}
 				</ul>
