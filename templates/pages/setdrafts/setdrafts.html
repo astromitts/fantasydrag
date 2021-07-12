@@ -30,8 +30,16 @@
 		</div>
 	</span>
 
-	<span ng-show="panel.status!='open'">
+	<span ng-show="panel.status=='in draft'">
 		{% include 'pages/setdrafts/includes/draft.html' %}
+	</span>
+
+	<span ng-show="panel.status=='wildcards'">
+		{% include 'pages/setdrafts/includes/draftwildqueens.html' %}
+	</span>
+
+	<span ng-show="panel.status=='active'">
+		{% include 'pages/setdrafts/includes/closed.html' %}
 	</span>
 
 </span>

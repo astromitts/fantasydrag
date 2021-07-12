@@ -2,7 +2,7 @@
 <div class="row">
 	{% verbatim %}
 	<div class="col alert alert-success">
-		<h3 class="marker">Round {{draft.draft_index}}</h3>
+		<h3 class="marker">Wildqueen Draft</h3>
 	</div>
 	{% endverbatim %}
 </div>
@@ -27,11 +27,12 @@
 			</tr>
 			{% endverbatim %}
 		</table>
+		<input ng-show="selectedQueen && ((isCaptain || isAdmin) || isCurrentPlayer)" type="submit" class="form-control btn btn-success" value="select queen" ng-click="draftQueen(false)"/>
 	</div>
 	{% verbatim %}
-		<div class="col" ng-repeat="participant in participants" ng-show="panel.status=='in draft' && participant == currentParticipant">
+		<div class="col" ng-repeat="participant in participants" ng-show="panel.status=='wildcards' && participant == currentParticipant">
 			<span ng-show="(isCaptain || isAdmin) || isCurrentPlayer">
-				<label for="queen"><h3>Select a queen for {{participant.name}}</h3></label>
+				<label for="queen"><h3>Select a wildqueen for {{participant.name}}</h3></label>
 				<table class="table">
 					<tr 
 						class="selectable"
@@ -41,7 +42,7 @@
 						<td>{{queen.name}}</td>
 					</tr>
 				</table>
-				<input type="submit" class="form-control btn btn-success" value="select queen" ng-click="draftQueen()"/>
+				<input type="submit" ng-show="selectedQueen" class="form-control btn btn-success" value="select queen" ng-click="draftQueen(true)"/>
 			</span>
 			<span ng-show="!(isCaptain || isAdmin) && !isCurrentPlayer">
 				<div class="alert alert-info">
@@ -51,14 +52,13 @@
 		</div>
 	{% endverbatim %}
 	<div class="col">
-		<h3>Drafts</h3>
+		<h3>Wildqueen Drafts</h3>
 		<table class="table">
 			<tr>
-				<th>Round</th><th>Player</th><th>Queen</th>
+				<th>Player</th><th>Queen</th>
 			</tr>
 			{% verbatim %}
 			<tr ng-repeat="draft in drafts">
-				<td>{{draft.round_selected}}</td>
 				<td>{{draft.participant.name}}</td>
 				<td>{{draft.queen.name}}</td>
 			</tr>

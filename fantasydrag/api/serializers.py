@@ -11,6 +11,7 @@ from fantasydrag.models import (
     Panel,
     Participant,
     WildCardAppearance,
+    WildCardQueen,
 )
 
 
@@ -142,6 +143,15 @@ class DraftSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['pk', 'participant', 'queen', 'round_selected']
 
 
+class WQDraftSerializer(serializers.HyperlinkedModelSerializer):
+    participant = ParticipantSerializer(many=False)
+    queen = QueenSerializer(many=False)
+
+    class Meta:
+        model = WildCardQueen
+        fields = ['pk', 'participant', 'queen']
+
+
 class PanelSerializer(serializers.HyperlinkedModelSerializer):
     drag_race = DragRaceSerializer(many=False)
 
@@ -155,6 +165,7 @@ class PanelSerializer(serializers.HyperlinkedModelSerializer):
             'draft_data',
             'queen_draft_allowance',
             'team_size',
+            'wildcard_allowance',
             'drag_race',
         ]
 

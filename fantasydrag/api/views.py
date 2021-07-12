@@ -27,6 +27,7 @@ from fantasydrag.api.serializers import (
     ParticipantSerializer,
     UserSerializer,
     RuleSerializer,
+    WQDraftSerializer,
 )
 
 
@@ -56,6 +57,24 @@ def get_available_queens(view, participant):
 
 def get_serialized_available_queens(view, participant):
     available_queens = get_available_queens(view, participant)
+    available_queens_serialized = QueenSerializer(instance=available_queens, many=True)
+    available_queens_data = available_queens_serialized.data
+    return available_queens_data
+
+
+def get_available_wq_queens(view, participant):
+    participant_drafts = view.panel.wildcardqueen_set.filter()
+    drafted_queens = [pd.queen for pd in participant_drafts]
+    season_queens = view.panel.drag_race.queens.all()
+    unavailable_queens = drafted_queens + [q for q in season_queens]
+
+    available_queens = Queen.objects.exclude(pk__in=[uq.pk for uq in unavailable_queens])
+
+    return available_queens
+
+
+def get_serialized_available_wq_queens(view, participant):
+    available_queens = get_available_wq_queens(view, participant)
     available_queens_serialized = QueenSerializer(instance=available_queens, many=True)
     available_queens_data = available_queens_serialized.data
     return available_queens_data
@@ -310,8 +329,12 @@ class EpisodeApi(APIView):
 class DraftMetaApi(APIView):
     def get(self, request, *args, **kwargs):
         set_user_context(self, request, kwargs['panel_id'])
-        panel_drafts = Draft.objects.filter(panel=self.panel).order_by('-round_selected', '-pk').all()
-        drafts_data = DraftSerializer(instance=panel_drafts, many=True).data
+        if self.panel.status == 'wildcards':
+            panel_drafts = self.panel.wildcardqueen_set.order_by('-pk').all()
+            drafts_data = WQDraftSerializer(instance=panel_drafts, many=True).data
+        else:
+            panel_drafts = Draft.objects.filter(panel=self.panel).order_by('-round_selected', '-pk').all()
+            drafts_data = DraftSerializer(instance=panel_drafts, many=True).data
         if self.panel.current_draft_player:
             participant_pk = self.panel.current_draft_player.pk
         else:
@@ -333,12 +356,20 @@ class DraftAvailableQueensApi(APIView):
     def get(self, request, *args, **kwargs):
         set_user_context(self, request, kwargs['panel_id'])
         participants = []
-        for participant in self.panel.participants.all():
-            participant_data = ParticipantSerializer(instance=participant, many=False).data
-            participant_available_queens = get_serialized_available_queens(self, participant)
-            participants.append(
-                {'participant': participant_data, 'available_queens': participant_available_queens}
-            )
+        if self.panel.status == 'in draft':
+            for participant in self.panel.participants.all():
+                participant_data = ParticipantSerializer(instance=participant, many=False).data
+                participant_available_queens = get_serialized_available_queens(self, participant)
+                participants.append(
+                    {'participant': participant_data, 'available_queens': participant_available_queens}
+                )
+        elif self.panel.status == 'wildcards':
+            for participant in self.panel.participants.all():
+                participant_data = ParticipantSerializer(instance=participant, many=False).data
+                participant_available_queens = get_serialized_available_wq_queens(self, participant)
+                participants.append(
+                    {'participant': participant_data, 'available_queens': participant_available_queens}
+                )
         response = {
             'participants': participants
         }
@@ -354,7 +385,10 @@ class PanelDraftApi(APIView):
             for participant_order in self.panel.draft_data['participant_order']:
                 participant = self.panel.participants.get(pk=participant_order)
                 participant_data = ParticipantSerializer(instance=participant, many=False).data
-                participant_available_queens = get_serialized_available_queens(self, participant)
+                if self.panel.status == 'in draft':
+                    participant_available_queens = get_serialized_available_queens(self, participant)
+                elif self.panel.status == 'wildcards':
+                    participant_available_queens = get_serialized_available_wq_queens(self, participant)
                 participants.append(
                     {'participant': participant_data, 'available_queens': participant_available_queens}
                 )
@@ -417,12 +451,19 @@ class PanelDraftApi(APIView):
                 participant = Participant.objects.get(
                     pk=request.data.get('participant_id', self.panel.draft_data['current_participant'])
                 )
-                available_queens = get_available_queens(self, participant)
+                if self.panel.status == 'wildcards':
+                    available_queens = get_available_wq_queens(self, participant)
+                else:
+                    available_queens = get_available_queens(self, participant)
                 if queen not in available_queens:
                     response_status = 'error'
                     response_message = '{} is not an available draft for {}'.format(queen.name, participant.name)
                 else:
-                    self.panel.save_player_draft(participant, queen)
+
+                    if self.panel.status == 'wildcards':
+                        self.panel.save_wildcard_draft(participant, queen)
+                    else:
+                        self.panel.save_player_draft(participant, queen)
                     self.panel.advance_draft()
 
         elif has_super_perms:
@@ -444,7 +485,8 @@ class PanelDraftApi(APIView):
                 self.panel.start_draft(
                     draft_type=request.data['draft_type'],
                     variable_number=request.data['variable_number'],
-                    draft_rule_set=request.data['draft_rules']
+                    draft_rule_set=request.data['draft_rules'],
+                    wildcard_allowance=request.data['wildcard_allowance'],
                 )
                 response_message = 'Draft is started!'
 

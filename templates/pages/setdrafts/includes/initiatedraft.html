@@ -29,8 +29,17 @@
 			<span class="help_text" ng-if="draftType == 'byTeamSize'">The number of queens to be drafted for each team</span>
 			<span class="help_text" ng-if="draftType == 'byQueenCount'">The number of times each queen can be selected in the draft</span>
 		</div>
+		<div class="col-2">
+			<label for="wilcardAllowance" >
+				Wildqueen allowance:
+			</label>
+		</div>
+		<div class="col-3">
+			<input type="number" id="id_wilcardAllowance" name="wilcardAllowance" class="form-control" ng-model="wilcardAllowance" />
+			<span class="help_text">The number of wildcard queens to be drafted by each participant</span>
+		</div>
 		<div class="col">
-			<input type="submit" class="btn btn-primary form-control" value="Start manual draft" ng-click="startDraft(draftType, draftVariable)"/>
+			<input type="submit" class="btn btn-primary form-control" value="Start manual draft" ng-click="startDraft(draftType, draftVariable, wilcardAllowance)"/>
 		</div>
 </div>
 <div class="row"><div class="spacer-medium"></div></div>

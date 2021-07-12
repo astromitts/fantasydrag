@@ -130,13 +130,21 @@ panelDraftApp.controller(
 
 		$scope.updateApp = function(){
 			$http.get('/api/panel/' + $scope.panelId + '/drafts/').then(function initAppData(response){
-				$scope.updateDraftMeta(response.data);
-			});$http.get('/api/panel/' + $scope.panelId + '/availablequeens/').then(function initAppData(response){
-				$scope.updateAvailableQueens(response.data);
+				if($scope.panel.status == 'in draft' && response.data.panel.status == 'wildcards'){
+					$scope.updateDraftMeta(response.data);
+					$http.get('/api/panel/' + $scope.panelId + '/draft/').then(function initAppData(response){
+						$scope.setAvailableQueens(response.data);
+					});
+				} else {
+					$scope.updateDraftMeta(response.data);
+					$http.get('/api/panel/' + $scope.panelId + '/availablequeens/').then(function initAppData(response){
+						$scope.updateAvailableQueens(response.data);
+					});
+				}
 			});
 		}
 
-		$scope.startDraft = function(draftType, variableNumber) {
+		$scope.startDraft = function(draftType, variableNumber, wilcardAllowance) {
 			$scope.setPreview(draftType, variableNumber);
 			$http.put(
 				'/api/panel/' + $scope.panelId + '/draft/',
@@ -145,6 +153,7 @@ panelDraftApp.controller(
 					'draft_type': draftType,
 					'variable_number': variableNumber,
 					'draft_rules': $scope.draftPreview,
+					'wildcard_allowance': wilcardAllowance,
 				}
 			).then(function reinitAppData(response){
 				$scope.initAppData(response.data);
@@ -176,17 +185,24 @@ panelDraftApp.controller(
 		}
 
 		$scope.selectQueen = function(queen) {
-			$scope.selectedQueen = queen;
+			if ($scope.selectedQueen == queen) {
+				$scope.selectedQueen = null;
+			} else {
+				$scope.selectedQueen = queen;
+			}
 		}
 
-		$scope.draftQueen = function() {
+		$scope.draftQueen = function(scroll) {
 			$http.put(
 				'/api/panel/' + $scope.panelId + '/draft/',
 				{'request': 'add_draft', 'queen_id': $scope.selectedQueen.pk}
 			).then(function reinitAppData(response){
-				if(response.status == 'ok'){
+				if(response.data.meta.status == 'ok'){
 					$scope.updateApp();
 					$scope.selectedQueen = null;
+					if(scroll) {
+						window.scrollTo(0, 0);
+					}
 				}
 			});
 

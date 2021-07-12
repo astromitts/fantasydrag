@@ -216,6 +216,10 @@ class Panel(models.Model):
         default=1,
         help_text='The number of drafts per team'
     )
+    wildcard_allowance = models.IntegerField(
+        default=0,
+        help_text='The number of wildcard queens each player can draft'
+    )
     draft_data = models.JSONField(default=dict, blank=True, null=True)
     status = models.CharField(
         max_length=25,
@@ -223,6 +227,7 @@ class Panel(models.Model):
             ('open', 'open'),
             ('in draft', 'in draft'),
             ('active', 'active'),
+            ('wildcards', 'wildcards'),
             ('closed', 'closed'),
         ],
         default='open'
@@ -302,9 +307,10 @@ class Panel(models.Model):
             participants.append(self.participants.get(pk=participant_pk))
         return participants
 
-    def start_draft(self, draft_type, variable_number, draft_rule_set):
+    def start_draft(self, draft_type, variable_number, draft_rule_set, wildcard_allowance):
         self.draft_set.all().delete()
         self.draft_data = self.default_draft_data
+        self.wildcard_allowance = wildcard_allowance
         if draft_type == 'byQueenCount':
             self.draft_type = 'byQueenCount'
             self.queen_draft_allowance = variable_number
@@ -369,13 +375,20 @@ class Panel(models.Model):
 
     def reset_draft(self):
         self.draft_set.all().delete()
+        self.wildcardqueen_set.all().delete()
         self.draft_data = self.default_draft_data
+        self.team_size = 0
+        self.queen_draft_allowance = 0
+        self.wildcard_allowance = 0
         self.status = 'open'
         self.save()
 
     def advance_draft(self):
         def get_participant_order_for_round(draft_index):
-            current_round = self.draft_data['rounds'][str(draft_index)]
+            if self.status == 'wildcards':
+                current_round = self.draft_data['rounds']["1"]
+            else:
+                current_round = self.draft_data['rounds'][str(draft_index)]
             round_participants = [int(k) for k in current_round.keys()]
             round_order = []
             for p in self.draft_data['participant_order']:
@@ -383,25 +396,78 @@ class Panel(models.Model):
                     round_order.append(p)
             return round_order
 
+        def check_wq_next_round():
+            participant_wq_counts = {p: 0 for p in self.participants.all()}
+            wq_drafts = self.wildcardqueen_set.all()
+            for wq in wq_drafts:
+                participant_wq_counts[wq.participant] += 1
+            fully_selected = True
+            for p, count in participant_wq_counts.items():
+                if count < self.wildcard_allowance:
+                    fully_selected = False
+            if fully_selected:
+                self.end_draft()
+
         draft_index = self.draft_data['draft_index']
         this_round_order = get_participant_order_for_round(draft_index)
         if self.draft_data['current_participant'] == this_round_order[-1]:
-            next_round_index = str(draft_index + 1)
-            next_round = self.draft_data['rounds'].get(next_round_index)
+            if self.status == 'wildcards':
+                next_round_index = "1"
+                next_round = check_wq_next_round()
+            else:
+                next_round_index = str(draft_index + 1)
+                next_round = self.draft_data['rounds'].get(next_round_index)
             if next_round:
                 next_round_order = get_participant_order_for_round(next_round_index)
                 self.draft_data['current_participant'] = next_round_order[0]
                 self.draft_data['draft_index'] += 1
             else:
-                self.end_draft()
+                if self.panel.status == 'in draft' and self.wildcard_allowance > 0:
+                    next_round_order = get_participant_order_for_round(1)
+                    self.draft_data['current_participant'] = next_round_order[next_round_order]
+                    self.close_draft()
+                else:
+                    self.end_draft()
         else:
-            current_index = this_round_order.index(self.draft_data['current_participant'])
-            self.draft_data['current_participant'] = this_round_order[current_index + 1]
+            next_round = True
+            if self.status == 'wildcards':
+                next_round_index = "1"
+                next_round = check_wq_next_round()
+            if next_round:
+                current_index = this_round_order.index(self.draft_data['current_participant'])
+                self.draft_data['current_participant'] = this_round_order[current_index + 1]
+            else:
+                self.end_draft()
+
+        self.save()
+
+    def close_draft(self):
+        self.status = 'wildcards'
         self.save()
 
     def end_draft(self):
         self.status = 'active'
         self.save()
+
+    def save_wildcard_draft(self, participant, queen):
+        new_draft = WildCardQueen(
+            participant=participant,
+            queen=queen,
+            panel=self,
+        )
+        new_draft.save()
+        self.save()
+        wq_drafts = self.wildcardqueen_set.all()
+        drafts = {p: 0 for p in self.participants.all()}
+        for draft in wq_drafts:
+            drafts[draft.participant] += 1
+
+        fully_selected = True
+        for p, count in drafts.items():
+            if count < self.wildcard_allowance:
+                fully_selected = False
+        if fully_selected:
+            self.end_draft()
 
     def save_player_draft(self, participant, queen):
         new_draft = Draft(
@@ -416,8 +482,10 @@ class Panel(models.Model):
 
     @property
     def current_draft_player(self):
-        if self.status == 'in draft':
+        try:
             return self.participants.get(pk=self.draft_data['current_participant'])
+        except Participant.DoesNotExist:
+            return None
 
     def get_formatted_scores_for_panelists(self, participant):
         scores = {p: 0 for p in self.participants.all()}
