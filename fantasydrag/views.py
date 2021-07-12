@@ -203,9 +203,18 @@ class JoinPanel(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(JoinPanel, self).setup(request, *args, **kwargs)
         self.template = loader.get_template('pages/join-panel.html')
+        self.panel = Panel.objects.get(code=kwargs['panel_code'])
 
     def get(self, request, *args, **kwargs):
+        self.context.update({
+            'panel': self.panel,
+            'in_panel': self.participant in self.panel.participants.all()
+        })
         return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        self.panel.participants.add(self.participant)
+        return redirect(reverse('panel_stats', kwargs={'panel_id': self.panel.pk}))
 
 
 class PanelStats(AuthenticatedView):
