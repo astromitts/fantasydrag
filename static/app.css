@@ -161,6 +161,9 @@ table {
 .alert-info {
   background-color: #2dbfd6;
 }
+.alert-plain {
+  border: 1px solid black;
+}
 
 ul {
   list-style-type: none;

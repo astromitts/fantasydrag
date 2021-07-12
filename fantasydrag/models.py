@@ -1,6 +1,7 @@
+import math
+import uuid
 from django.contrib.auth.models import User
 from django.db import models
-import math
 
 
 class Queen(models.Model):
@@ -204,7 +205,9 @@ class Participant(models.Model):
 
 
 class Panel(models.Model):
+    code = models.UUIDField(default=uuid.uuid4)
     name = models.CharField(max_length=250, unique=True)
+    normalized_name = models.CharField(max_length=250, unique=True)
     participants = models.ManyToManyField(Participant)
     captains = models.ManyToManyField(Participant, related_name='panelcaptains')
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
@@ -239,6 +242,16 @@ class Panel(models.Model):
             ('byQueenCount', 'byQueenCount')
         ]
     )
+
+    def __str__(self):
+        return self.name
+
+    def get_join_link(self, request):
+        return '{}://{}/panel/{}/'.format(request.scheme, request.get_host(), self.code)
+
+    def save(self, *args, **kwargs):
+        self.normalized_name = self.name.lower().replace(' ', '')
+        super(Panel, self).save(*args, **kwargs)
 
     def set_random_drafts(self):
         self.draft_set.all().delete()
@@ -491,9 +504,6 @@ class Panel(models.Model):
         for _participant in self.participants.all():
             scores[_participant] = _participant.get_all_formatted_scores_for_panel(self, participant)
         return scores
-
-    def __str__(self):
-        return self.name
 
 
 class Draft(models.Model):

@@ -8,6 +8,16 @@
 		</div>
 	</div>
 	{% endif %}
+
+	{% if request.GET.registered %}
+	<div class="row">
+		<div class="col">
+			<div class="alert alert-success">
+				Registration complete. Please log in!
+			</div>
+		</div>
+	</div>
+	{% endif %}
 	<div class="row">
 		<div class="col">
 		<form method="POST" action="">
@@ -15,6 +25,11 @@
 			{{form.as_p}}
 			<input type="submit" class="form-control btn btn-primary" value="Log In" />
 		</form>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			Not registered? <a href="{% url 'register' %}">Go here</a>.
 		</div>
 	</div>
 {% endblock %}

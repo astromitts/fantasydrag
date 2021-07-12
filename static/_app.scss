@@ -176,6 +176,9 @@ table {
 	&-info {
 		background-color: $info;
 	}
+	&-plain {
+		border: 1px solid black;
+	}
 }
 
 ul {

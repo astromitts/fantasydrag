@@ -7,13 +7,19 @@ from django.template import loader
 from django.views import View
 from django.db import IntegrityError
 from fantasydrag.models import (
+    Panel,
     Participant,
     Queen,
     DragRace,
     Episode,
     WildCardQueen,
 )
-from fantasydrag.forms import LoginPasswordForm, CreateEpisodeForm
+from fantasydrag.forms import (
+    LoginPasswordForm,
+    RegisterForm,
+    CreateEpisodeForm,
+    CreatePanelForm,
+)
 
 
 class Error(View):
@@ -21,6 +27,29 @@ class Error(View):
         template = loader.get_template('error.html')
         context = {}
         return HttpResponse(template.render(context, request))
+
+
+class Register(View):
+    def setup(self, request, *args, **kwargs):
+        super(Register, self).setup(request, *args, **kwargs)
+        self.form = RegisterForm
+        self.template = loader.get_template('pages/register.html')
+        self.context = {'form': None, 'error': None}
+
+    def get(self, request, *args, **kwargs):
+        self.context['form'] = self.form()
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        form = self.form(request.POST)
+        error = None
+        if form.is_valid():
+            self.context['form'] = form
+        else:
+            error = 'Invalid form submission.'
+        self.context['form'] = form
+        self.context['error'] = '{} Please check your information and try again'.format(error)
+        return HttpResponse(self.template.render(self.context, request))
 
 
 class LogIn(View):
@@ -134,6 +163,51 @@ class RulesList(AuthenticatedView):
         return HttpResponse(template.render(self.context, request))
 
 
+class CreatePanel(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(CreatePanel, self).setup(request, *args, **kwargs)
+        self.form = CreatePanelForm
+        self.template = loader.get_template('pages/create-panel.html')
+
+    def get(self, request, *args, **kwargs):
+        self.context.update({'form': self.form()})
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        form = self.form(request.POST)
+        if form.is_valid():
+            try:
+                panel = Panel(
+                    drag_race=self.drag_race,
+                    name=request.POST['name'],
+                )
+                panel.save()
+                panel.participants.add(self.participant)
+                panel.captains.add(self.participant)
+                panel.save()
+                return redirect(reverse('panel_stats', kwargs={'panel_id': panel.pk}))
+            except IntegrityError:
+                error = 'A panel with this name already exists for {}'.format(self.drag_race.display_name)
+        else:
+            error = 'Invalid submission. Please check your form and try again.'
+        self.context.update(
+            {
+                'error': error,
+                'form': form
+            }
+        )
+        return HttpResponse(self.template.render(self.context, request))
+
+
+class JoinPanel(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(JoinPanel, self).setup(request, *args, **kwargs)
+        self.template = loader.get_template('pages/join-panel.html')
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self.template.render(self.context, request))
+
+
 class PanelStats(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(PanelStats, self).setup(request, *args, **kwargs)
@@ -144,7 +218,8 @@ class PanelStats(AuthenticatedView):
 
         self.context.update({
             'queen_scores': queen_scores,
-            'panel_scores': self.panel.get_formatted_scores_for_panelists(self.participant)
+            'panel_scores': self.panel.get_formatted_scores_for_panelists(self.participant),
+            'join_link': self.panel.get_join_link(request)
         })
 
         return HttpResponse(self.template.render(self.context, request))

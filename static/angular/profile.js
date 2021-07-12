@@ -34,6 +34,44 @@ profileApp.controller(
 			)
 		}
 
+		$scope.checkRegistration = function(event, username, email, newPassword, confirmPassword) {
+			event.preventDefault();
+			$scope.registerErrors = [];
+			//if(newPassword && confirmPassword) {
+			//	if (newPassword != confirmPassword) {
+			//		$scope.registerErrors = ['Passwords must match', ];
+			//	} else {
+			//		$scope.registerErrors = getPasswordErrors(newPassword);
+			//	}
+			//}
+			if (!$scope.registerErrors.length){
+				$http.post(
+						'/api/register/',
+						{
+							'request': 'check-id',
+							'username': username,
+							'email': email
+						}
+					).then(function(response){
+						if(response.data.status == 'ok') {
+							$http.post(
+								'/api/register/',
+								{
+									'request': 'register',
+									'username': username,
+									'email': email,
+									'password': newPassword
+								}
+							).then(function(response){
+								window.location.href = '/login/registered=true';
+							});
+						} else {
+							$scope.registerErrors = response.data.errors;
+						}
+					});
+			}
+		}
+
 		$scope.checkPassword = function(currentPassword, newPassword, confirmPassword) {
 			$scope.passwordErrors = null;
 			if(currentPassword && newPassword) {

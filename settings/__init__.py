@@ -134,6 +134,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_EXEMPT_VIEWS = [
     'login',
     'error',
+    'register',
+    'api_register',
 ]
 
 MIDDLEWARE_DEBUG = True

@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+from django.contrib.auth import login
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import IntegrityError
@@ -504,6 +506,52 @@ class PanelDraftApi(APIView):
             response_message = 'permission denied'
 
         response = self._get_draft_data(response_status, response_message)
+        return Response(response)
+
+
+class RegisterApi(APIView):
+    def post(self, request, *args, **kwargs):
+        request_type = request.data['request']
+        if request_type == 'check-id':
+            username_existing = User.objects.filter(username__iexact=request.data['username'].lower()).exists()
+            email_existing = User.objects.filter(email__iexact=request.data['email'].lower()).exists()
+            status = 'ok'
+            errors = []
+            if username_existing:
+                errors.append('Username already in use')
+                status = 'error'
+            if email_existing:
+                errors.append('Email already in use')
+                status = 'error'
+            response = {
+                'status': status,
+                'errors': errors
+            }
+        elif request_type == 'register':
+            user = User(
+                email=request.data['email'],
+                username=request.data['username']
+            )
+            try:
+                user.save()
+                user.set_password(request.data['password'])
+                user.save()
+                participant = Participant(user=user, display_name=user.username)
+                participant.save()
+                response = {
+                    'status': 'ok'
+                }
+            except:
+                response = {
+                    'status': 'error',
+                    'message': 'Unknown internal error occurred. Please try again.'
+                }
+        else:
+            response = {
+                'status': 'error',
+                'message': 'Unrecognized request.'
+            }
+
         return Response(response)
 
 

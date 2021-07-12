@@ -38,6 +38,10 @@
 						</li>
 					{% endfor %}
 				</ul>
+				<div class="spacer-small"></div>
+				<div>
+					<a href="{% url 'panel_create' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+				</div>
 			</div>
 		</div>
 		{% if participant.site_admin %}

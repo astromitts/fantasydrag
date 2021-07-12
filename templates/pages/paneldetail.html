@@ -8,7 +8,7 @@
 		</div>
 	</div>
 
-	{% if panel.status == 'open' and is_captain %}
+	{% if panel.status == 'open' and is_captain and panel.participants.count > 1 %}
 	<div class="row">
 		<div class="col">
 			<a href="{% url 'panel_set_drafts' panel_id=panel.pk %}">
@@ -18,7 +18,18 @@
 	</div>
 	{% endif %}
 
-	{% if panel.status == 'in draft' and is_captain %}
+	{% if panel.status == 'open' and is_captain %}
+		<div class="row">
+			<div class="col">
+				<div class="alert alert-plain">
+					<p>To invite people to join your panel, send them this link:</p>
+					<p>{{join_link}}</p>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	{% if panel.status == 'in draft' and is_captain%}
 	<div class="row">
 		<div class="col">
 			<a href="{% url 'panel_set_drafts' panel_id=panel.pk %}">
@@ -28,7 +39,7 @@
 	</div>
 	{% endif %}
 	
-	{% if panel.status == 'open' or panel.status == 'in draft' and is_captain %}
+	{% if panel.participants.count > 1 and panel.status == 'open' or panel.status == 'in draft' and is_captain  %}
 		<div class="row">
 			<div class="col">
 				<form action="{% url 'panel_set_random_drafts' panel_id=panel.pk %}" method="POST">
