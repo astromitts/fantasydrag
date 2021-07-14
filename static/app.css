@@ -120,6 +120,15 @@ table {
   border-color: #000000;
   border-color: #807b7b;
 }
+.btn:disabled {
+  background-color: #b5b6b7;
+  border-color: #000000;
+}
+.btn:disabled:hover {
+  background-color: #b5b6b7;
+  border-color: #000000;
+  color: white;
+}
 .btn:hover {
   color: #333333;
   border-color: #000000;
@@ -147,6 +156,9 @@ table {
 }
 .btn-info:hover {
   background-color: #2cc9e2;
+}
+.btn-fullheight {
+  height: 100%;
 }
 
 .alert-success, .alert-info {
@@ -271,6 +283,18 @@ h4, .h4 {
 .form-control-small {
   width: 3rem;
   float: right;
+}
+
+.form-label-small {
+  width: 15rem;
+}
+.form-helptext {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.form-error {
+  font-weight: bold;
+  color: #dc61d3;
 }
 
 /*# sourceMappingURL=app.css.map */

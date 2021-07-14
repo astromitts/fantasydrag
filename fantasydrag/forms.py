@@ -1,10 +1,13 @@
 from django.forms import (
     Form,
     CharField,
+    ChoiceField,
     PasswordInput,
     TextInput,
     EmailInput,
+    NumberInput,
     IntegerField,
+    RadioSelect,
 )
 
 
@@ -46,6 +49,61 @@ class CreateEpisodeForm(Form):
 
 class CreatePanelForm(Form):
     name = CharField(
-        widget=TextInput(attrs={'class': 'form-control'}),
+        widget=TextInput(
+            attrs={
+                'class': 'form-control',
+                'ng-model': 'panelName',
+                'ng-change': 'checkPanelName()',
+                'datangshow': "formPhase=='panelName'",
+                'data-min-size': 3
+            }
+        ),
         label='Name your panel',
-        required=True)
+        required=True
+    )
+
+    panel_type = ChoiceField(
+        choices=[
+            ('byInvite', 'Private'),
+            ('open', 'Public')
+        ],
+        widget=RadioSelect(
+            attrs={
+                'ng-model': "panelType",
+                'datangshow': "formPhase=='panelType'",
+            }
+        ),
+        help_text='''
+        Select private if you only want people with a special link to join. Otherwise, anyone looking for a draft
+        can join
+        ''',
+        required=True
+    )
+
+    participant_limit = IntegerField(
+        widget=NumberInput(
+            attrs={
+                'class': 'form-control',
+                'ng-model': 'particintLimit',
+                'datangshow': "formPhase=='particintLimit'",
+                'min': 2
+            }
+        ),
+        label='Participant limit',
+        help_text='The maximum number of people who can join your Fantasy Drag Panel',
+        required=True
+    )
+
+    wildcard_allowance = IntegerField(
+        widget=NumberInput(
+            attrs={
+                'class': 'form-control',
+                'ng-model': 'wildcardAllowance',
+                'datangshow': "formPhase=='wildcardAllowance'",
+                'min': 0,
+            }
+        ),
+        help_text='The number of Wildqueens each player can draft, if any',
+        label='Wildqueen allowance',
+        required=True
+    )

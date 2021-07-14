@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static helper_tags %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'profileUtils.js' %}"></script>
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/create-edit-panel.js' %}"></script>
+{% endblock %}
 
 {% block page_content %}
+<input type="hidden" id="id_dragrace_id" name="dragrace_id" value="{{drag_race.pk}}">
+<input type="hidden" id="id_panel_id" name="panel_id" value="{{panel.pk}}">
+<span id='panelModule' ng-controller='panelController'>
 {% if error %}
 <div class="row">
 	<div class="col">
@@ -9,26 +18,49 @@
 	</div>
 </div>
 {% endif %}
+
 <div class="row">
 	<div class="col">
-		<h1 class="marker">Create Panel for {{drag_race.display_name}}</h1>
+		{% if drag_race %}
+			<h1 class="marker">Create Panel for {{drag_race.display_name}}</h1>
+		{% else %}
+			<h1 class="marker">Edit Panel {{panel.name}}</h1>
+		{% endif %}
 	</div>
 </div>
+
 <div class="spacer-medium"></div>
 <div class="row">
+	<div class="col-1">
+		<button class="btn btn-primary btn-fullheight" ng-disabled="formPhase=='panelType'" ng-click="reversePhase()"><</button>
+	</div>
 	<div class="col">
-		<form method="POST" action="">
+		<form method="POST" action="" ng-submit="submitPanel($event)">
 			{% csrf_token %}
 			<table class="table">
-				{{form.as_table}}
+				{% for field in form %}
+				<tr ng-show="{{field.field.widget.attrs.datangshow}}">
+					<th class="form form-label form-label-small">
+				    	{{ field.label_tag }} 
+					</th>
+					<td>
+				    	{{ field }}
+					    <div class="form-helptext">
+					    	{{ field.help_text }}
+					    </div>
+					    <div class="form-error" ng-bind-html="sceSafe(error)">
+					    </div>
+					</td>
+				  </tr>
+				{% endfor %}
 				<tr>
 					<td colspan="100%">
-						<input type="submit" value="Submit" class="form-control btn btn-primary"/>
-					</td>
+						<input ng-show="formPhase!='panelName'" type="submit" value="Next" class="form-control btn btn-primary" ng-click="advancePhase($event)" />
+						<input ng-show="formPhase=='panelName'" ng-disabled="!submitable" type="submit" value="Create Panel" class="form-control btn btn-primary"/>
 				</tr>
 			</table>
 		</form>
 	</div>
 </div>
-
+</span>
 {% endblock %}

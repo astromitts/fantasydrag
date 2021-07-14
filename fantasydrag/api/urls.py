@@ -29,4 +29,14 @@ urlpatterns = [
         views.EpisodeApi.as_view(),
         name='api_episode_score_delete'
     ),
+    path(
+        'api/panel/<int:panel_id>/edit/',
+        views.CreatePanelApi.as_view(),
+        name='api_create_edit'
+    ),
+    path(
+        'api/dragrace/<int:dragrace_id>/panel/create/',
+        views.CreatePanelApi.as_view(),
+        name='api_create_panel'
+    ),
 ]

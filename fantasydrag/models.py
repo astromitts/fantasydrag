@@ -212,18 +212,23 @@ class Panel(models.Model):
     participants = models.ManyToManyField(Participant)
     captains = models.ManyToManyField(Participant, related_name='panelcaptains')
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
-    queen_draft_allowance = models.IntegerField(
-        default=1,
-        help_text='The number of times a Queen can be drafted to a unique player'
+    panel_type = models.CharField(
+        max_length=25,
+        choices=[
+            ('private', 'Private'),
+            ('public', 'public')
+        ],
+        default='public'
     )
-    team_size = models.IntegerField(
+    draft_variable = models.IntegerField(
         default=1,
-        help_text='The number of drafts per team'
+        help_text='The number of times a Queen can be drafted to a unique player or the number of drafts per team'
     )
     wildcard_allowance = models.IntegerField(
         default=0,
         help_text='The number of wildcard queens each player can draft'
     )
+    participant_limit = models.IntegerField(default=1)
     draft_data = models.JSONField(default=dict, blank=True, null=True)
     status = models.CharField(
         max_length=25,
@@ -259,7 +264,7 @@ class Panel(models.Model):
         self.draft_data = {}
         random_order_participants = self.participants.order_by('?').all()
         max_team_size = math.ceil(
-            self.drag_race.queens.count() * self.queen_draft_allowance / self.participants.count()
+            self.drag_race.queens.count() * self.draft_variable / self.participants.count()
         )
 
         assigned_queens_counts = {queen: 0 for queen in self.drag_race.queens.all()}
@@ -272,7 +277,7 @@ class Panel(models.Model):
                 self.draft_data['loop {}'.format(x)]['participant {}'.format(y)] = {}
                 maxed_out_queens = []
                 for queen, count in assigned_queens_counts.items():
-                    if count >= self.queen_draft_allowance:
+                    if count >= self.draft_variable:
                         maxed_out_queens.append(queen.pk)
 
                 if len(maxed_out_queens) == self.drag_race.queens.count():
@@ -327,16 +332,14 @@ class Panel(models.Model):
         self.wildcard_allowance = wildcard_allowance
         if draft_type == 'byQueenCount':
             self.draft_type = 'byQueenCount'
-            self.queen_draft_allowance = variable_number
-            self.team_size = 0
+            self.draft_variable = variable_number
             self.draft_data['max_queen_draft'] = variable_number
         else:
             self.draft_type = 'byTeamSize'
-            self.team_size = variable_number
-            self.queen_draft_allowance = 0
+            self.draft_variable = variable_number
             participant_count = self.participants.count()
             queen_count = self.drag_race.queens.count()
-            total_draft_count = self.team_size * participant_count
+            total_draft_count = self.draft_variable * participant_count
             players_per_queen = math.ceil(total_draft_count / queen_count)
             self.draft_data['max_queen_draft'] = players_per_queen
 
@@ -381,7 +384,7 @@ class Panel(models.Model):
                         participant_draft_counts[i].append(participant_pk)
                         self.draft_data['rounds'][i][participant_pk] = None
         else:
-            for i in range(1, self.team_size + 1):
+            for i in range(1, self.draft_variable + 1):
                 self.draft_data['rounds'][i] = {}
                 for participant_pk in self.draft_data['participant_order']:
                     self.draft_data['rounds'][i][participant_pk] = None
@@ -391,8 +394,8 @@ class Panel(models.Model):
         self.draft_set.all().delete()
         self.wildcardqueen_set.all().delete()
         self.draft_data = self.default_draft_data
-        self.team_size = 0
-        self.queen_draft_allowance = 0
+        self.draft_variable = 0
+        self.draft_variable = 0
         self.wildcard_allowance = 0
         self.status = 'open'
         self.save()

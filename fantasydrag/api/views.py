@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.contrib.auth import login
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import IntegrityError
@@ -642,3 +641,35 @@ class ProfileApi(APIView):
 
             }
         )
+
+
+class CreatePanelApi(APIView):
+    def get(self, request, *args, **kwargs):
+        request_type = request.GET.get('request')
+        status = 'ok'
+        message = None
+        if kwargs.get('dragrace_id'):
+            drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+        else:
+            panel = Panel.objects.get(pk=kwargs['panel_id'])
+            drag_race = panel.drag_race
+
+        if request_type:
+            if request_type == 'checkname':
+                duplicate = Panel.objects.filter(
+                    name__iexact=request.GET['name'].lower(), drag_race=drag_race).exists()
+                if duplicate:
+                    message = 'A panel with this name already exists for {}'.format(drag_race.display_name)
+            else:
+                status = 'error'
+                message = 'Unrecognized request'
+            return Response(
+                {
+                    'status': status,
+                    'message': message,
+                    'request_type': request_type
+                }
+            )
+        else:
+            panel_data = PanelSerializer(instance=panel)
+            return Response(panel_data.data)

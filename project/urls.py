@@ -16,6 +16,7 @@ urlpatterns = [
     path('dragrace/new/', views.DragRaceAddEdit.as_view(), name='drag_race_new'),
     path('dragrace/edit/<int:dragrace_id>/', views.DragRaceAddEdit.as_view(), name='drag_race_edit'),
     path('panel/new/<int:dragrace_id>/', views.CreatePanel.as_view(), name='panel_create'),
+    path('panel/<int:panel_id>/edit/', views.CreatePanel.as_view(), name='panel_edit'),
     path('panel/<int:panel_id>/', views.PanelStats.as_view(), name='panel_stats'),
     path('panel/<uuid:panel_code>/', views.JoinPanel.as_view(), name='panel_join_link'),
     path('panel/<int:panel_id>/setdrafts/', views.SetDrafts.as_view(), name='panel_set_drafts'),

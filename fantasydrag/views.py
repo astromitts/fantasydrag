@@ -186,6 +186,9 @@ class CreatePanel(AuthenticatedView):
                 panel = Panel(
                     drag_race=self.drag_race,
                     name=request.POST['name'],
+                    participant_limit=request.POST['participant_limit'],
+                    panel_type=request.POST['panel_type'],
+                    wildcard_allowance=request.POST['wildcard_allowance']
                 )
                 panel.save()
                 panel.participants.add(self.participant)

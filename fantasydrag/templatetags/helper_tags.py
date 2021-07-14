@@ -4,6 +4,12 @@ from fantasydrag.models import Draft, Queen
 register = template.Library()
 
 
+@register.filter(name='pdb')
+def pdb(item):
+    import pdb
+    pdb.set_trace()
+
+
 @register.filter(name='get')
 def get(source, key):
     return source.get(key)

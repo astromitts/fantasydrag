@@ -135,6 +135,15 @@ table {
 .btn {
 	color: $app-black;
 	border-color: $true-black;
+	&:disabled {
+		background-color: #b5b6b7;
+		border-color: $true-black;
+		&:hover {
+			background-color: #b5b6b7;
+			border-color: $true-black;
+			color: white;
+		}
+	}
 	&:hover {
 		color: $app-black;
 		border-color: $true-black;
@@ -163,6 +172,9 @@ table {
 		&:hover {
 			background-color: $info-hover;
 		}
+	}
+	&-fullheight {
+		height: 100%;
 	}
 }
 
@@ -286,5 +298,21 @@ h4, .h4 {
 	&-small {
 		width: 3rem;
 		float: right;
+	}
+}
+
+.form {
+	&-label {
+		&-small {
+			width: 15rem;
+		}
+	}
+	&-helptext {
+		font-size: .9rem;
+		font-style: italic;
+	}
+	&-error {
+		font-weight: bold;
+		color: $highlight-color;
 	}
 }

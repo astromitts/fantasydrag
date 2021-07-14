@@ -162,9 +162,10 @@ class PanelSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'status',
             'draft_type',
+            'participant_limit',
+            'panel_type',
             'draft_data',
-            'queen_draft_allowance',
-            'team_size',
+            'draft_variable',
             'wildcard_allowance',
             'drag_race',
         ]
