@@ -10,6 +10,18 @@
 <div class="spacer-medium"></div>
 {% endif %}
 
+<div class="row">
+	<div class="col">
+		<h2><a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">{{episode.drag_race.display_name}}</a></h2>
+	</div>
+</div>
+<div class="spacer-small"></div>
+<div class="row">
+	<div class="col">
+		<h1 class="marker">Episode #{{episode.number}}: {{episode.title}}</h1>
+	</div>
+</div>
+<div class="spacer-small"></div>
 {% if episode.is_scored %}
 
 <div class="row">
