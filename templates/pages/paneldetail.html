@@ -48,18 +48,6 @@
 		</div>
 	</div>
 	{% endif %}
-	
-	{% if panel.participants.count > 1 and panel.status == 'open' or panel.status == 'in draft' and is_captain  %}
-		<div class="row">
-			<div class="col">
-				<form action="{% url 'panel_set_random_drafts' panel_id=panel.pk %}" method="POST">
-					{% csrf_token %}
-					<input type="submit" class="form-control btn btn-danger" value="ASSIGN DRAFT RANDOMLY" />
-					
-				</form>
-			</div>
-		</div>
-	{% endif %}
 
 	<div class="row">
 		<div class="col">

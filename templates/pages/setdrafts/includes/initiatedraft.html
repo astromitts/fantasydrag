@@ -1,71 +1,28 @@
 <div class="row">
-	<div class="col-2">
-		<input 
-			type="radio" 
-			name="draftType" 
-			id="id_draftType_byQueenCount" 
-			value="byQueenCount" 	
-			ng-model="draftType"
-			ng-change="setPreview(draftType, draftVariable)"> By Queen Count
-		<br />
-		<input 
-			type="radio" 
-			name="draftType" 
-			id="id_draftType_byTeamSize" 
-			value="byTeamSize" 
-			ng-model="draftType"
-			ng-change="setPreview(draftType, draftVariable)"> By Team Size
+	<div class="col">
+		<input type="submit" class="btn btn-primary form-control" value="Start Draft!" ng-click="startDraft(wilcardAllowance)"/>
 	</div>
-		<div class="col-2">
-			<label for="draftVariable" >
-				<span ng-if="draftType == 'byTeamSize'">
-					Team Size: </span>
-				<span ng-if="draftType == 'byQueenCount'">
-					Queen allowance: </span>
-			</label>
-		</div>
-		<div class="col-3">
-			<input type="number" id="id_draftVariable" name="draftVariable" class="form-control" ng-model="draftVariable" ng-change="setPreview(draftType, draftVariable)" />
-			<span class="help_text" ng-if="draftType == 'byTeamSize'">The number of queens to be drafted for each team</span>
-			<span class="help_text" ng-if="draftType == 'byQueenCount'">The number of times each queen can be selected in the draft</span>
-		</div>
-		<div class="col-2">
-			<label for="wilcardAllowance" >
-				Wildqueen allowance:
-			</label>
-		</div>
-		<div class="col-3">
-			<input type="number" id="id_wilcardAllowance" name="wilcardAllowance" class="form-control" ng-model="wilcardAllowance" />
-			<span class="help_text">The number of wildcard queens to be drafted by each participant</span>
-		</div>
-		<div class="col">
-			<input type="submit" class="btn btn-primary form-control" value="Start manual draft" ng-click="startDraft(draftType, draftVariable, wilcardAllowance)"/>
-		</div>
 </div>
+
 <div class="row"><div class="spacer-medium"></div></div>
 <div class="row">
 	<div class="col">
 		{% verbatim %}
-		<h5 class="marker">Draft Breakdown</h5>
+		<h5 class="marker">Draft Preview</h5>
 		<table class="table">
-			<tr ng-if="draftType == 'byQueenCount'">
+			<tr>
 				<th>
-					Draft slot
+					Round
 				</th>
 				<th>
-					Team Size
-				</th>
-			</tr>
-			<tr ng-if="draftType == 'byTeamSize'">
-				<th>
-					Queen slot
-				</th>
-				<th>
-					Number of drafts
+					Draft Slot
 				</th>
 			</tr>
-			<tr ng-repeat="dp in draftPreview">
-				<th>{{dp.draftKey}}</th><td>{{dp.numDrafts}}</td>
+			<tr ng-repeat="draft in formattedDraftInfo">
+				<td>Round #{{draft.number}}</td>
+				<td>
+					<div ng-repeat="player in draft.playerDrafts">Player {{player}}</div>
+				</td>
 			</tr>
 		</table>
 		{% endverbatim %}

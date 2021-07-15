@@ -1,7 +1,8 @@
-import math
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
+
+from fantasydrag.utils import calculate_draft_data, DRAFT_CAPS
 
 
 class Queen(models.Model):
@@ -144,7 +145,7 @@ class Participant(models.Model):
     normalized_display_name = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     site_admin = models.BooleanField(default=False)
-    episodes = models.ManyToManyField(Episode, blank=True, null=True)
+    episodes = models.ManyToManyField(Episode, blank=True)
 
     @property
     def name(self):
@@ -216,20 +217,37 @@ class Panel(models.Model):
         max_length=25,
         choices=[
             ('private', 'Private'),
-            ('public', 'public')
+            ('public', 'Public')
         ],
-        default='public'
-    )
-    draft_variable = models.IntegerField(
-        default=1,
-        help_text='The number of times a Queen can be drafted to a unique player or the number of drafts per team'
+        default='private'
     )
     wildcard_allowance = models.IntegerField(
         default=0,
         help_text='The number of wildcard queens each player can draft'
     )
     participant_limit = models.IntegerField(default=1)
-    draft_data = models.JSONField(default=dict, blank=True, null=True)
+    draft_order = models.JSONField(
+        default=list,
+        blank=True,
+        null=True,
+        help_text='A random order list (0-participants.count) for draft selection. Abstracted from participant IDs.'
+    )
+    draft_rounds = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+        help_text='A dictionary detailing which ordered participants get to select in each draft. Populated by utils.calculate_draft_data.'  # noqa
+    )
+    participant_drafts = models.JSONField(default=dict, blank=True, null=True)
+    current_round = models.IntegerField(default=1)
+    current_participant = models.IntegerField(
+        default=0,
+        help_text='PK of participant whos turn it is right now in the draft'
+    )
+    total_drafts = models.IntegerField(
+        default=0,
+        help_text='Total number of draft rounds that there will be in the main draft. Populated by utils.calculate_draft_data.'  # noqa
+    )
     status = models.CharField(
         max_length=25,
         choices=[
@@ -241,16 +259,13 @@ class Panel(models.Model):
         ],
         default='open'
     )
-    draft_type = models.CharField(
-        max_length=25,
-        choices=[
-            ('byTeamSize', 'byTeamSize'),
-            ('byQueenCount', 'byQueenCount')
-        ]
-    )
 
     def __str__(self):
         return self.name
+
+    @property
+    def queen_draft_allowance(self):
+        return DRAFT_CAPS.get(self.participants.count())
 
     def get_join_link(self, request):
         return '{}://{}/panel/{}/'.format(request.scheme, request.get_host(), self.code)
@@ -259,159 +274,60 @@ class Panel(models.Model):
         self.normalized_name = self.name.lower().replace(' ', '')
         super(Panel, self).save(*args, **kwargs)
 
-    def set_random_drafts(self):
-        self.draft_set.all().delete()
-        self.draft_data = {}
-        random_order_participants = self.participants.order_by('?').all()
-        max_team_size = math.ceil(
-            self.drag_race.queens.count() * self.draft_variable / self.participants.count()
-        )
+    def set_draft_rules(self):
+        '''Set the following properties in order to automate draft logic:
+            draft_rounds: dictionary of which players draft in each round
+            total_drafts: total number of draft rounds to do
+            participant_drafts: dictionary of which participants draft for each round
+        '''
+        calculate_draft_data(panel=self)
 
-        assigned_queens_counts = {queen: 0 for queen in self.drag_race.queens.all()}
-        player_assignments = {p.name: [] for p in self.participants.all()}
-
-        for x in range(1, max_team_size + 1):
-            self.draft_data['loop {}'.format(x)] = {}
-            y = 1
-            for participant in random_order_participants:
-                self.draft_data['loop {}'.format(x)]['participant {}'.format(y)] = {}
-                maxed_out_queens = []
-                for queen, count in assigned_queens_counts.items():
-                    if count >= self.draft_variable:
-                        maxed_out_queens.append(queen.pk)
-
-                if len(maxed_out_queens) == self.drag_race.queens.count():
-                    assigned_queens_counts = {queen: 1 for queen in self.drag_race.queens.all()}
-                    maxed_out_queens = []
-
-                existing_drafts_for_participant = Draft.objects.filter(participant=participant, panel=self).all()
-                existing_queens_for_participant = [draft.queen.pk for draft in existing_drafts_for_participant]
-                exclude_queens = list(set(existing_queens_for_participant + maxed_out_queens))
-                random_queen = self.drag_race.queens.exclude(pk__in=exclude_queens).order_by('?').first()
-
-                new_draft = Draft(
-                    participant=participant,
-                    queen=random_queen,
-                    panel=self,
-                    round_selected=x
-                )
-                new_draft.save()
-                assigned_queens_counts[random_queen] = assigned_queens_counts.get(random_queen, 0)
-                assigned_queens_counts[random_queen] += 1
-                player_assignments[participant.name].append(random_queen.name)
-                self.draft_data['loop {}'.format(x)]['participant {}'.format(y)]['participant'] = participant.name
-                self.draft_data['loop {}'.format(x)]['participant {}'.format(y)]['queen'] = random_queen.name
-                y += 1
-                self.save()
-
-        self.status = 'active'
-        self.save()
-
-    @property
-    def default_draft_data(self):
-        return {
-            'participant_order': [],
-            'max_queen_draft': 0,
-            'current_participant': None,
-            'draft_index': 1,
-            'can_go_to_next_round': False,
-            'can_end_draft': False,
-            'rounds': {}
-        }
+    def set_random_draft_order(self):
+        participants = self.participants.order_by('?').all()
+        self.draft_order = []
+        for participant in participants:
+            self.draft_order.append(participant.pk)
 
     @property
     def ordered_participants(self):
         participants = []
-        for participant_pk in self.draft_data['participant_order']:
+        for participant_pk in self.draft_order:
             participants.append(self.participants.get(pk=participant_pk))
         return participants
 
-    def start_draft(self, draft_type, variable_number, draft_rule_set, wildcard_allowance):
-        self.draft_set.all().delete()
-        self.draft_data = self.default_draft_data
-        self.wildcard_allowance = wildcard_allowance
-        if draft_type == 'byQueenCount':
-            self.draft_type = 'byQueenCount'
-            self.draft_variable = variable_number
-            self.draft_data['max_queen_draft'] = variable_number
-        else:
-            self.draft_type = 'byTeamSize'
-            self.draft_variable = variable_number
-            participant_count = self.participants.count()
-            queen_count = self.drag_race.queens.count()
-            total_draft_count = self.draft_variable * participant_count
-            players_per_queen = math.ceil(total_draft_count / queen_count)
-            self.draft_data['max_queen_draft'] = players_per_queen
-
+    def start_draft(self):
+        self.reset_draft()
+        self.set_random_draft_order()
+        self.current_participant = self.draft_order[0]
         self.status = 'in draft'
-
-        random_order_participants = self.participants.order_by('?').all()
-        i = 1
-        for p in random_order_participants:
-            self.draft_data['participant_order'].append(p.pk)
-            if i == 1:
-                self.draft_data['current_participant'] = p.pk
-
-            i += 1
-
-        if self.draft_type == 'byQueenCount':
-            special_second_round_participants = []
-            non_second_round_participants = []
-            draft_counts = set([d['numDrafts'] for d in draft_rule_set])
-            min_drafts = min(draft_counts)
-            total_drafts = max(draft_counts)
-            special_second_round = min_drafts != total_drafts
-            i = 0
-            for data in draft_rule_set:
-                participant_pk = self.draft_data['participant_order'][i]
-                num_drafts = data['numDrafts']
-                if special_second_round and num_drafts == total_drafts:
-                    special_second_round_participants.append(participant_pk)
-                else:
-                    non_second_round_participants.append(participant_pk)
-                i += 1
-
-            participant_draft_counts = {}
-            for i in range(1, total_drafts + 1):
-                participant_draft_counts[i] = []
-                self.draft_data['rounds'][i] = {}
-                for participant_pk in self.draft_data['participant_order']:
-                    if i == 2 and special_second_round:
-                        if participant_pk in special_second_round_participants:
-                            participant_draft_counts[i].append(participant_pk)
-                            self.draft_data['rounds'][i][participant_pk] = None
-                    else:
-                        participant_draft_counts[i].append(participant_pk)
-                        self.draft_data['rounds'][i][participant_pk] = None
-        else:
-            for i in range(1, self.draft_variable + 1):
-                self.draft_data['rounds'][i] = {}
-                for participant_pk in self.draft_data['participant_order']:
-                    self.draft_data['rounds'][i][participant_pk] = None
         self.save()
 
     def reset_draft(self):
+        self.participant_drafts = []
+        self.draft_order = []
+        self.draft_rounds = {}
         self.draft_set.all().delete()
         self.wildcardqueen_set.all().delete()
-        self.draft_data = self.default_draft_data
-        self.draft_variable = 0
-        self.draft_variable = 0
-        self.wildcard_allowance = 0
+        self.set_draft_rules()
+        self.current_participant = 0
+        self.current_round = 1
         self.status = 'open'
         self.save()
 
     def advance_draft(self):
         def get_participant_order_for_round(draft_index):
             if self.status == 'wildcards':
-                current_round = self.draft_data['rounds']["1"]
+                current_round = "1"
             else:
-                current_round = self.draft_data['rounds'][str(draft_index)]
-            round_participants = [int(k) for k in current_round.keys()]
-            round_order = []
-            for p in self.draft_data['participant_order']:
-                if p in round_participants:
-                    round_order.append(p)
-            return round_order
+                current_round = str(draft_index)
+            participant_drafts = self.participant_drafts.get(current_round)
+            round_drafts = []
+            i = 0
+            for p in self.draft_order:
+                if i in participant_drafts:
+                    round_drafts.append(p)
+                i += 1
+            return round_drafts
 
         def check_wq_next_round():
             fully_selected = True
@@ -424,36 +340,43 @@ class Panel(models.Model):
                     fully_selected = False
             return not fully_selected
 
-        draft_index = self.draft_data['draft_index']
-        this_round_order = get_participant_order_for_round(draft_index)
-        if self.draft_data['current_participant'] == this_round_order[-1]:
+        this_round_order = get_participant_order_for_round(self.current_round)
+        if self.current_participant == this_round_order[-1]:
+            # the last participant who went is the last player for this round
+            # so, we need to advance the draft to the next round and the first player
+            # in the next round
             if self.status == 'wildcards':
+                # if we are in the wildcard draft phase, the order is the same as
+                # the first round for every round
+                # check if everyone has reached the wildcard allowance yet
+                # if not, there is another round
                 next_round_index = "1"
                 next_round = check_wq_next_round()
             else:
-                next_round_index = str(draft_index + 1)
-                next_round = self.draft_data['rounds'].get(next_round_index)
+                # find the count index for the next round if there is one
+                next_round_index = str(self.current_round + 1)
+                next_round = self.draft_rounds.get(next_round_index)
             if next_round:
+                # there is another round of drafts to do, so move to the next round
                 next_round_order = get_participant_order_for_round(next_round_index)
-                self.draft_data['current_participant'] = next_round_order[0]
-                self.draft_data['draft_index'] += 1
+                self.current_participant = next_round_order[0]
+                self.current_round += 1
             else:
+                # we reached the last player of the last draft
+                # if the panel has a wildcard queen allowance, move the draft
+                # to the wildcard phase if it isn't already there
+                # else, end the draft
                 if self.status == 'in draft' and self.wildcard_allowance > 0:
                     next_round_order = get_participant_order_for_round(1)
-                    self.draft_data['current_participant'] = next_round_order[0]
+                    self.current_participant = next_round_order[0]
                     self.status = 'wildcards'
                 else:
                     self.end_draft()
         else:
-            next_round = True
-            if self.status == 'wildcards':
-                next_round_index = "1"
-                next_round = check_wq_next_round()
-            if next_round:
-                current_index = this_round_order.index(self.draft_data['current_participant'])
-                self.draft_data['current_participant'] = this_round_order[current_index + 1]
-            else:
-                self.end_draft()
+            # this is somewhere in the middle of a draft round, so just advance
+            # to the next participant
+            current_index = self.draft_order.index(self.current_participant)
+            self.current_participant = self.draft_order[current_index + 1]
 
         self.save()
 
@@ -490,16 +413,15 @@ class Panel(models.Model):
             participant=participant,
             queen=queen,
             panel=self,
-            round_selected=self.draft_data['draft_index']
+            round_selected=self.current_round
         )
         new_draft.save()
-        self.draft_data['rounds'][str(self.draft_data['draft_index'])][str(participant.pk)] = queen.pk
         self.save()
 
     @property
     def current_draft_player(self):
         try:
-            return self.participants.get(pk=self.draft_data['current_participant'])
+            return self.participants.get(pk=self.current_participant)
         except Participant.DoesNotExist:
             return None
 

@@ -161,12 +161,14 @@ class PanelSerializer(serializers.HyperlinkedModelSerializer):
             'pk',
             'name',
             'status',
-            'draft_type',
             'participant_limit',
             'panel_type',
-            'draft_data',
-            'draft_variable',
+            'draft_order',
+            'draft_rounds',
+            'participant_drafts',
+            'current_round',
             'wildcard_allowance',
+            'current_participant',
             'drag_race',
         ]
 

@@ -104,6 +104,8 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 class PanelAdmin(admin.ModelAdmin):
     form = PanelForm
+    list_display = ['name', 'drag_race', 'panel_type', 'status']
+    readonly_fields = ['draft_rounds', 'draft_order', 'total_drafts', 'participant_drafts']
 
 
 class DraftAdmin(admin.ModelAdmin):

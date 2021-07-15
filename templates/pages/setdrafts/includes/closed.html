@@ -1,5 +1,33 @@
-<div class="col" ng-show="panel.status=='active'">
-	<div class="alert alert-info">
-		Draft is closed!
+<div class="row">
+	<div class="col" ng-show="panel.status=='active'">
+		<div class="alert alert-info">
+			Draft is closed!
+		</div>
 	</div>
+</div>
+
+<div class="row">
+	<div class="col">
+		<h1 class="marker">Drafts</h1>
+	</div>
+</div>
+
+<div class="row">
+	{% verbatim %}
+	<div ng-repeat="participant in participants" class="col-3">
+		<div class="card">
+			<div class="card-body">
+    			<h5 class="card-title">{{participant.name}}</h5>
+    			<hr />
+    			<h6 class="card-subtitle mb-2 marker">Drafts</h6>
+    			<p ng-repeat="draft in participant.drafts">
+    			{{draft.queen.name}}</p>
+    			<hr />
+    			<h6 class="card-subtitle mb-2 marker">Wildqueens</h6>
+    			<p ng-repeat="draft in participant.wildcardDrafts">
+    			{{draft.queen.name}}</p>
+			</div>
+		</div>
+	</div>
+	{% endverbatim %}
 </div>

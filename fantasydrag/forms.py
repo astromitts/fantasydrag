@@ -64,8 +64,8 @@ class CreatePanelForm(Form):
 
     panel_type = ChoiceField(
         choices=[
-            ('byInvite', 'Private'),
-            ('open', 'Public')
+            ('private', 'Private'),
+            ('public', 'Public')
         ],
         widget=RadioSelect(
             attrs={
