@@ -1,15 +1,47 @@
 {% extends 'base.html' %}
+{% load helper_tags %}
 
 {% block page_content %}
 <div class="row">
 	<div class="col">
 		<h1 class="marker">{{queen.name}}</h1>
 	</div>
+	<div class="col">
+		<h2>Total score: {{stats.total}}</h2>
+	</div>
+	<div class="col">
+		<h2>Average: {{stats.average|floatformat:2}}</h2>
+	</div>
 </div>
-
-{% for drag_race in formatted_stats.drag_races %}
+<div class="spacer-medium"><hr /></div>
+<div class="row">
+	<div class="col">
+		<h2 class="marker">Drag Races</h1>
+	</div>
+</div>
+{% for drag_race, stats in stats.drag_races.items %}
+	<div class="spacer-small"></div>
 	<div class="row">
-		<h3 class="marker">{{drag_race.display_name}}</h3>
+		<div class="col-4">
+			<h3>{{drag_race.display_name}}</h3>
+		</div>
+		<div class="col-8">
+			<table class="table">
+				<tr><td></td><th>Total: {{stats.total}}</th></tr>
+				{% for episode, ep_stats in stats.episodes.items %}
+				<tr>
+					<th>{{episode.title}}</th>
+					<td>
+						{% for score in ep_stats.scores %}
+						{{score.rule.name}}: {{score.rule.point_value}}pts<br />
+						{% endfor %}
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		<div class="col">
+		</div>
 	</div>
 {% endfor %}
 {% endblock %}

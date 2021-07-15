@@ -40,7 +40,7 @@
 				{% for queen in drag_race.queens.all %}
 					<tr>
 						<th>
-							{{queen.name}}
+							<a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="right" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a>
 						</th>
 						{% for episode, queens in scores.items %}
 						{% with queens|get:queen as this_queen %}

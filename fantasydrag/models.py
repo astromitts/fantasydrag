@@ -16,27 +16,32 @@ class Queen(models.Model):
         scores = self.score_set.order_by('episode__drag_race_season', 'episode__number').all()
         formatted_scores = {
             'total': 0,
-            'drag_races': []
+            'drag_races': {},
+            'average': 0
         }
-        current_season = None
-        season_scores = None
+        episodes_count = 0
         for score in scores:
+            episodes_count += 1
             season = score.episode.drag_race
-            if season != current_season:
-                if current_season:
-                    formatted_scores['drag_races'].append(season_scores)
-                season_scores = {
-                    'drag_race': score.episode.drag_race,
+            this_season = formatted_scores['drag_races'].get(
+                season,
+                {
                     'total': 0,
-                    'scores': []
+                    'episodes': {}
                 }
-                current_season = score.episode.drag_race
+            )
+            this_episode = this_season['episodes'].get(score.episode, {'total': 0, 'scores': []})
             formatted_scores['total'] += score.rule.point_value
-            season_scores['total'] += score.rule.point_value
-            season_scores['scores'].append(score)
-        formatted_scores['drag_races'].append(season_scores)
-        import pdb
-        pdb.set_trace()
+            this_season['total'] += score.rule.point_value
+            this_episode['total'] += score.rule.point_value
+            this_episode['scores'].append(score)
+
+            this_season['episodes'][score.episode] = this_episode
+
+            formatted_scores['drag_races'][season] = this_season
+        if episodes_count:
+            formatted_scores['average'] = formatted_scores['total'] / episodes_count
+
         return formatted_scores
 
     @classmethod

@@ -36,6 +36,14 @@
 		<div id="page_content" class="container container-fluid">
 			{% block page_content %}{% endblock %}
 		</div>
+  		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  		<script type="text/javascript" src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+		<script type="text/javascript">
+			$(function () {
+		  		$('[data-toggle="tooltip"]').tooltip()
+			})
+		</script>
 
   		{% block extra_scripts %}{% endblock %}
 	</body>

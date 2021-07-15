@@ -6,8 +6,8 @@ register = template.Library()
 
 @register.filter(name='pdb')
 def pdb(item):
-    import pdb
-    pdb.set_trace()
+    import pdb  # noqa
+    pdb.set_trace()  # noqa
 
 
 @register.filter(name='get')
