@@ -22,7 +22,7 @@
 					<tr><th>Queen</th><th>Current Score</th></tr>
 					{% for queen, score in scores.draft_scores.items %}
 						<tr>
-							<td>{{queen.name}}</td>
+							<td><a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a></td>
 							<td>{{score}}</td>
 						</tr>
 					{% endfor %}
@@ -39,7 +39,7 @@
 				<tr><th>Queen</th><th>Current Score</th></tr>
 				{% for queen, score in scores.wildcard_scores.items %}
 					<tr>
-						<td>{{queen.name}}</td>
+						<td><a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a></td>
 						<td>{{score}}</td>
 					</tr>
 				{% endfor %}
