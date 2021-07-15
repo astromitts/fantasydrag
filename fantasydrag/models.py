@@ -7,6 +7,16 @@ from fantasydrag.utils import calculate_draft_data, DRAFT_CAPS
 
 class Queen(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    main_franchise = models.CharField(
+        max_length=100,
+        choices=[
+            ('US', 'US'),
+            ('Down Under', 'Down Under'),
+            ('UK', 'UK'),
+            ('Canada', 'Canada')
+        ],
+        default='US'
+    )
 
     class Meta:
         ordering = ('name', )
@@ -19,9 +29,8 @@ class Queen(models.Model):
             'drag_races': {},
             'average': 0
         }
-        episodes_count = 0
+        distinct_episodes = []
         for score in scores:
-            episodes_count += 1
             season = score.episode.drag_race
             this_season = formatted_scores['drag_races'].get(
                 season,
@@ -39,9 +48,10 @@ class Queen(models.Model):
             this_season['episodes'][score.episode] = this_episode
 
             formatted_scores['drag_races'][season] = this_season
-        if episodes_count:
-            formatted_scores['average'] = formatted_scores['total'] / episodes_count
-
+            if score.episode not in distinct_episodes:
+                distinct_episodes.append(score.episode)
+        if distinct_episodes:
+            formatted_scores['average'] = float(float(formatted_scores['total']) / float(len(distinct_episodes)))
         return formatted_scores
 
     @classmethod
