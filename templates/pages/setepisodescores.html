@@ -12,7 +12,7 @@
 
 	<div class="row">
 		<div class="col">
-			<h3>{{drag_race.display_name}}</h3>
+			<h3><a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">{{drag_race.display_name}}</a></h3>
 		</div>
 		<div class="col-1">
 			<a href="{% url 'set_episode_wildcards' dragrace_id=drag_race.pk episode_id=episode.pk%}" class="marker">Widlcards</a>
@@ -21,9 +21,10 @@
 
 	<div class="row">
 		<div class="col">
-			{% verbatim %}
-			<h1 ng-show="!editTitle">Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}</span></h1>
-			{% endverbatim %}
+			<h1 ng-show="!editTitle">
+				<a href="{% url 'episode_detail' episode_id=episode.pk %}">
+			{% verbatim %}Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}{% endverbatim %}</span></a></h1>
+			
 
 			{% if participant.site_admin %}
 			{% verbatim %}

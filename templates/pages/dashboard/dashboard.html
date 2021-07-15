@@ -9,11 +9,13 @@
 {% block page_content %}
 <span id='dashboardModule' ng-controller='dashboardController'>
 <div class="row">
+	{% if is_site_admin %}
 	<div class="col-2">
 		<a href="{% url 'drag_race_new' %}">
 			<button class="btn btn-primary form-control">New Drag Race</button>
 		</a>
 	</div>
+	{% endif %}
 	<div class="col">
 		{% for drag_race, data in current_drag_races.items %}
 			{% include 'pages/dashboard/includes/drag_race.html' %}

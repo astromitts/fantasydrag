@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
+{% if is_site_admin %}
+<div class="row">
+	<div class="col">
+		<a href="{% url 'set_episode_scores' dragrace_id=drag_race.pk episode_id=episode.pk %}" class="form-control btn btn-primary">Score Episode</a>
+	</div>
+</div>
+<div class="spacer-medium"></div>
+{% endif %}
 
 {% if episode.is_scored %}
+
 <div class="row">
 	<div class="col">
 		<form method="POST" action="">
