@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col">
+		<h1 class="marker">{{queen.name}}</h1>
+	</div>
+</div>
+
+{% for drag_race in formatted_stats.drag_races %}
+	<div class="row">
+		<h3 class="marker">{{drag_race.display_name}}</h3>
+	</div>
+{% endfor %}
+{% endblock %}

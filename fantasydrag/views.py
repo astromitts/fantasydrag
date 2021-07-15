@@ -419,3 +419,12 @@ class WildCardList(AuthenticatedView):
             )
             new_wcq.save()
         return redirect(reverse('panel_wildcards', kwargs={'panel_id': self.panel.pk}))
+
+
+class QueenDetail(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        self.template = loader.get_template('pages/queendetail.html')
+        queen = Queen.objects.get(pk=kwargs['queen_id'])
+        stats = queen.formatted_stats
+        self.context.update({'queen': queen, 'stats': stats})
+        return HttpResponse(self.template.render(self.context, request))

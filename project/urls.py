@@ -13,6 +13,7 @@ urlpatterns = [
     path('logout/', views.LogOut.as_view(), name='logout'),
     path('', views.LandingPage.as_view(), name='home'),
     path('profile/', views.Profile.as_view(), name='profile'),
+    path('queens/<int:queen_id>/', views.QueenDetail.as_view(), name='queen_detail'),
     path('dragrace/new/', views.DragRaceAddEdit.as_view(), name='drag_race_new'),
     path('dragrace/edit/<int:dragrace_id>/', views.DragRaceAddEdit.as_view(), name='drag_race_edit'),
     path('panel/new/<int:dragrace_id>/', views.CreatePanel.as_view(), name='panel_create'),

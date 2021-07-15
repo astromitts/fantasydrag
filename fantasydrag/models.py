@@ -11,6 +11,34 @@ class Queen(models.Model):
     class Meta:
         ordering = ('name', )
 
+    @property
+    def formatted_stats(self):
+        scores = self.score_set.order_by('episode__drag_race_season', 'episode__number').all()
+        formatted_scores = {
+            'total': 0,
+            'drag_races': []
+        }
+        current_season = None
+        season_scores = None
+        for score in scores:
+            season = score.episode.drag_race
+            if season != current_season:
+                if current_season:
+                    formatted_scores['drag_races'].append(season_scores)
+                season_scores = {
+                    'drag_race': score.episode.drag_race,
+                    'total': 0,
+                    'scores': []
+                }
+                current_season = score.episode.drag_race
+            formatted_scores['total'] += score.rule.point_value
+            season_scores['total'] += score.rule.point_value
+            season_scores['scores'].append(score)
+        formatted_scores['drag_races'].append(season_scores)
+        import pdb
+        pdb.set_trace()
+        return formatted_scores
+
     @classmethod
     def get_formatted_scores_for_drag_race(cls, drag_race, participant):
         scores = {q: 0 for q in drag_race.queens.all()}
@@ -52,6 +80,21 @@ class DragRace(models.Model):
         default='US'
     )
     is_current = models.BooleanField(default=False)
+    ''' status
+        open: season has not yet started and people can create and join panels
+              should remain open for 3 episodes?
+        active: season is ongoing, people cannot start new panels
+        closed: season is over and people cannot start new panels but can see all stats
+    '''
+    status = models.CharField(
+        max_length=25,
+        choices=[
+            ('open', 'open'),
+            ('active', 'active'),
+            ('closed', 'closed'),
+        ],
+        default='open'
+    )
 
     class Meta:
         unique_together = ('season', 'race_type', 'franchise')
