@@ -29,6 +29,7 @@ from fantasydrag.api.serializers import (
     UserSerializer,
     RuleSerializer,
     WQDraftSerializer,
+    QueenSearchSerializer,
 )
 
 
@@ -164,6 +165,7 @@ class DragRaceApi(APIView):
                     name=posted_rule['name'],
                     description=posted_rule['description'],
                     point_value=posted_rule['point_value'],
+                    score_type=posted_rule['score_type'],
                     drag_race=drag_race
                 )
                 rule.save()
@@ -173,7 +175,8 @@ class DragRaceApi(APIView):
                     queen = Queen.objects.get(pk=queen['pk'])
                 else:
                     queen = Queen(
-                        name=queen['name']
+                        name=queen['name'],
+                        main_franchise=drag_race.franchise
                     )
                     try:
                         queen.save()
@@ -221,7 +224,8 @@ class DragRaceApi(APIView):
                 new_queen = posted_queen['pk'] is None
                 if new_queen:
                     queen = Queen(
-                        name=posted_queen['name']
+                        name=posted_queen['name'],
+                        main_franchise=drag_race.franchise
                     )
                     try:
                         queen.save()
@@ -249,6 +253,7 @@ class DragRaceApi(APIView):
                         name=posted_rule['name'],
                         description=posted_rule['description'],
                         point_value=posted_rule['point_value'],
+                        score_type=posted_rule['score_type'],
                         drag_race=drag_race
                     )
                     rule.save()
@@ -325,6 +330,31 @@ class QueenApi(APIView):
     def get(self, request, *args, **kwargs):
         queens = Queen.objects.all()
         serializer = QueenSerializer(instance=queens, many=True)
+        return Response(serializer.data)
+
+
+class QueenSearchApi(APIView):
+    def get(self, request, *args, **kwargs):
+        queens = Queen.objects.all()
+        serializer = QueenSearchSerializer(instance=queens, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        """ Examples
+        {
+            "filters": {
+                "franchise": "UK"
+            }
+        }
+        """
+        queens_qs = Queen.objects
+        if request.data.get('filters'):
+            filters = request.data['filters']
+            if 'name' in filters:
+                queens_qs = queens_qs.filter(name__icontains=filters['name'])
+            if 'franchise' in filters:
+                queens_qs = queens_qs.filter(main_franchise=filters['franchise'])
+        serializer = QueenSearchSerializer(instance=queens_qs.all(), many=True)
         return Response(serializer.data)
 
 
