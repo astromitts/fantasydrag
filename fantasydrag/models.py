@@ -247,7 +247,11 @@ class RuleBase(models.Model):
 class DefaultRule(RuleBase):
     def save(self, *args, **kwargs):
         super(DefaultRule, self).save(*args, **kwargs)
-        Rule.objects.filter(name=self.name).update(point_value=self.point_value)
+        Rule.objects.filter(name=self.name).update(
+            point_value=self.point_value,
+            description=self.description,
+            score_type=self.score_type
+        )
 
 
 class Rule(RuleBase):
