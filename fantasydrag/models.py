@@ -239,7 +239,7 @@ class RuleBase(models.Model):
             ('season', 'season')
         )
     )
-    drag_race_type = models.ForeignKey(DragRaceType, null=True, on_delete=models.CASCADE)
+    drag_race_types = models.ManyToManyField(DragRaceType)
 
     class Meta:
         abstract = True
@@ -250,14 +250,7 @@ class RuleBase(models.Model):
 
 
 class DefaultRule(RuleBase):
-    def save(self, *args, **kwargs):
-        super(DefaultRule, self).save(*args, **kwargs)
-        Rule.objects.filter(name=self.name).update(
-            point_value=self.point_value,
-            description=self.description,
-            score_type=self.score_type,
-            drag_race_type=self.drag_race_type
-        )
+    pass
 
 
 class Rule(RuleBase):
