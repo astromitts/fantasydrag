@@ -192,7 +192,7 @@ class DragRace(models.Model):
         display_name_parts = ['Drag Race', ]
         if self.franchise != 'US':
             display_name_parts.append(self.franchise)
-        if self.drag_race_type == 'all star':
+        if self.drag_race_type.name == 'all star':
             display_name_parts.append('All Stars')
         display_name_parts.append('{}'.format(self.season))
         return ' '.join(display_name_parts)
@@ -267,7 +267,8 @@ class Rule(RuleBase):
 class Score(models.Model):
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
-    rule = models.ForeignKey(Rule, on_delete=models.CASCADE)
+    rule = models.ForeignKey(Rule, on_delete=models.CASCADE, null=True)
+    default_rule = models.ForeignKey(DefaultRule, null=True, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ('-pk', )
