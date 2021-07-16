@@ -143,15 +143,16 @@ class Queen(models.Model):
         return episodes
 
 
+class DragRaceType(models.Model):
+    name = models.CharField(primary_key=True, max_length=25)
+
+    def __str__(self):
+        return self.name
+
+
 class DragRace(models.Model):
     season = models.IntegerField()
-    race_type = models.CharField(
-        max_length=25,
-        choices=[
-            ('standard', 'standard'),
-            ('all star', 'all star')
-        ]
-    )
+    drag_race_type = models.ForeignKey(DragRaceType, null=True, on_delete=models.CASCADE)
     queens = models.ManyToManyField(Queen)
     franchise = models.CharField(
         max_length=100,
@@ -181,7 +182,7 @@ class DragRace(models.Model):
     )
 
     class Meta:
-        unique_together = ('season', 'race_type', 'franchise')
+        unique_together = ('season', 'drag_race_type', 'franchise')
 
     def __str__(self):
         return self.display_name
@@ -191,7 +192,7 @@ class DragRace(models.Model):
         display_name_parts = ['Drag Race', ]
         if self.franchise != 'US':
             display_name_parts.append(self.franchise)
-        if self.race_type == 'all star':
+        if self.drag_race_type == 'all star':
             display_name_parts.append('All Stars')
         display_name_parts.append('{}'.format(self.season))
         return ' '.join(display_name_parts)
@@ -238,6 +239,7 @@ class RuleBase(models.Model):
             ('season', 'season')
         )
     )
+    drag_race_type = models.ForeignKey(DragRaceType, null=True, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -250,7 +252,8 @@ class DefaultRule(RuleBase):
         Rule.objects.filter(name=self.name).update(
             point_value=self.point_value,
             description=self.description,
-            score_type=self.score_type
+            score_type=self.score_type,
+            drag_race_type=self.drag_race_type
         )
 
 

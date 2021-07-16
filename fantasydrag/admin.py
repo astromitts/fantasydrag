@@ -70,6 +70,8 @@ class AppearanceTypeForm(FormBase):
 
 class DragRaceAdmin(admin.ModelAdmin):
     form = DragRaceForm
+    list_display = ['display_name', 'drag_race_type', 'season']
+    list_editable = ['drag_race_type']
 
 
 class QueenAdmin(admin.ModelAdmin):
@@ -94,8 +96,9 @@ class RuleAdmin(admin.ModelAdmin):
 
 class DefaultRuleAdmin(admin.ModelAdmin):
     form = DefaultRuleForm
-    list_display = ['name', 'score_type', 'point_value', 'description']
-    list_editable = ['score_type', 'point_value', 'description']
+    list_display = ['name', 'score_type', 'point_value', 'drag_race_type', 'description']
+    list_editable = ['score_type', 'point_value', 'drag_race_type', 'description']
+    list_filter = ['score_type', 'drag_race_type']
 
 
 class ScoreAdmin(admin.ModelAdmin):
