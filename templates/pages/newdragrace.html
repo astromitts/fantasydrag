@@ -35,7 +35,6 @@
 			</div>
 		</div>
 	</div>
-	<form method="POST" action="" ng-submit="createUpdateDragRace($event)">
 		<div class="row">
 			<div class="col">
 				<label for="season" class="label-plain">Season#:</label>
@@ -65,7 +64,7 @@
 					<option ng-repeat="queen in existingQueens" value="{{queen}}">{{queen.name}}</option>
 				  </select>
 				  <div class="input-group-append">
-				    <button class="btn btn-primary" type="button" ng-click="addExistingQueen(existingQueenSelect)">+</button>
+				    <button class="btn btn-primary" type="button" ng-click="addExistingQueen(existingQueenSelect)" ng-disabled="!existingQueenSelect">+</button>
 				  </div>
 				</div>
 
@@ -78,7 +77,7 @@
 				<div class="input-group">
 				  <input type="text" class="form-control" id="id_new_queen" name="new_queen" ng-model="newQueen" />
 				  <div class="input-group-append">
-				    <button class="btn btn-primary" type="button" ng-click="addNewQueen()">+</button>
+				    <button class="btn btn-primary" type="button" ng-click="addNewQueen()" ng-disabled="!newQueen">+</button>
 				  </div>
 				</div>
 
@@ -102,6 +101,12 @@
 	</div>
 
 	<div class="spacer-medium"></div>
+
+	<div class="row">
+		<div class="col">
+			<hr />
+		</div>
+	</div>
 	<div class="row">
 		<div class="col">
 			<p class="marker">Rules</p>
@@ -110,48 +115,78 @@
 	<div class="row">
 		<div class="col">
 			<label for="new_rule" class="label-plain">Add Rule:</label>
-			<div class="input-group">
-			  <input type="text" class="form-control" id="id_new_rule" name="new_rule" ng-model="newRule" />
-			  <div class="input-group-append">
-			    <button class="btn btn-primary" type="button" ng-click="addNewRule()">+</button>
-			  </div>
-			</div>
-
-		</div>
-	</div>	
-
-	<div class="row">
-		<div class="col">
-			<table class="table-every-other">
-				<tbody ng-repeat="rule in dragRace.rules">
-				<tr class="no-border">
-					<td><input type="text" ng-model="rule.name" class="form-control" /></td>
-					<td><input type="number" ng-model="rule.point_value" class="form-control form-control-small" /></td>
-					<td>
-						<button 
-							class="btn btn-danger btn-sm form-control-small"
-							ng-click="removeRule(rule)">-</button>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="100%">
-						<p class="text-secondary">
-						<textarea ng-model="rule.description" class="form-control">{{rule.description}}</textarea></p>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-			
 		</div>
 	</div>
+	<div class="row">
+		<div class="col">
+			 <input type="text" class="form-control" id="id_new_rule" name="new_rule" ng-model="newRule.name" />
+		</div>
+		<div class="col-2">
+			<input type="number" ng-model="newRule.point_value" class="form-control" />
+		</div>
+		<div class="col-2">
+			<select ng-model="newRule.score_type" class="form-control">
+				<option value="episode">Episode</option>
+				<option value="season">Season</option>
+			</select>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<textarea ng-model="newRule.description" class="form-control"></textarea>
+		</div>
+		<div class="col-4">
+			<button 
+				class="btn btn-primary form-control" 
+				ng-click="addNewRule()"
+				ng-disabled="!newRule.name || !newRule.description || !newRule.score_type">
+				Add Rule</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<hr />
+		</div>
+	</div>
+
+	<div class="spacer-small"></div>
+	<span ng-repeat="rule in dragRace.rules">
+		<div class="row">
+			<div class="col">
+				<input type="text" ng-model="rule.name" class="form-control" />
+			</div>
+			<div class="col-1">
+				<input type="number" ng-model="rule.point_value" class="form-control" />
+			</div>
+			<div class="col-2">
+				<select ng-model="rule.score_type" class="form-control">
+					<option value="episode">Episode</option>
+					<option value="season">Season</option>
+				</select>
+			</div>
+			<div class="col-1">
+				<button 
+					class="btn btn-danger btn-sm"
+					ng-click="removeRule(rule)">-</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<p class="text-secondary">
+					<textarea ng-model="rule.description" class="form-control">{{rule.description}}</textarea>
+				</p>
+			</div>
+		</div>
+	</span>
+
 	<div class="spacer-small"></div>
 	<div class="row">
 		<div class="col">
-			<input ng-show="createNew" type="submit" class="btn btn-primary form-control" value="Submit Drag Race" />
-			<input ng-show="!createNew" type="submit" class="btn btn-primary form-control" value="Update Drag Race" />
+			<button ng-show="createNew" type="submit" class="btn btn-primary form-control" ng-click="createUpdateDragRace()"
+			ng-disabled="!dragRace.season || !dragRace.franchise || !dragRace.race_type">Submit Drag Race</button>
+			<button ng-show="!createNew" type="submit" class="btn btn-primary form-control" ng-click="createUpdateDragRace()">Update Drag Race</button>
 		</div>
 	</div>
-	</form>
 	{% endverbatim %}
 </span>
 {% endblock %}

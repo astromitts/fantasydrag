@@ -11,7 +11,7 @@ class Queen(models.Model):
         max_length=100,
         choices=[
             ('US', 'US'),
-            ('Down Under', 'Down Under'),
+            ('Australia', 'Down Under'),
             ('UK', 'UK'),
             ('Canada', 'Canada')
         ],

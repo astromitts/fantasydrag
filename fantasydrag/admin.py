@@ -90,8 +90,8 @@ class RuleAdmin(admin.ModelAdmin):
 
 class DefaultRuleAdmin(admin.ModelAdmin):
     form = DefaultRuleForm
-    list_display = ['name', 'score_type', 'point_value']
-    list_editable = ['score_type', 'point_value']
+    list_display = ['name', 'score_type', 'point_value', 'description']
+    list_editable = ['score_type', 'point_value', 'description']
 
 
 class ScoreAdmin(admin.ModelAdmin):

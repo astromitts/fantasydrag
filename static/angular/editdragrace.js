@@ -29,6 +29,16 @@ addEditDragRaceApp.controller(
 		$scope.newQueen = null;
 		$scope.newRule = null;
 
+		$scope.defaultRule = function() {
+			$scope.newRule = {
+				"pk": null, 
+				"name": null,
+				"description": null,
+				"point_value": 0,
+				"score_type": null
+			}
+		}
+
 
 		$scope.addExistingQueen = function(queen){
 			$scope.dragRace.queens.push(JSON.parse(queen));
@@ -44,15 +54,8 @@ addEditDragRaceApp.controller(
 
 		$scope.addNewRule = function(){
 			if($scope.newRule) {
-				$scope.dragRace.rules.unshift(
-					{
-						"pk": null, 
-						"name": $scope.newRule,
-						"description": '',
-						"point_value": 0
-					}
-				);
-				$scope.newRule = null;
+				$scope.dragRace.rules.unshift($scope.newRule);
+				$scope.defaultRule()
 			}
 		}
 
@@ -64,9 +67,8 @@ addEditDragRaceApp.controller(
 			$scope.dragRace.rules.splice($scope.dragRace.rules.indexOf(rule), 1);
 		}
 
-		$scope.createUpdateDragRace = function(event) {
+		$scope.createUpdateDragRace = function() {
 			$scope.successMessage = false;
-			event.preventDefault();
 			$scope.errors = [];
 			if($scope.dragRace.season < 1) {
 				$scope.errors.push('Season must be 1 or more');
@@ -95,16 +97,16 @@ addEditDragRaceApp.controller(
 							window.history.pushState('', '', '/dragrace/edit/' + response.data.drag_race.pk + '/');
 						}
 						$scope.dragRace = response.data.drag_race;
-						window.scrollTo(0,0);
 						$scope.successMessage = response.data.message;
 					} else {
 						$scope.errors = [response.data.message, ];
 					}
-
 				}, function(err) {
 					$scope.errors = ['There was some sort of error?', ];
 				})
+
 			}
+			window.scrollTo(0,0);
 		}
 
 		$http.get('/api/queens/').then(
@@ -112,6 +114,8 @@ addEditDragRaceApp.controller(
 				$scope.existingQueens = response.data;
 			}
 		)
+
+		$scope.defaultRule();
 
 		if($scope.dragraceId != 'None') {
 			$scope.createNew = false;

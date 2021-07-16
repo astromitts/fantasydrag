@@ -281,7 +281,11 @@ h4, .h4 {
 }
 
 .form-control-small {
-  width: 3rem;
+  width: 6rem;
+  float: right;
+}
+.form-control-medium {
+  width: 12rem;
   float: right;
 }
 

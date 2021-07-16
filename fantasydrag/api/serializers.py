@@ -54,7 +54,8 @@ class RuleSerializer(serializers.HyperlinkedModelSerializer):
             'pk',
             'name',
             'description',
-            'point_value'
+            'point_value',
+            'score_type',
         ]
 
 
@@ -185,4 +186,17 @@ class AppearanceSerializer(serializers.HyperlinkedModelSerializer):
             'queen',
             'episode',
             'appearance',
+        ]
+
+
+class QueenSearchSerializer(serializers.HyperlinkedModelSerializer):
+    drag_races = DragRaceSerializerShort(many=True, source='dragrace_set')
+
+    class Meta:
+        model = Queen
+        fields = [
+            'pk',
+            'name',
+            'main_franchise',
+            'drag_races'
         ]
