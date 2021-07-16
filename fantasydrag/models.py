@@ -232,7 +232,7 @@ class Episode(models.Model):
         return '{} episode #{}'.format(self.drag_race, self.number)
 
 
-class RuleBase(models.Model):
+class DefaultRule(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     point_value = models.IntegerField(default=1)
@@ -246,21 +246,10 @@ class RuleBase(models.Model):
     drag_race_types = models.ManyToManyField(DragRaceType)
 
     class Meta:
-        abstract = True
         ordering = ('score_type', 'point_value', 'name')
 
     def __str__(self):
         return '"{}": ({} points) {}'.format(self.name, self.point_value, self.description)
-
-
-class DefaultRule(RuleBase):
-    pass
-
-
-class Rule(RuleBase):
-
-    def __str__(self):
-        return '{}, "{}": ({} points) {}'.format(self.drag_race, self.name, self.point_value, self.description)
 
 
 class Score(models.Model):
