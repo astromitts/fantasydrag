@@ -11,7 +11,7 @@
 	<div class="col">
 		<table class="table">
 			<tr><th>Rule</th><th>Description</th><th>Value</th></tr>
-			{% for rule in drag_race.rule_set.all %}
+			{% for rule in rules %}
 				<tr>
 					<td>{{rule.name}}</td>
 					<td>{{rule.description}}</td>

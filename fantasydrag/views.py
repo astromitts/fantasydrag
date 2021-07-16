@@ -164,8 +164,10 @@ class RulesList(AuthenticatedView):
         template = loader.get_template('pages/ruleslist.html')
 
         drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+        rules = drag_race.drag_race_type.defaultrule_set.all()
         self.context.update({
-            'drag_race': drag_race
+            'drag_race': drag_race,
+            'rules': rules
         })
         return HttpResponse(template.render(self.context, request))
 

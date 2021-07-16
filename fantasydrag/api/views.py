@@ -380,7 +380,7 @@ class EpisodeApi(APIView):
         rule = DefaultRule.objects.get(pk=request.data['rule'])
         score = Score(
             episode=episode,
-            rule=rule,
+            default_rule=rule,
             queen=queen
         )
         score.save()

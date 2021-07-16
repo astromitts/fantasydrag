@@ -198,6 +198,10 @@ class DragRace(models.Model):
         return ' '.join(display_name_parts)
 
     @property
+    def rule_set(self):
+        return self.drag_race_type.defaultrule_set.all()
+
+    @property
     def scored_episodes(self):
         return self.episode_set.filter(is_scored=True).all()
 
@@ -254,7 +258,6 @@ class DefaultRule(RuleBase):
 
 
 class Rule(RuleBase):
-    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{}, "{}": ({} points) {}'.format(self.drag_race, self.name, self.point_value, self.description)
