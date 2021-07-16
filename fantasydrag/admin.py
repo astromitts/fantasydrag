@@ -90,6 +90,8 @@ class DefaultRuleAdmin(admin.ModelAdmin):
 
 class ScoreAdmin(admin.ModelAdmin):
     form = ScoreForm
+    list_display = ['pk', 'queen', 'default_rule', 'episode']
+    list_filter = ['default_rule', 'episode__drag_race']
 
 
 class ParticipantAdmin(admin.ModelAdmin):
