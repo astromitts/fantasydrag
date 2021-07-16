@@ -89,6 +89,7 @@ class RuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'score_type', 'point_value', 'drag_race']
     list_editable = ['score_type', 'point_value']
     search_fields = ['name']
+    list_filter = ['drag_race']
 
 
 class DefaultRuleAdmin(admin.ModelAdmin):
