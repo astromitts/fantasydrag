@@ -6,7 +6,14 @@ from fantasydrag.utils import calculate_draft_data, DRAFT_CAPS
 
 
 class Queen(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
+    normalized_name = models.CharField(
+        max_length=250,
+        unique=True,
+        db_index=True,
+        blank=True,
+        null=True,
+    )
     main_franchise = models.CharField(
         max_length=100,
         choices=[
@@ -15,11 +22,76 @@ class Queen(models.Model):
             ('UK', 'UK'),
             ('Canada', 'Canada')
         ],
-        default='US'
+        default='US',
+        db_index=True,
     )
+    tier_score = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=0,
+        db_index=True
+    )
+    score_data = models.JSONField(default=dict)
+    total_score = models.IntegerField(default=0, db_index=True)
 
     class Meta:
         ordering = ('name', )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        replace_map = {
+            "'": '',
+            'é': 'e',
+            '.': '',
+            '/': '',
+            ' ': '',
+            'ó': 'o',
+            '-': '',
+        }
+        self.normalized_name = self.name
+        for bad_char, replace_char in replace_map.items():
+            self.normalized_name = self.normalized_name.lower().replace(bad_char, replace_char)
+        super(Queen, self).save(*args, **kwargs)
+
+    @property
+    def stats(self):
+        scores = self.score_set.order_by('episode__drag_race_season', 'episode__number').all()
+        formatted_scores = {
+            'total': 0,
+            'drag_races': {},
+            'average': 0
+        }
+        distinct_episodes = []
+        for score in scores:
+            season = score.episode.drag_race
+            this_season = formatted_scores['drag_races'].get(
+                season.pk,
+                {
+                    'total': 0,
+                    'episodes': {}
+                }
+            )
+            this_episode = this_season['episodes'].get(score.episode.pk, {'total': 0, 'scores': []})
+            formatted_scores['total'] += score.rule.point_value
+            this_season['total'] += score.rule.point_value
+            this_episode['total'] += score.rule.point_value
+            this_episode['scores'].append(
+                {
+                    'rule': score.rule.name,
+                    'points': score.rule.point_value
+                }
+            )
+
+            this_season['episodes'][score.episode.pk] = this_episode
+
+            formatted_scores['drag_races'][season.pk] = this_season
+            if score.episode not in distinct_episodes:
+                distinct_episodes.append(score.episode)
+        if distinct_episodes:
+            formatted_scores['average'] = float(float(formatted_scores['total']) / float(len(distinct_episodes)))
+        return formatted_scores
 
     @property
     def formatted_stats(self):
@@ -69,9 +141,6 @@ class Queen(models.Model):
         for s in _scores:
             episodes[s.episode] += s.rule.point_value
         return episodes
-
-    def __str__(self):
-        return self.name
 
 
 class DragRace(models.Model):

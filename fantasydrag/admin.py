@@ -74,6 +74,8 @@ class DragRaceAdmin(admin.ModelAdmin):
 
 class QueenAdmin(admin.ModelAdmin):
     form = QueenForm
+    list_display = ['name', 'normalized_name', 'main_franchise', 'tier_score', 'total_score']
+    list_filter = ['main_franchise']
 
 
 class EpisodeAdmin(admin.ModelAdmin):
@@ -86,6 +88,7 @@ class RuleAdmin(admin.ModelAdmin):
     form = RuleForm
     list_display = ['name', 'score_type', 'point_value', 'drag_race']
     list_editable = ['score_type', 'point_value']
+    search_fields = ['name']
 
 
 class DefaultRuleAdmin(admin.ModelAdmin):

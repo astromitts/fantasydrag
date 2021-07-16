@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/queensearch.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col">
+		<h1 class="marker">The Queens</h1>
+	</div>
+</div>
+
+<span id='queenSearchModule' ng-controller='queenSearchController'>
+<div class="row">
+	<div class="col">
+		<label for="queenName">Queen Name: </label>
+		<input type="text" class="form-control" name="queenName" id="id_queenName" placeholder="name..." ng-model="queenName" ng-change="search()"/>
+	</div>
+	<div class="col">
+		<label for="franchise">Franchise: </label>
+		<select type="text" class="form-control" name="franchise" id="id_franchise" ng-model="franchise" ng-change="search()">
+			<option></option>
+			<option value="US">US</option>
+			<option value="UK">UK</option>
+			<option value="Canada">Canada</option>
+			<option value="Australia">Down Under</option>
+		</select>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col">
+		<hr />
+	</div>
+</div>
+
+<span ng-repeat="queen in queens">
+	<div class="row">
+		<div class="col">
+			{% verbatim %}
+				<a href="/queens/{{queen.pk}}/" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a>
+				<span ng-bind-html="sceSafe(dragRacesAsList(queen.drag_races))"></span>
+			{% endverbatim %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col"><hr /></div>
+	</div>
+</span>
+
+</span>
+{% endblock %}

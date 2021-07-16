@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
+from django.db.models import Max
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.http import HttpResponse
@@ -355,7 +356,8 @@ class CreateEpisode(AuthenticatedView):
         self.form = CreateEpisodeForm
 
     def get(self, request, *args, **kwargs):
-        self.context.update({'form': self.form()})
+        max_episode = self.drag_race.episode_set.aggregate(Max('number'))
+        self.context.update({'form': self.form(initial={'number': max_episode['number__max'] + 1})})
         return HttpResponse(self.template.render(self.context, request))
 
     def post(self, request, *args, **kwargs):
@@ -427,4 +429,10 @@ class QueenDetail(AuthenticatedView):
         queen = Queen.objects.get(pk=kwargs['queen_id'])
         stats = queen.formatted_stats
         self.context.update({'queen': queen, 'stats': stats})
+        return HttpResponse(self.template.render(self.context, request))
+
+
+class QueenList(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        self.template = loader.get_template('pages/queenlist.html')
         return HttpResponse(self.template.render(self.context, request))

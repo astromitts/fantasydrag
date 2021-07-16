@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/dragrace/<int:dragrace_id>/', views.DragRaceApi.as_view(), name='api_drag_race'),
     path('api/defaultrules/', views.DefaultRulesApi.as_view(), name='api_default_rules'),
     path('api/queens/', views.QueenApi.as_view(), name='api_queens'),
+    path('api/queens/search/', views.QueenSearchApi.as_view(), name='api_queen_search'),
     path('api/appearancetypes/', views.AppearanceTypeApi.as_view(), name='api_appearance_types'),
     path(
         'api/panel/<int:panel_id>/availablequeens/',

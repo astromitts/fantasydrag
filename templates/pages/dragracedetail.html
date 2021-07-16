@@ -6,6 +6,11 @@
 		<div class="col">
 			<h1>{{drag_race.display_name}}</h1>
 		</div>
+		{% if is_site_admin %}
+			<div class="col">
+				<a href="{% url 'create_episode' dragrace_id=drag_race.pk%}" class="form-control btn btn-info">Add episode</a>
+			</div>
+		{% endif %}
 	</div>
 
 	<div class="row">
@@ -17,7 +22,7 @@
 				<tr>
 					<th>Queen</th>
 					{% for episode in scores %}
-						<th>{{episode.title}} ({{episode.number}})</th>
+						<th><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a></th>
 					{% endfor %}
 				</tr>
 				<tr>

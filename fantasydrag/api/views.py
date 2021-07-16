@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import IntegrityError
+from django.db.models import Q
 
 from fantasydrag.models import (
     AppearanceType,
@@ -351,7 +352,10 @@ class QueenSearchApi(APIView):
         if request.data.get('filters'):
             filters = request.data['filters']
             if 'name' in filters:
-                queens_qs = queens_qs.filter(name__icontains=filters['name'])
+                queens_qs = queens_qs.filter(
+                    Q(normalized_name__icontains=filters['name']) | Q(name__icontains=filters['name'])
+
+                )
             if 'franchise' in filters:
                 queens_qs = queens_qs.filter(main_franchise=filters['franchise'])
         serializer = QueenSearchSerializer(instance=queens_qs.all(), many=True)
