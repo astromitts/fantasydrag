@@ -248,6 +248,10 @@ class DefaultRule(models.Model):
     class Meta:
         ordering = ('score_type', 'point_value', 'name')
 
+    @property
+    def drag_race_types_list(self):
+        return [drt.name for drt in self.drag_race_types.all()]
+
     def __str__(self):
         return '"{}": ({} points) {}'.format(self.name, self.point_value, self.description)
 

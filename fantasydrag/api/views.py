@@ -160,14 +160,6 @@ class DragRaceApi(APIView):
                 race_type=race_type
             )
             drag_race.save()
-            for posted_rule in request.data['rules']:
-                rule = DefaultRule(
-                    name=posted_rule['name'],
-                    description=posted_rule['description'],
-                    point_value=posted_rule['point_value'],
-                    score_type=posted_rule['score_type']
-                )
-                rule.save()
 
             for queen in request.data['queens']:
                 if queen['pk']:
@@ -243,25 +235,6 @@ class DragRaceApi(APIView):
             for pk, queen in current_queens.items():
                 if pk not in posted_queens:
                     drag_race.queens.remove(queen)
-
-            posted_rule_pks = []
-            for posted_rule in request.data['rules']:
-                new_rule = posted_rule['pk'] is None
-                if new_rule:
-                    rule = DefaultRule(
-                        name=posted_rule['name'],
-                        description=posted_rule['description'],
-                        point_value=posted_rule['point_value'],
-                        score_type=posted_rule['score_type'],
-                        drag_race=drag_race
-                    )
-                    rule.save()
-                    posted_rule_pks.append(rule.pk)
-                else:
-                    posted_rule_pks.append(posted_rule['pk'])
-            for rule in drag_race.rule_set.all():
-                if rule.pk not in posted_rule_pks:
-                    rule.delete()
 
             message = 'Updated Drag Race {} {} season {}'.format(
                 franchise, race_type, season

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from fantasydrag.models import (
     AppearanceType,
     DragRace,
+    DragRaceType,
     Draft,
     Episode,
     DefaultRule,
@@ -13,6 +14,14 @@ from fantasydrag.models import (
     WildCardAppearance,
     WildCardQueen,
 )
+
+
+class DragRaceTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = DragRaceType
+        fields = [
+            'name',
+        ]
 
 
 class AppearanceTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,6 +65,7 @@ class RuleSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'point_value',
             'score_type',
+            'drag_race_types_list'
         ]
 
 

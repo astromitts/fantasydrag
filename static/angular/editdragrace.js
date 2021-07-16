@@ -15,28 +15,25 @@ addEditDragRaceApp.controller(
 			'US', 'UK', 'Canada', 'Down Under'
 		]
 
-		$scope.typeOptions = ['standard', 'all star']
+		$scope.typeOptions = ['standard', 'all star', 'international']
 
 		$scope.dragRace = {
 			'pk': $scope.dragraceId,
 			'season': 1,
 			'franchise': null,
 			'type': null,
-			'queens': [],
-			'rules': []
+			'queens': []
 		}
 
 		$scope.newQueen = null;
-		$scope.newRule = null;
 
-		$scope.defaultRule = function() {
-			$scope.newRule = {
-				"pk": null, 
-				"name": null,
-				"description": null,
-				"point_value": 0,
-				"score_type": null
-			}
+		$scope.updateRuleSet = function(typeOption) {
+			$scope.dragRaceRules = [];
+			angular.forEach($scope.ruleSet, function(rule) {
+				if (rule.drag_race_types_list.includes(typeOption)) {
+					$scope.dragRaceRules.push(rule);
+				}
+			});
 		}
 
 
@@ -52,19 +49,8 @@ addEditDragRaceApp.controller(
 			}
 		}
 
-		$scope.addNewRule = function(){
-			if($scope.newRule) {
-				$scope.dragRace.rules.unshift($scope.newRule);
-				$scope.defaultRule()
-			}
-		}
-
 		$scope.removeQueen = function(queen){
 			$scope.dragRace.queens.splice($scope.dragRace.queens.indexOf(queen), 1);
-		}
-
-		$scope.removeRule = function(rule){
-			$scope.dragRace.rules.splice($scope.dragRace.rules.indexOf(rule), 1);
 		}
 
 		$scope.createUpdateDragRace = function() {
@@ -115,23 +101,26 @@ addEditDragRaceApp.controller(
 			}
 		)
 
-		$scope.defaultRule();
-
 		if($scope.dragraceId != 'None') {
 			$scope.createNew = false;
-			$http.get('/api/dragrace/' + $scope.dragraceId + '/').then(
-				function(response){
-					$scope.dragRace = response.data;
-				}
-			);
-		} else {
+		}else {
 			$scope.createNew = true;
-			$http.get('/api/defaultrules/').then(
-				function(response) {
-					$scope.dragRace.rules = response.data;
-				}
-			);
 		}
+		
+		$http.get('/api/defaultrules/').then(
+			function(response) {
+				$scope.ruleSet = response.data;
+				if(!$scope.createNew){
+					$http.get('/api/dragrace/' + $scope.dragraceId + '/').then(
+						function(response){
+							$scope.dragRace = response.data;
+							$scope.updateRuleSet($scope.dragRace.drag_Race_type);
+						}
+					);
+				}
+			}
+		);
+		
 
 	}
 );

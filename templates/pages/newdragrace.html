@@ -48,13 +48,34 @@
 			</div>
 			<div class="col">
 				<label for="race_type" class="label-plain">Type:</label>
-				<select class="form-control" id="id_race_type" name="race_type" ng-model="dragRace.race_type" required>
+				<select class="form-control" id="id_race_type" name="race_type" ng-model="dragRace.race_type" ng-change="updateRuleSet(dragRace.race_type)" required>
 					<option ng-repeat="typeOption in typeOptions" value="{{typeOption}}">{{typeOption}}</option>
 				</select>
 			</div>
 		</div>
 
 		<div class="spacer-small"></div>
+		<div class="row">
+			<div class="col">
+				<hr />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<p class="marker">Rules</p>
+			</div>
+		</div>
+		<div class="spacer-small"></div>
+		<table class="table">
+			<tr>
+				<th>Rule</th><th>Description</th><th>Points</th>
+			</tr>
+			<tr ng-repeat="rule in dragRaceRules">
+				<th>{{rule.name}}</th>
+				<td>{{rule.description}}</td>
+				<th>{{rule.point_value}}</th>
+			</tr>
+		</table>
 		<div class="row">
 			<div class="col">
 				<label for="queens" class="label-plain">Queens:</label>
@@ -70,7 +91,8 @@
 
 			</div>
 		</div>
-		<div class="spacer-small"></div>
+		<div class="spacer-small"></div>	
+
 		<div class="row">
 			<div class="col">
 				<label for="new_queen" class="label-plain">Add Queen:</label>
@@ -99,85 +121,6 @@
 			
 		</div>
 	</div>
-
-	<div class="spacer-medium"></div>
-
-	<div class="row">
-		<div class="col">
-			<hr />
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<p class="marker">Rules</p>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<label for="new_rule" class="label-plain">Add Rule:</label>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			 <input type="text" class="form-control" id="id_new_rule" name="new_rule" ng-model="newRule.name" />
-		</div>
-		<div class="col-2">
-			<input type="number" ng-model="newRule.point_value" class="form-control" />
-		</div>
-		<div class="col-2">
-			<select ng-model="newRule.score_type" class="form-control">
-				<option value="episode">Episode</option>
-				<option value="season">Season</option>
-			</select>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<textarea ng-model="newRule.description" class="form-control"></textarea>
-		</div>
-		<div class="col-4">
-			<button 
-				class="btn btn-primary form-control" 
-				ng-click="addNewRule()"
-				ng-disabled="!newRule.name || !newRule.description || !newRule.score_type">
-				Add Rule</button>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<hr />
-		</div>
-	</div>
-
-	<div class="spacer-small"></div>
-	<span ng-repeat="rule in dragRace.rules">
-		<div class="row">
-			<div class="col">
-				<input type="text" ng-model="rule.name" class="form-control" />
-			</div>
-			<div class="col-1">
-				<input type="number" ng-model="rule.point_value" class="form-control" />
-			</div>
-			<div class="col-2">
-				<select ng-model="rule.score_type" class="form-control">
-					<option value="episode">Episode</option>
-					<option value="season">Season</option>
-				</select>
-			</div>
-			<div class="col-1">
-				<button 
-					class="btn btn-danger btn-sm"
-					ng-click="removeRule(rule)">-</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col">
-				<p class="text-secondary">
-					<textarea ng-model="rule.description" class="form-control">{{rule.description}}</textarea>
-				</p>
-			</div>
-		</div>
-	</span>
 
 	<div class="spacer-small"></div>
 	<div class="row">
