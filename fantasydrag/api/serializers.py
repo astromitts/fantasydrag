@@ -5,7 +5,7 @@ from fantasydrag.models import (
     DragRace,
     Draft,
     Episode,
-    Rule,
+    DefaultRule,
     Score,
     Queen,
     Panel,
@@ -49,7 +49,7 @@ class QueenSerializer(serializers.HyperlinkedModelSerializer):
 
 class RuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Rule
+        model = DefaultRule
         fields = [
             'pk',
             'name',

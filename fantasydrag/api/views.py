@@ -10,7 +10,6 @@ from fantasydrag.models import (
     DragRace,
     Draft,
     DefaultRule,
-    Rule,
     Score,
     Queen,
     Panel,
@@ -162,12 +161,11 @@ class DragRaceApi(APIView):
             )
             drag_race.save()
             for posted_rule in request.data['rules']:
-                rule = Rule(
+                rule = DefaultRule(
                     name=posted_rule['name'],
                     description=posted_rule['description'],
                     point_value=posted_rule['point_value'],
-                    score_type=posted_rule['score_type'],
-                    drag_race=drag_race
+                    score_type=posted_rule['score_type']
                 )
                 rule.save()
 
@@ -250,7 +248,7 @@ class DragRaceApi(APIView):
             for posted_rule in request.data['rules']:
                 new_rule = posted_rule['pk'] is None
                 if new_rule:
-                    rule = Rule(
+                    rule = DefaultRule(
                         name=posted_rule['name'],
                         description=posted_rule['description'],
                         point_value=posted_rule['point_value'],
@@ -379,7 +377,7 @@ class EpisodeApi(APIView):
     def put(self, request, *args, **kwargs):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
         queen = Queen.objects.get(pk=request.data['queen'])
-        rule = Rule.objects.get(pk=request.data['rule'])
+        rule = DefaultRule.objects.get(pk=request.data['rule'])
         score = Score(
             episode=episode,
             rule=rule,

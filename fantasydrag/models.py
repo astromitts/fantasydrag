@@ -245,6 +245,9 @@ class RuleBase(models.Model):
         abstract = True
         ordering = ('score_type', 'point_value', 'name')
 
+    def __str__(self):
+        return '"{}": ({} points) {}'.format(self.name, self.point_value, self.description)
+
 
 class DefaultRule(RuleBase):
     def save(self, *args, **kwargs):
@@ -267,11 +270,14 @@ class Rule(RuleBase):
 class Score(models.Model):
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
-    rule = models.ForeignKey(Rule, on_delete=models.CASCADE, null=True)
     default_rule = models.ForeignKey(DefaultRule, null=True, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ('-pk', )
+
+    @property
+    def rule(self):
+        return self.default_rule
 
     def __str__(self):
         return '{}: {} // {}'.format(self.queen, self.episode, self.rule)
