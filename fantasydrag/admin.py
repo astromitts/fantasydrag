@@ -65,8 +65,8 @@ class AppearanceTypeForm(FormBase):
 
 class DragRaceAdmin(admin.ModelAdmin):
     form = DragRaceForm
-    list_display = ['display_name', 'drag_race_type', 'franchise', 'season', 'status', 'is_current', 'open_for_panels']
-    list_editable = ['drag_race_type', 'franchise', 'is_current', 'status', 'open_for_panels']
+    list_display = ['display_name', 'drag_race_type', 'franchise', 'season', 'status', 'is_current']
+    list_editable = ['drag_race_type', 'franchise', 'is_current', 'status']
 
 
 class QueenAdmin(admin.ModelAdmin):

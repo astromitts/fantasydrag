@@ -172,7 +172,6 @@ class DragRace(models.Model):
         active: season is ongoing, people cannot start new panels
         closed: season is over and people cannot start new panels but can see all stats
     '''
-    open_for_panels = models.BooleanField(default=False)
     status = models.CharField(
         max_length=25,
         choices=[

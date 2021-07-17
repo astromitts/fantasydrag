@@ -23,11 +23,11 @@
 	{% if flags.GENERAL_DRAFT %}
 		<div class="spacer-small"></div>
 		{% with participant|participant_drag_race_team:drag_race as drag_race_team %}
-			{% if not drag_race_team  and drag_race.open_for_panels %}
+			{% if not drag_race_team  and drag_race.status == 'open' %}
 				<div>
 					<a href="{% url 'dragrace_general_draft' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Draft a Team</button></a>
 				</div>
-			{% elif drag_race_team  and drag_race.open_for_panels %}
+			{% elif drag_race_team  and drag_race.status == 'open' %}
 
 				<h4>General Draft Team</h4>
 				<table class="table">
