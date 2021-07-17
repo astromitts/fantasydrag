@@ -16,6 +16,9 @@ def session_request_validation(get_response):
         error_message = None
         status_code = 200
 
+        if settings.REDIRECT_TO and not request.get_host() == settings.REDIRECT_TO:
+            return redirect('{}{}'.format(settings.REDIRECT_TO, request.path))
+
         # middleware does not have access to the user
         # session_manager_login is expected to set a session variable to use here
         user_is_authenticated = request.session.get('user_is_authenticated')
