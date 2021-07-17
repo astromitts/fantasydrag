@@ -40,6 +40,11 @@ urlpatterns = [
         name='dragrace_rules'
     ),
     path(
+        'dragrace/<int:dragrace_id>/draft/',
+        views.DragRaceGeneralDraft.as_view(),
+        name='dragrace_general_draft'
+    ),
+    path(
         'dragrace/<int:dragrace_id>/episode/redirect/',
         views.SetEpisodeRedirect.as_view(),
         name='set_episode_scores_redirect'

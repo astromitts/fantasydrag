@@ -11,6 +11,7 @@ from fantasydrag.models import (
     DragRaceType,
     Draft,
     DefaultRule,
+    GeneralPanel,
     Score,
     Queen,
     Panel,
@@ -23,6 +24,7 @@ from fantasydrag.api.serializers import (
     DragRaceSerializer,
     DraftSerializer,
     EpisodeScore,
+    GeneralPanelSerializer,
     ScoreSerializer,
     PanelSerializer,
     QueenSerializer,
@@ -261,6 +263,44 @@ class DragRaceApi(APIView):
         elif update:
             response = self._update_drag_race(request)
         return Response(response)
+
+
+class GeneralDraftApi(APIView):
+    def setup_general_panel(self, request, *args, **kwargs):
+        self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+        self.participant = Participant.objects.get(user=request.user)
+        self.general_panel = GeneralPanel.objects.filter(
+            drag_race=self.drag_race, participant=self.participant).first()
+        if not self.general_panel:
+            self.general_panel = GeneralPanel(drag_race=self.drag_race, participant=self.participant)
+            self.general_panel.save()
+
+    def get(self, request, *args, **kwargs):
+        self.setup_general_panel(request, *args, **kwargs)
+        panel = GeneralPanelSerializer(self.general_panel).data
+        return Response(panel)
+
+    def post(self, request, *args, **kwargs):
+        self.setup_general_panel(request, *args, **kwargs)
+
+        try:
+            for queen in self.general_panel.queens.all():
+                self.general_panel.queens.remove(queen)
+            self.general_panel.save()
+            for queen in request.data['queens']:
+                queen = Queen.objects.get(pk=queen['pk'])
+                self.general_panel.queens.add(queen)
+            self.general_panel.save()
+            status = {
+                'status': 'ok',
+                'message': 'Panel saved!'
+            }
+        except:
+            status = {
+                'status': 'error',
+                'message': 'An unkown error occurred. Please try again.'
+            }
+        return Response(status)
 
 
 class AppearanceTypeApi(APIView):

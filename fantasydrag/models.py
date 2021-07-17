@@ -1,3 +1,4 @@
+import math
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
@@ -207,6 +208,10 @@ class DragRace(models.Model):
         return self.drag_race_type.defaultrule_set.all()
 
     @property
+    def general_draft_allowance(self):
+        return math.floor(.4 * self.queens.count())
+
+    @property
     def scored_episodes(self):
         return self.episode_set.filter(is_scored=True).all()
 
@@ -341,6 +346,15 @@ class Participant(models.Model):
         self.user.username = self.display_name.lower()
         self.user.save()
         super(Participant, self).save(*args, **kwargs)
+
+
+class GeneralPanel(models.Model):
+    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, null=True, on_delete=models.SET_NULL)
+    queens = models.ManyToManyField(Queen)
+
+    class Meta:
+        unique_together = ['drag_race', 'participant']
 
 
 class Panel(models.Model):

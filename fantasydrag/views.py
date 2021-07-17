@@ -293,6 +293,13 @@ class DragRaceStats(AuthenticatedView):
         return HttpResponse(template.render(self.context, request))
 
 
+class DragRaceGeneralDraft(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        template = loader.get_template('pages/generalteamdraft.html')
+        self.context.update({})
+        return HttpResponse(template.render(self.context, request))
+
+
 class SetEpisodeRedirect(AuthenticatedView):
     def post(self, request, *args, **kwargs):
         self.episode = Episode.objects.get(pk=request.POST['episode'], drag_race__id=kwargs['dragrace_id'])

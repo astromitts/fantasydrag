@@ -237,6 +237,14 @@ h4, .h4 {
 	background-color: $selected;
 }
 
+.selected {
+	background-color: $selected;
+}
+
+.mute {
+	color: #CCCCCC
+}
+
 .selectable {
 	&:hover {
 		background-color: $selected;

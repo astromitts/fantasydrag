@@ -40,4 +40,9 @@ urlpatterns = [
         views.CreatePanelApi.as_view(),
         name='api_create_panel'
     ),
+    path(
+        'api/dragrace/<int:dragrace_id>/generalpanel/',
+        views.GeneralDraftApi.as_view(),
+        name='api_general_panel'
+    ),
 ]

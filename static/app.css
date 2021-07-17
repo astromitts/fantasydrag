@@ -227,6 +227,14 @@ h4, .h4 {
   background-color: #f5a2f2;
 }
 
+.selected {
+  background-color: #f5a2f2;
+}
+
+.mute {
+  color: #CCCCCC;
+}
+
 .selectable:hover {
   background-color: #f5a2f2;
 }

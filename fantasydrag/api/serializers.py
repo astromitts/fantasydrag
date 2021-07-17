@@ -7,6 +7,7 @@ from fantasydrag.models import (
     Draft,
     Episode,
     DefaultRule,
+    GeneralPanel,
     Score,
     Queen,
     Panel,
@@ -81,6 +82,7 @@ class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
             'season',
             'franchise',
             'drag_race_type_name',
+            'general_draft_allowance',
             'queens',
             'rules'
         ]
@@ -92,6 +94,19 @@ class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
         fields = [
             'pk',
             'display_name',
+        ]
+
+
+class GeneralPanelSerializer(serializers.HyperlinkedModelSerializer):
+    drag_race = DragRaceSerializer()
+    selected_queens = QueenSerializer(many=True, source='queens')
+
+    class Meta:
+        model = GeneralPanel
+        fields = [
+            'pk',
+            'drag_race',
+            'selected_queens',
         ]
 
 

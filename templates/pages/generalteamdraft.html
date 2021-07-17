@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'vendor/angular/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'angular/dragrace-general-draft.js' %}"></script>
+{% endblock %}
+
+{% block page_content %}
+
+<span id='generalDraftModule' ng-controller='generalDraftController'>
+	<input id="id_dragraceId" name="dragraceId" value="{{drag_race.pk}}" type="hidden" />
+
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col">
+
+			{% verbatim %}
+			<h1>{{dragRace.display_name}} General Draft</h1>
+			<div class="row">
+				<div class="col">
+				<div class="alert alert-success" ng-show="successMessage">
+					{{successMessage}}
+				</div>
+				<div class="alert alert-error" ng-show="errorMessage">
+					{{errorMessage}}
+				</div>
+				<div class="col">
+			</div>
+			<div class="row">
+				<div class="col">
+					<p class="marker">
+					Select Queens: {{selectedCount}} / {{cap}}</p>
+				</div>
+				<div class="col">
+					<button class="btn btn-info form-control"
+					ng-disabled="selectedCount < cap" ng-click="submit()">Save Team</button>
+				</div>
+			</div>
+			<div class="spacer-medium"></div>
+			<table class="table">
+				<tr 
+					ng-class="
+						{
+							'selectable': !queen.isSelected && selectedCount < cap, 
+							'selected': queen.isSelected,
+							'mute': !queen.isSelected && selectedCount == cap
+						}"
+					ng-repeat="queen in dragRace.queens"
+					ng-click="toggleQueen(queen)">
+					<td>{{queen.name}}</td>
+				</tr>
+			</table>
+			{% endverbatim %}
+		</div>
+		<div class="col-2"></div>
+		</div>
+	</div>
+</span>
+
+{% endblock %}

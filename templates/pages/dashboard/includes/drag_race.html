@@ -1,3 +1,5 @@
+{% load helper_tags %}
+
 <div class="row">
 <div class="col-12">
 	<h1>
@@ -17,6 +19,47 @@
 		<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
 		Edit Drag Race</a>
 	</p>
+	{% endif %}
+	{% if flags.GENERAL_DRAFT %}
+		<div class="spacer-small"></div>
+		{% with participant|participant_drag_race_team:drag_race as drag_race_team %}
+			{% if not drag_race_team  and drag_race.open_for_panels %}
+				<div>
+					<a href="{% url 'dragrace_general_draft' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Draft a Team</button></a>
+				</div>
+			{% elif drag_race_team  and drag_race.open_for_panels %}
+
+				<h4>General Draft Team</h4>
+				<table class="table">
+					{% for queen in drag_race_team.queens.all %}
+					<tr><td>{{queen.name}}</td></tr>
+					{% endfor %}
+				</table>
+				<div>
+					<a href="{% url 'dragrace_general_draft' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Edit General Draft Team</button></a>
+				</div>
+			{% elif drag_race_team %}
+				{% with drag_race_team|formatted_general_draft as formatted_scores %}
+					<div class="row">
+						<div class="col-8">
+							<h4>General Draft</h4>
+						</div>
+						<div class="col"><span class="h4">{{formatted_scores.total}} pts</span></div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<table class="table">
+								{% for queen, score in formatted_scores.queens.items %}
+								<tr>
+									<th>{{queen.name}}</th><td>{{score}}</td>
+								</tr>
+								{% endfor %}
+							</table>
+						</div>
+					</div>
+				{% endwith %}
+			{% endif %}
+		{% endwith %}
 	{% endif %}
 </div>
 <div class="col">
