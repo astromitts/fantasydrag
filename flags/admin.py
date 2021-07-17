@@ -10,7 +10,7 @@ class FeatureFlagForm(forms.ModelForm):
 
 class FeatureFlagAdmin(admin.ModelAdmin):
     form = FeatureFlagForm
-    list_display = ['title', 'value', 'changed']
+    list_display = ['title', 'value', 'changed', 'has_users']
     list_editable = ['value', ]
 
 admin.site.register(FeatureFlag, FeatureFlagAdmin)

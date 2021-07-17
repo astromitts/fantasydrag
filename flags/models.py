@@ -1,5 +1,6 @@
-from django.utils.timezone import now
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils.timezone import now
 
 
 class FeatureFlag(models.Model):
@@ -14,7 +15,12 @@ class FeatureFlag(models.Model):
     )
     created = models.DateTimeField(default=now, editable=False)
     changed = models.DateTimeField(default=now, editable=False)
+    users = models.ManyToManyField(User)
 
     def save(self, *args, **kwargs):
         self.changed = now()
         super(FeatureFlag, self).save(*args, **kwargs)
+
+    @property
+    def has_users(self):
+        return self.users.count() > 0
