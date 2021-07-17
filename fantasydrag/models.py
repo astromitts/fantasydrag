@@ -165,7 +165,7 @@ class DragRace(models.Model):
         ],
         default='US'
     )
-    is_current = models.BooleanField(default=False)
+    is_current = models.BooleanField(default=False, db_index=True)
     ''' status
         open: season has not yet started and people can create and join panels
               should remain open for 3 episodes?
@@ -178,8 +178,10 @@ class DragRace(models.Model):
             ('open', 'open'),
             ('active', 'active'),
             ('closed', 'closed'),
+            ('pending', 'pending'),
         ],
-        default='open'
+        default='open',
+        db_index=True
     )
 
     class Meta:

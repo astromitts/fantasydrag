@@ -148,8 +148,8 @@ class LandingPage(AuthenticatedView):
 
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/dashboard/dashboard.html')
-        current_races = DragRace.objects.filter(is_current=True).order_by('-season').all()
-        past_races = DragRace.objects.filter(is_current=False).order_by('-season').all()
+        current_races = DragRace.objects.filter(is_current=True).exclude(status='pending').order_by('-season').all()
+        past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
         formatted_current_races = self._format_drag_races(current_races)
         formatted_past_races = self._format_drag_races(past_races)
         self.context.update({
