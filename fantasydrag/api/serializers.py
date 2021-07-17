@@ -72,7 +72,6 @@ class RuleSerializer(serializers.HyperlinkedModelSerializer):
 class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
     queens = QueenSerializer(many=True)
     rules = RuleSerializer(many=True, source='rule_set')
-    drag_race_type = DragRaceTypeSerializer(many=False)
 
     class Meta:
         model = DragRace
@@ -81,7 +80,7 @@ class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
             'display_name',
             'season',
             'franchise',
-            'drag_race_type',
+            'drag_race_type_name',
             'queens',
             'rules'
         ]

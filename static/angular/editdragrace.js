@@ -62,7 +62,7 @@ addEditDragRaceApp.controller(
 			if(!$scope.dragRace.franchise) {
 				$scope.errors.push('Select a franchise');
 			}
-			if(!$scope.dragRace.race_type) {
+			if(!$scope.dragRace.drag_race_type_name) {
 				$scope.errors.push('Select a Drag Race type');
 			}
 			if($scope.errors.length == 0){
@@ -72,7 +72,7 @@ addEditDragRaceApp.controller(
 						'pk': $scope.dragRace.pk,
 						'season': $scope.dragRace.season,
 						'franchise': $scope.dragRace.franchise,
-						'race_type': $scope.dragRace.race_type,
+						'drag_race_type': $scope.dragRace.drag_race_type_name,
 						'queens': $scope.dragRace.queens,
 						'rules': $scope.dragRace.rules,
 					}

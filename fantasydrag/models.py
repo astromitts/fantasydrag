@@ -198,6 +198,10 @@ class DragRace(models.Model):
         return ' '.join(display_name_parts)
 
     @property
+    def drag_race_type_name(self):
+        return self.drag_race_type.name
+
+    @property
     def rule_set(self):
         return self.drag_race_type.defaultrule_set.all()
 

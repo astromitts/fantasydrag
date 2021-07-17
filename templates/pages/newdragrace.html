@@ -48,7 +48,7 @@
 			</div>
 			<div class="col">
 				<label for="race_type" class="label-plain">Type:</label>
-				<select class="form-control" id="id_race_type" name="race_type" ng-model="dragRace.race_type" ng-change="updateRuleSet(dragRace.race_type)" required>
+				<select class="form-control" id="id_race_type" name="race_type" ng-model="dragRace.drag_race_type_name" ng-change="updateRuleSet(dragRace.race_type)" required>
 					<option ng-repeat="typeOption in typeOptions" value="{{typeOption}}">{{typeOption}}</option>
 				</select>
 			</div>

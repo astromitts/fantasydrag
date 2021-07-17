@@ -152,7 +152,7 @@ class DragRaceApi(APIView):
 
         season = request.data['season']
         franchise = request.data['franchise']
-        race_type = request.data['race_type']
+        race_type = request.data['drag_race_type']
 
         try:
             drag_race = DragRace(
@@ -203,7 +203,7 @@ class DragRaceApi(APIView):
 
         season = request.data['season']
         franchise = request.data['franchise']
-        race_type = request.data['race_type']
+        race_type = request.data['drag_race_type']
 
         try:
             drag_race.season = season
