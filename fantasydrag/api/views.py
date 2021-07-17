@@ -8,6 +8,7 @@ from fantasydrag.models import (
     AppearanceType,
     Episode,
     DragRace,
+    DragRaceType,
     Draft,
     DefaultRule,
     Score,
@@ -157,7 +158,7 @@ class DragRaceApi(APIView):
             drag_race = DragRace(
                 season=season,
                 franchise=franchise,
-                race_type=race_type
+                drag_race_type=DragRaceType.objects.get(pk=race_type)
             )
             drag_race.save()
 
@@ -207,7 +208,7 @@ class DragRaceApi(APIView):
         try:
             drag_race.season = season
             drag_race.franchise = franchise
-            drag_race.race_type = race_type
+            drag_race.drag_race_type = DragRaceType.objects.get(pk=race_type)
             drag_race.save()
             current_queens = {q.pk: q for q in drag_race.queens.all()}
             posted_queens = {}
