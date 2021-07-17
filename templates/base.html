@@ -17,23 +17,25 @@
 	<body>
 		<div class="container-fluid">
 			<nav class="navbar navbar-dark bg-dark">
-			  <a class="navbar-brand" href="{% url 'home' %}">
-			  	FantasyDrag
-			  </a>
-		    <ul class="navbar-nav">
-				{% if user.is_authenticated %}					
-					<li class="nav-item">
-					  <a class="nav-link" href="{% url 'profile' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
-					</li>
-				{% else %}				
-					<li class="nav-item">
-					  <a class="nav-link" href="{% url 'login' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
-					</li>
-				{% endif %}
-		    </ul>
+				<div class="container">
+				  <a class="navbar-brand" href="{% url 'home' %}">
+				  	FantasyDrag
+				  </a>
+			    <ul class="navbar-nav">
+					{% if user.is_authenticated %}					
+						<li class="nav-item">
+						  <a class="nav-link" href="{% url 'profile' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
+						</li>
+					{% else %}				
+						<li class="nav-item">
+						  <a class="nav-link" href="{% url 'login' %}"><img src="{% static 'site_images/crown.png' %}" /></a>
+						</li>
+					{% endif %}
+			    </ul>
+			</div>
 			</nav>
 		</div>
-		<div id="page_content" class="container container-fluid">
+		<div id="page_content" class="body container container-fluid">
 			{% block page_content %}{% endblock %}
 		</div>
   		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

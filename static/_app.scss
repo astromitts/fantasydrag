@@ -48,13 +48,17 @@ label.label {
 		font-size: inherit;
 	}
 }
-
-.container {
-	margin-top: 1rem !important;
-	padding-bottom: 3rem !important;
+.navbar .container {
+	padding: 0 !important;
 }
 .container-fluid {
-	padding: 0;
+	padding-right: 0 !important;
+	padding-left: 0 !important;
+}
+
+.body {
+	margin-top: 1rem !important;
+	padding-bottom: 3rem !important;
 }
 
 .navbar-dark .navbar-nav .nav-link {
