@@ -14,4 +14,4 @@ MIDDLEWARE_DEBUG = False
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-ALLOWED_HOSTS = ['fantasydrag.herokuapp.com', 'herokuapp.com', ]
+ALLOWED_HOSTS = ['fantasydrag.herokuapp.com', 'herokuapp.com', 'www.dragcrush.com', ]
