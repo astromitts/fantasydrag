@@ -117,6 +117,12 @@ ul.navbar-nav {
 	}
 }
 
+footer {
+	.navbar {
+		color: $highlight-color !important;
+	}
+}
+
 .row {
 	margin: 0;
 	@media (min-width: $small-phone) {

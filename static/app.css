@@ -91,6 +91,10 @@ ul.navbar-nav li {
   }
 }
 
+footer .navbar {
+  color: #dc61d3 !important;
+}
+
 .row {
   margin: 0;
 }
