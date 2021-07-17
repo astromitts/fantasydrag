@@ -20,6 +20,9 @@ label.label-plain {
 .navbar .container {
   padding: 0 !important;
 }
+.navbar .container img {
+  width: 60px;
+}
 
 .container-fluid {
   padding-right: 0 !important;
@@ -36,9 +39,6 @@ label.label-plain {
 }
 .navbar-dark .navbar-nav .nav-link:hover {
   color: #b6bdfb !important;
-}
-.navbar-dark .navbar-nav .nav-link img {
-  width: 60px;
 }
 
 .navbar-dark {
@@ -63,13 +63,25 @@ label.label-plain {
   }
 }
 
+.fullwidth {
+  width: 100%;
+}
+
+.nav-group {
+  display: inline-block;
+}
+.nav-group-right {
+  float: right;
+}
+.nav-group-left {
+  float: left;
+}
+
 ul.navbar-nav {
   display: block;
-  float: right;
 }
 ul.navbar-nav li {
   display: inline-block;
-  margin-left: 1rem;
   font-size: 15px;
 }
 @media (min-width: 767.98px) {

@@ -48,8 +48,15 @@ label.label {
 		font-size: inherit;
 	}
 }
+
+.navbar>.container, .navbar>.container-fluid{
+
+}
 .navbar .container {
 	padding: 0 !important;
+	img {
+		width: 60px;
+	}
 }
 .container-fluid {
 	padding-right: 0 !important;
@@ -65,9 +72,6 @@ label.label {
 	color: $highlight-color !important;
 	&:hover {
 		color: #b6bdfb !important;
-	}
-	img {
-		width: 60px;
 	}
 }
 
@@ -87,12 +91,24 @@ label.label {
 	}
 }
 
+.fullwidth {
+	width: 100%
+}
+
+.nav-group {
+	display: inline-block;
+	&-right {
+		float: right;
+	}
+	&-left {
+		float: left;
+	}
+}
+
 ul.navbar-nav {
 	display: block;
-	float: right;
 	li {
 		display: inline-block;
-		margin-left: 1rem;
 		font-size: 15px;
 		@media (min-width: $small-phone) {
 			font-size: 30px;
