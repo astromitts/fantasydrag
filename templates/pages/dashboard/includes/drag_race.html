@@ -111,6 +111,9 @@
 			<div class="spacer-small"></div>
 			<div>
 				<a href="{% url 'panel_create' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+			</div><div class="spacer-small"></div>
+			<div>
+				<a href="{% url 'panel_list' dragrace_id=drag_race.pk %}"><button class="btn btn-info form-control">Find a panel</button></a>
 			</div>
 			{% endif %}
 		</div>

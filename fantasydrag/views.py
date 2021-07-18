@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.db.models import Max
@@ -257,22 +258,62 @@ class CreatePanel(AuthenticatedView):
         return HttpResponse(self.template.render(self.context, request))
 
 
+class LeavePanel(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(LeavePanel, self).setup(request, *args, **kwargs)
+        self.template = loader.get_template('pages/leave-panel.html')
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        self.panel.participants.remove(self.participant)
+        messages.success(request, 'You successfully left the panel "{}"'.format(self.panel.name))
+        return redirect(reverse('home'))
+
+
 class JoinPanel(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(JoinPanel, self).setup(request, *args, **kwargs)
         self.template = loader.get_template('pages/join-panel.html')
         self.panel = Panel.objects.get(code=kwargs['panel_code'])
+        self.invited = False
+        if request.resolver_match.url_name == 'panel_invitation_link':
+            self.invited = True
 
     def get(self, request, *args, **kwargs):
+        if self.panel.panel_type == 'private' and not self.invited:
+            messages.error(request, 'You must have a special invite link to join a private channel.')
+            return redirect(reverse('panel_list', kwargs={'dragrace_id': self.panel.drag_race.pk}))
         self.context.update({
             'panel': self.panel,
+            'invited': self.invited,
             'in_panel': self.participant in self.panel.participants.all()
         })
         return HttpResponse(self.template.render(self.context, request))
 
     def post(self, request, *args, **kwargs):
-        self.panel.participants.add(self.participant)
+        if self.panel.panel_type == 'private' and not self.invited:
+            messages.error(request, 'You must have a special invite link to join a private channel.')
+            return redirect(reverse('panel_list', kwargs={'dragrace_id': self.panel.drag_race.pk}))
+        if self.panel.participant_limit > self.panel.available_slots:
+            self.panel.participants.add(self.participant)
+        else:
+            messages.error(request, 'Panel is already full. Please find another panel to join or start a new one.')
+            return redirect(reverse('panel_list', kwargs={'dragrace_id': self.panel.drag_race.pk}))
         return redirect(reverse('panel_stats', kwargs={'panel_id': self.panel.pk}))
+
+
+class PublicPanelList(AuthenticatedView):
+    def get(self, request, *args, **kwargs):
+        self.template = loader.get_template('pages/open-panels.html')
+        self.context.update({
+            'panels': self.drag_race.panel_set.filter(
+                panel_type='public',
+                status='open'
+            ),
+        })
+        return HttpResponse(self.template.render(self.context, request))
 
 
 class PanelStats(AuthenticatedView):

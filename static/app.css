@@ -182,20 +182,24 @@ table {
   height: 100%;
 }
 
+.alert {
+  text-align: center;
+}
 .alert-success, .alert-info {
-  font-family: "Rock Salt", sans-serif;
   background-color: #dc61d3;
   color: #000000;
   border-color: #333333;
-}
-.alert-success a, .alert-info a {
-  /* font-size: 1.7rem; */
 }
 .alert-info {
   background-color: #2dbfd6;
 }
 .alert-plain {
   border: 1px solid black;
+}
+.alert-danger, .alert-error {
+  color: #000000;
+  border-color: #333333;
+  background-color: #a08af7;
 }
 
 ul {

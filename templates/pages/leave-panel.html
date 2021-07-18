@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block page_title %} | Leave Panel {{panel.name}}{% endblock %}
+
+{% block page_content %}
+
+<div class="row">
+	<div class="col">
+		<strong>Are you sure you want leave the panel "{{panel.name}}"?
+	</div>
+</div>
+<div class="spacer-medium"></div>
+<div class="row">
+	<div class="col">
+		<form method="POST">
+			{% csrf_token %}
+			<input type="submit" class="btn btn-danger form-control" value="I'm sure" name="confirm" id="id_confirm">
+		</form>
+	</div>
+</div>
+{% endblock %}

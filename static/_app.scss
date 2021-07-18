@@ -205,8 +205,8 @@ table {
 }
 
 .alert {
+	text-align: center;
 	&-success, &-info {
-		@include marker;
 		background-color: $highlight-color;
 		color: $true-black;
 		border-color: $app-black;
@@ -216,6 +216,11 @@ table {
 	}
 	&-plain {
 		border: 1px solid black;
+	}
+	&-danger, &-error {
+		color: $true-black;
+		border-color: $app-black;
+		background-color: $danger;
 	}
 }
 

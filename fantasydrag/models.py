@@ -537,13 +537,14 @@ class Panel(models.Model):
     status = models.CharField(
         max_length=25,
         choices=[
+            ('pending', 'pending'),
             ('open', 'open'),
             ('in draft', 'in draft'),
             ('active', 'active'),
             ('wildcards', 'wildcards'),
             ('closed', 'closed'),
         ],
-        default='open'
+        default='pending'
     )
 
     def __str__(self):
@@ -553,8 +554,12 @@ class Panel(models.Model):
     def queen_draft_allowance(self):
         return DRAFT_CAPS.get(self.participants.count())
 
+    @property
+    def available_slots(self):
+        return self.participant_limit - self.participants.count()
+
     def get_join_link(self, request):
-        return '{}://{}/panel/{}/'.format(request.scheme, request.get_host(), self.code)
+        return '{}://{}/panel/invite/{}/'.format(request.scheme, request.get_host(), self.code)
 
     def save(self, *args, **kwargs):
         self.normalized_name = self.name.lower().replace(' ', '')

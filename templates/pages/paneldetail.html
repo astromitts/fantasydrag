@@ -63,6 +63,7 @@
 					</tr>
 				{% endfor %}
 			</table>
+			<a class="btn btn-danger" href="{% url 'panel_leave' panel_id=panel.pk %}">Leave Panel</a>
 		</div>
 		<div class="col">
 			<h2><a href="{% url 'dragrace_stats' dragrace_id=panel.drag_race.pk %}" class="marker">Queen Scorecard</a></h2>

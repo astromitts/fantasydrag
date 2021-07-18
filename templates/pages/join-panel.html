@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 
-
-
-{% block page_title %} | Join Panel{% endblock %}
-
+{% block page_title %} | Join Panel {{panel.name}}{% endblock %}
 
 {% block page_content %}
 	{% if in_panel %}
@@ -15,18 +12,41 @@
 	{% else %}
 	<div class="row">
 		<div class="col">
-		<form method="POST">
-			{% csrf_token %}
+			{% if invited %}
 			<p>You have been invited to join the panel <strong>"{{panel.name}}"</strong> for <strong>{{panel.drag_race.display_name}}</strong></p>
+			{% else %}
+
+			<p>Join panel <strong>"{{panel.name}}"</strong> for <strong>{{panel.drag_race.display_name}}</strong></p>
+			{% endif %}
 			<p><strong>Panel members:</strong></p>
 			<ul>
 				{% for pm in panel.participants.all %}
 				<li><strong>{{pm.display_name}}</strong> {% if pm in panel.captains.all %} (captain){% endif %}</li>
 				{% endfor %}
 			</ul>
-			<div class="spacer-medium"></div>
-			<input type="submit" class="btn btn-primary form-control" value="Accept" />
-		</form>
+			<ul>
+				<li><strong>Max participants:</strong> {{panel.participant_limit}}</li>
+				<li><strong>Available slots:</strong> {{panel.available_slots}}</li>
+				<li>
+					<strong>Wildqueen allowance:</strong> 
+					{% if panel.wildcard_allowance %}
+						{{panel.wildcard_allowance}}
+					{% else %}
+						X
+					{% endif %}
+				</li>
+			</ul>
+			</div>
+			<div class="col">
+
+			<form method="POST">
+				{% csrf_token %}
+				{% if invited %}
+				<input type="submit" class="btn btn-primary form-control" value="Accept" />
+				{% else %}
+				<input type="submit" class="btn btn-primary form-control" value="Join Panel" />
+				{% endif %}
+			</form>
 		</div>
 	</div>
 	{% endif %}

@@ -52,7 +52,19 @@
 			</nav>
 		</div>
 		<div id="page_content" class="body container container-fluid">
+			{% if messages %}
+			<div class="row">
+				<div class="col">
+					{% for message in messages %}
+					<div class="alert alert-{{message.tags}}">
+						{{message}}
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			{% endif %}
 			{% block page_content %}{% endblock %}
+			
 		</div>
 		
 		<!-- Footer -->
