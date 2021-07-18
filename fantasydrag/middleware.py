@@ -31,9 +31,10 @@ def session_request_validation(get_response):
             if user_is_authenticated:
                 policy_pass = request.session.get('policy_pass')
                 if not policy_pass:
-                    log = PolicyLog.fetch(request.user)
-                    if (not log.policy or not log.policy.current) and not is_policy_update:
-                        return(redirect(reverse('policy_update')))
+                    if not request.user.is_superuser:
+                        log = PolicyLog.fetch(request.user)
+                        if (not log.policy or not log.policy.current) and not is_policy_update:
+                            return(redirect(reverse('policy_update')))
             if is_login_page and user_is_authenticated:
                 return redirect(reverse(settings.LOGIN_SUCCESS_REDIRECT))
             if resolved_url.url_name not in settings.AUTHENTICATION_EXEMPT_VIEWS:
