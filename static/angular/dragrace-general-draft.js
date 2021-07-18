@@ -9,7 +9,8 @@ generalDraftApp.controller(
 	'generalDraftController',
 	function($scope, $http) {	
 
-		$scope.dragRaceId = document.getElementById('id_dragraceId').value;
+		$scope.episodeId = document.getElementById('id_episodeId').value;
+		$scope.apiURL = '/api/episode/' + $scope.episodeId + '/draft/';
 		$scope.selectedCount = 0;
 
 		$scope.toggleQueen = function(queen) {
@@ -30,7 +31,7 @@ generalDraftApp.controller(
 			$scope.successMessage = null;
 			$scope.errorMessage = null;
 			$http.post(
-				'/api/dragrace/' + $scope.dragRaceId + '/generalpanel/',
+				$scope.apiURL,
 				{'queens': $scope.selectedQueens}
 			).then(
 				function(response) {
@@ -43,16 +44,17 @@ generalDraftApp.controller(
 			);
 		}
 
-		$http.get('/api/dragrace/' + $scope.dragRaceId + '/generalpanel/').then(
+		$http.get($scope.apiURL).then(
 			function(response) {
 				$scope.dragRace = response.data.drag_race;
+				$scope.allQueens = response.data.queens;
 				$scope.selectedQueens = [];
 				$scope.selectedQueenPks = [];
 				response.data.selected_queens.forEach(function(queen){
 					$scope.selectedQueenPks.push(parseInt(queen.pk));
 				});
 				
-				angular.forEach($scope.dragRace.queens, function(queen){
+				angular.forEach($scope.allQueens, function(queen){
 					if($scope.selectedQueenPks.indexOf(parseInt(queen.pk)) >= 0){
 						queen.isSelected = true;
 						$scope.selectedCount += 1;
@@ -61,7 +63,7 @@ generalDraftApp.controller(
 						queen.isSelected = false;
 					}
 				});
-				$scope.cap = response.data.drag_race.general_draft_allowance;
+				$scope.cap = 3;
 			}
 		);
 	}

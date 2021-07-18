@@ -5,13 +5,13 @@ from fantasydrag.models import (
     DragRace,
     DragRaceType,
     Draft,
-    Episode,
     DefaultRule,
-    GeneralPanel,
-    Score,
-    Queen,
+    Episode,
+    EpisodeDraft,
     Panel,
     Participant,
+    Queen,
+    Score,
     WildCardAppearance,
     WildCardQueen,
 )
@@ -97,19 +97,6 @@ class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class GeneralPanelSerializer(serializers.HyperlinkedModelSerializer):
-    drag_race = DragRaceSerializer()
-    selected_queens = QueenSerializer(many=True, source='queens')
-
-    class Meta:
-        model = GeneralPanel
-        fields = [
-            'pk',
-            'drag_race',
-            'selected_queens',
-        ]
-
-
 class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
     drag_race = DragRaceSerializerShort()
 
@@ -120,6 +107,23 @@ class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
             'drag_race',
             'number',
             'title',
+            'has_aired',
+            'is_scored'
+        ]
+
+
+class EpisodeDraftSerializer(serializers.HyperlinkedModelSerializer):
+    episode = EpisodeSerializer()
+    queens = QueenSerializer(many=True, source='episode.drag_race.queens')
+    selected_queens = QueenSerializer(many=True, source='queens')
+
+    class Meta:
+        model = EpisodeDraft
+        fields = [
+            'pk',
+            'episode',
+            'queens',
+            'selected_queens',
         ]
 
 
@@ -148,6 +152,7 @@ class EpisodeScore(serializers.HyperlinkedModelSerializer):
             'number',
             'title',
             'is_scored',
+            'has_aired',
             'queens',
             'scores',
             'rules'

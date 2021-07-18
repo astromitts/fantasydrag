@@ -228,12 +228,17 @@ class DragRace(models.Model):
             episodes[s.episode][s.queen]['rules'].append(s.rule)
         return episodes
 
+    @property
+    def next_episode(self):
+        return self.episode_set.filter(has_aired=False).order_by('-number').first()
+
 
 class Episode(models.Model):
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
-    number = models.IntegerField()
+    number = models.IntegerField(db_index=True)
     title = models.CharField(max_length=100, blank=True, null=True)
     is_scored = models.BooleanField(default=False)
+    has_aired = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ('number', )
@@ -349,13 +354,70 @@ class Participant(models.Model):
         super(Participant, self).save(*args, **kwargs)
 
 
-class GeneralPanel(models.Model):
-    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+class EpisodeDraft(models.Model):
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     participant = models.ForeignKey(Participant, null=True, on_delete=models.SET_NULL)
     queens = models.ManyToManyField(Queen)
 
     class Meta:
-        unique_together = ['drag_race', 'participant']
+        unique_together = ['episode', 'participant']
+
+
+class ParticipantStats(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    drag_race = models.ForeignKey(DragRace, null=True, on_delete=models.SET_NULL)
+    primary_stat = models.DecimalField(default=0, max_digits=8, decimal_places=2)
+    stat_type = models.CharField(
+        max_length=100,
+        choices=(
+            ('cummulative_dragrace_drafts', 'cummulative_dragrace_drafts'),
+        ),
+        db_index=True
+    )
+    data = models.JSONField(default=dict)
+
+    @classmethod
+    def set_dragrace_draft_scores(cls, participant, drag_race):
+        stat_instance = cls.objects.filter(
+            participant=participant,
+            drag_race=drag_race,
+            stat_type='cummulative_dragrace_drafts',
+        ).first()
+        if not stat_instance:
+            stat_instance = cls(
+                participant=participant,
+                drag_race=drag_race,
+                stat_type='cummulative_dragrace_drafts',
+            )
+        stat_instance.save()
+
+        viewed_episodes = drag_race.participant_episodes(participant)
+        stat_instance.primary_stat = 0
+        dragrace_draft_data = {
+            'episodes': {episode.number: {} for episode in viewed_episodes}
+        }
+        for episode in viewed_episodes:
+            episode_draft = EpisodeDraft.objects.filter(participant=participant, episode=episode).first()
+
+            if episode_draft:
+                episode_draft_data = {
+                    'total': 0,
+                    'queens': {queen.name: 0 for queen in episode_draft.queens.all()}
+                }
+
+                for queen in episode_draft.queens.all():
+                    scores = Score.objects.filter(
+                        queen=queen,
+                        episode=episode,
+                    )
+                    for score in scores:
+                        episode_draft_data['total'] += score.rule.point_value
+                        episode_draft_data['queens'][queen.name] += score.rule.point_value
+                        stat_instance.primary_stat += score.rule.point_value
+                dragrace_draft_data['episodes'][episode.number] = episode_draft_data
+
+        stat_instance.data = dragrace_draft_data
+        stat_instance.save()
 
 
 class Panel(models.Model):

@@ -15,7 +15,7 @@ class FeatureFlag(models.Model):
     )
     created = models.DateTimeField(default=now, editable=False)
     changed = models.DateTimeField(default=now, editable=False)
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(User, blank=True)
 
     def save(self, *args, **kwargs):
         self.changed = now()

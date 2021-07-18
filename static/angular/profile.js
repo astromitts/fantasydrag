@@ -63,7 +63,7 @@ profileApp.controller(
 									'password': newPassword
 								}
 							).then(function(response){
-								window.location.href = '/login/registered=true';
+								window.location.href = '/login/?registered=true';
 							});
 						} else {
 							$scope.registerErrors = response.data.errors;

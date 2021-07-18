@@ -6,33 +6,33 @@ from django.db.models import Q
 
 from fantasydrag.models import (
     AppearanceType,
-    Episode,
+    Draft,
     DragRace,
     DragRaceType,
-    Draft,
     DefaultRule,
-    GeneralPanel,
-    Score,
-    Queen,
+    Episode,
+    EpisodeDraft,
     Panel,
     Participant,
+    Queen,
+    Score,
     WildCardAppearance,
 )
 from fantasydrag.api.serializers import (
     AppearanceSerializer,
     AppearanceTypeSerializer,
-    DragRaceSerializer,
     DraftSerializer,
+    DragRaceSerializer,
     EpisodeScore,
-    GeneralPanelSerializer,
-    ScoreSerializer,
+    EpisodeDraftSerializer,
     PanelSerializer,
-    QueenSerializer,
     ParticipantSerializer,
-    UserSerializer,
-    RuleSerializer,
-    WQDraftSerializer,
     QueenSearchSerializer,
+    QueenSerializer,
+    RuleSerializer,
+    ScoreSerializer,
+    UserSerializer,
+    WQDraftSerializer,
 )
 
 
@@ -265,32 +265,32 @@ class DragRaceApi(APIView):
         return Response(response)
 
 
-class GeneralDraftApi(APIView):
-    def setup_general_panel(self, request, *args, **kwargs):
-        self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+class EpisodeDraftApi(APIView):
+    def setup_episode_panel(self, request, *args, **kwargs):
+        self.episode = Episode.objects.get(pk=kwargs['episode_id'])
         self.participant = Participant.objects.get(user=request.user)
-        self.general_panel = GeneralPanel.objects.filter(
-            drag_race=self.drag_race, participant=self.participant).first()
-        if not self.general_panel:
-            self.general_panel = GeneralPanel(drag_race=self.drag_race, participant=self.participant)
-            self.general_panel.save()
+        self.episode_draft = EpisodeDraft.objects.filter(
+            episode=self.episode, participant=self.participant).first()
+        if not self.episode_draft:
+            self.episode_draft = EpisodeDraft(episode=self.episode, participant=self.participant)
+            self.episode_draft.save()
 
     def get(self, request, *args, **kwargs):
-        self.setup_general_panel(request, *args, **kwargs)
-        panel = GeneralPanelSerializer(self.general_panel).data
-        return Response(panel)
+        self.setup_episode_panel(request, *args, **kwargs)
+        draft_data = EpisodeDraftSerializer(self.episode_draft).data
+        return Response(draft_data)
 
     def post(self, request, *args, **kwargs):
-        self.setup_general_panel(request, *args, **kwargs)
+        self.setup_episode_panel(request, *args, **kwargs)
 
         try:
-            for queen in self.general_panel.queens.all():
-                self.general_panel.queens.remove(queen)
-            self.general_panel.save()
+            for queen in self.episode_draft.queens.all():
+                self.episode_draft.queens.remove(queen)
+            self.episode_draft.save()
             for queen in request.data['queens']:
                 queen = Queen.objects.get(pk=queen['pk'])
-                self.general_panel.queens.add(queen)
-            self.general_panel.save()
+                self.episode_draft.queens.add(queen)
+            self.episode_draft.save()
             status = {
                 'status': 'ok',
                 'message': 'Panel saved!'
@@ -406,6 +406,8 @@ class EpisodeApi(APIView):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
         if 'is_scored' in request.data:
             episode.is_scored = request.data['is_scored']
+        if 'has_aired' in request.data:
+            episode.has_aired = request.data['has_aired']
         if 'title' in request.data:
             episode.title = request.data['title']
         episode.save()

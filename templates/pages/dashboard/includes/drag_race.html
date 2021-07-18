@@ -1,126 +1,150 @@
 {% load helper_tags %}
 
-<div class="row">
-<div class="col-12">
-	<h1>
-		{{drag_race.display_name}}
-	</h1>
-</div>
-<div class="col">
-	<p class="marker">
-		<a href="{% url 'dragrace_rules' drag_race_type=drag_race.drag_race_type.name %}">Rules</a>
-	</p>
-	<p class="marker">
-		<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
-		Stats</a>
-	</p>
-	{% if participant.site_admin %}
-	<p class="marker">
-		<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
-		Edit Drag Race</a>
-	</p>
-	{% endif %}
-	{% if flags.GENERAL_DRAFT %}
-		<div class="spacer-small"></div>
-		{% with participant|participant_drag_race_team:drag_race as drag_race_team %}
-			{% if not drag_race_team  and drag_race.status == 'open' %}
-				<div>
-					<a href="{% url 'dragrace_general_draft' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Draft a Team</button></a>
-				</div>
-			{% elif drag_race_team  and drag_race.status == 'open' %}
+<div class="row"><div class="col">
+{% with participant|participant_drag_race_stats:drag_race as participant_stats %}
+	<div class="row">
+		<div class="col-4">
+			<h1>
+				{{drag_race.display_name}}
+			</h1>
 
-				<h4>General Draft Team</h4>
-				<table class="table">
-					{% for queen in drag_race_team.queens.all %}
-					<tr><td>{{queen.name}}</td></tr>
-					{% endfor %}
-				</table>
-				<div>
-					<a href="{% url 'dragrace_general_draft' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Edit General Draft Team</button></a>
-				</div>
-			{% elif drag_race_team %}
-				{% with drag_race_team|formatted_general_draft as formatted_scores %}
-					<div class="row">
-						<div class="col-8">
-							<h4>General Draft</h4>
+		</div>
+		{% if participant_stats %}
+		<div class="col-8">
+			<p class="h3" style="margin-top: .8rem;">Points: {{participant_stats.primary_stat|number}}</p>
+		</div>
+		{% endif %}
+	</div>
+	<div class="row"><div class="spacer-small"></div></div>
+	<div class="row">
+		<div class="col-4">
+			<p class="marker">
+				<a href="{% url 'dragrace_rules' drag_race_type=drag_race.drag_race_type.name %}">Rules</a>
+			</p>
+			<p class="marker">
+				<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
+				Stats</a>
+			</p>
+			{% if participant.site_admin %}
+			<p class="marker">
+				<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
+				Edit Drag Race</a>
+			</p>
+			{% endif %}
+			{% if flags.GENERAL_DRAFT %}
+				<div class="spacer-small"></div>
+				{% if drag_race.next_episode %}
+				<h4>Next Episode: episode #{{drag_race.next_episode.number}}</h4>
+				{% endif %}
+				{% with participant|episode_drag_race_draft:drag_race as episode_draft %}
+					{% if not episode_draft and drag_race.next_episode %}
+						<div>
+							<a href="{% url 'set_episode_draft' episode_id=drag_race.next_episode.pk %}"><button class="btn btn-primary form-control">Draft a Team for Episode #{{drag_race.next_episode.number}}</button></a>
 						</div>
-						<div class="col"><span class="h4">{{formatted_scores.total}} pts</span></div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<table class="table">
-								{% for queen, score in formatted_scores.queens.items %}
-								<tr>
-									<th>{{queen.name}}</th><td>{{score}}</td>
-								</tr>
-								{% endfor %}
-							</table>
+					{% elif episode_draft and drag_race.next_episode %}
+
+						<h4>Episode Draft</h4>
+						<table class="table">
+							{% for queen in episode_draft.queens.all %}
+							<tr><td>{{queen.name}}</td></tr>
+							{% endfor %}
+						</table>
+						<div>
+							<a href="{% url 'set_episode_draft' episode_id=drag_race.next_episode.pk %}"><button class="btn btn-primary form-control">Change Episode Draft</button></a>
 						</div>
-					</div>
+					{% endif %}
 				{% endwith %}
 			{% endif %}
-		{% endwith %}
-	{% endif %}
-</div>
-<div class="col">
-	<h4 class="marker">Episodes</h4>
-	<ul>
-	{% for episode in drag_race.scored_episodes %}
-	<li><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> </li>
-	{% endfor %}
-	</ul>
-</div>
+		</div>
 
-<div class="col">
-	<h4 class="marker">Panels</h4>
-	<ul>
-		{% for panel in data.participant_panels %}
+		<div class="col">
+			<h4 class="marker">Episodes</h4>
+			<ul>
+			{% for episode in drag_race.scored_episodes %}
 			<li>
-				<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a>
-				{% if panel.status == 'in draft' or panel.status == 'wildcards' %}
-				<a href="{% url 'panel_set_drafts' panel_id=panel.pk %} "><button class="btn btn-primary form-control">Go to draft</button></a>
+				<a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> 
+				{% if participant_stats %}
+				{% with participant_stats.data.episodes|get_as_str:episode.number as formatted_scores %}
+					{% if formatted_scores %}
+					<div class="row">
+							<div class="col-8">
+								<h4>Episode Draft</h4>
+							</div>
+							<div class="col"><span class="h4">{{formatted_scores.total}} pts</span></div>
+						</div>
+						<div class="row">
+							<div class="col">
+								<table class="table">
+									{% for queen, score in formatted_scores.queens.items %}
+									<tr>
+										<th>{{queen}}</th><td>{{score}}</td>
+									</tr>
+									{% endfor %}
+								</table>
+							</div>
+						</div>
+					{% endif %}
+				{% endwith %}
 				{% endif %}
 			</li>
-		{% endfor %}
-	</ul>
-	{% if flags.START_PANEL and drag_race.open_for_panels %}
-	<div class="spacer-small"></div>
-	<div>
-		<a href="{% url 'panel_create' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+			{% endfor %}
+			</ul>
+		</div>
+
+		{% if drag_race.status == 'open' or  data.participant_panels %}
+		<div class="col">
+			<h4 class="marker">Panels</h4>
+			<ul>
+				{% for panel in data.participant_panels %}
+					<li>
+						<a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a>
+						{% if panel.status == 'in draft' or panel.status == 'wildcards' %}
+						<a href="{% url 'panel_set_drafts' panel_id=panel.pk %} "><button class="btn btn-primary form-control">Go to draft</button></a>
+						{% endif %}
+					</li>
+				{% endfor %}
+			</ul>
+			{% if flags.START_PANEL and drag_race.status == 'open' %}
+			<div class="spacer-small"></div>
+			<div>
+				<a href="{% url 'panel_create' dragrace_id=drag_race.pk %}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+			</div>
+			{% endif %}
+		</div>
+		{% endif %}
 	</div>
-	{% endif %}
-</div>
-</div>
-{% if participant.site_admin %}
-<div class="spacer spacer-medium"></div>
-<div class="row">
-	<div class="col"><h4 class="marker">Score Episodes</h4>
+	{% if participant.site_admin %}
+	<div class="spacer spacer-medium"></div>
+	<div class="row">
+		<div class="col"><h4 class="marker">Score Episodes</h4>
+		</div>
 	</div>
-</div>
-<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+	<form action="{% url 'set_episode_scores_redirect' dragrace_id=drag_race.pk %}" method="POST">
+		<div class="row">
+			<div class="col">
+				{%csrf_token %}
+				<select id="id_episode" name="episode" class="form-control">
+					<option>
+					</option>
+					{% for episode in drag_race.episode_set.all %}
+					<option value="{{episode.pk}}">Episode #{{episode.number}} {{episode.title}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="col-3">
+				<input type="submit" value="Go" class="form-control btn btn-primary"/>
+			</div>
+		</div>
+	</form>
 	<div class="row">
 		<div class="col">
-			{%csrf_token %}
-			<select id="id_episode" name="episode" class="form-control">
-				<option>
-				</option>
-				{% for episode in drag_race.episode_set.all %}
-				<option value="{{episode.pk}}">Episode #{{episode.number}} {{episode.title}}</option>
-				{% endfor %}
-			</select>
-		</div>
-		<div class="col-3">
-			<input type="submit" value="Go" class="form-control btn btn-primary"/>
+			<a href="{% url 'create_episode' dragrace_id=drag_race.pk%}" class="form-control btn btn-info">Add episode</a>
 		</div>
 	</div>
-</form>
-<div class="row">
-	<div class="col">
-		<a href="{% url 'create_episode' dragrace_id=drag_race.pk%}" class="form-control btn btn-info">Add episode</a>
-	</div>
-</div>
-{% endif %}
+	{% endif %}
 
-<div class="col-12">
-	<hr />
-</div>	
+	<div class="col-12">
+		<hr />
+	</div>	
+{% endwith %}
+</div></div>

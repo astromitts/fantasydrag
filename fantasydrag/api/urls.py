@@ -18,6 +18,7 @@ urlpatterns = [
     ),
     path('api/panel/<int:panel_id>/drafts/', views.DraftMetaApi.as_view(), name='api_panel_draft_list'),
     path('api/panel/<int:panel_id>/draft/', views.PanelDraftApi.as_view(), name='api_panel_draft'),
+    path('api/episode/<int:episode_id>/draft/', views.EpisodeDraftApi.as_view(), name='api_episode_draft'),
     path('api/episode/<int:episode_id>/score/', views.EpisodeApi.as_view(), name='api_episode_scores'),
     path('api/episode/<int:episode_id>/appearances/', views.EpisodeAppearanceApi.as_view(), name='api_episode_wqs'),
     path(
@@ -39,10 +40,5 @@ urlpatterns = [
         'api/dragrace/<int:dragrace_id>/panel/create/',
         views.CreatePanelApi.as_view(),
         name='api_create_panel'
-    ),
-    path(
-        'api/dragrace/<int:dragrace_id>/generalpanel/',
-        views.GeneralDraftApi.as_view(),
-        name='api_general_panel'
     ),
 ]

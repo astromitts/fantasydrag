@@ -1,5 +1,9 @@
 from django import template
-from fantasydrag.models import Draft, Queen, Score
+from fantasydrag.models import (
+    Draft,
+    ParticipantStats,
+    Queen,
+)
 
 register = template.Library()
 
@@ -11,8 +15,13 @@ def pdb(item):
 
 
 @register.filter(name='get')
-def get(source, key):
-    return source.get(key)
+def get(sourcedict, key):
+    return sourcedict.get(key)
+
+
+@register.filter(name='get_as_str')
+def get_as_str(sourcedict, key):
+    return sourcedict.get(str(key))
 
 
 @register.filter(name='get_panelists_for_queen')
@@ -41,24 +50,33 @@ def available_wildcard_queens(participant, panel):
     return Queen.objects.exclude(id__in=exclude_id_list).all()
 
 
-@register.filter(name='participant_drag_race_team')
-def participant_drag_race_team(participant, drag_race):
-    panel = participant.generalpanel_set.filter(drag_race=drag_race).first()
+@register.filter(name='episode_drag_race_draft')
+def episode_drag_race_draft(participant, drag_race):
+    panel = participant.episodedraft_set.filter(episode=drag_race.next_episode).first()
     return panel
 
 
-@register.filter(name='formatted_general_draft')
-def formatted_general_draft(generalpanel):
-    general_draft = {
-        'total': 0,
-        'queens': {queen: 0 for queen in generalpanel.queens.all()}
-    }
-    for queen in generalpanel.queens.all():
-        scores = Score.objects.filter(
-            queen=queen,
-            episode__in=generalpanel.drag_race.participant_episodes(generalpanel.participant),
-        )
-        for score in scores:
-            general_draft['total'] += score.rule.point_value
-            general_draft['queens'][queen] += score.rule.point_value
-    return general_draft
+@register.filter(name='episode_draft')
+def episode_draft(participant, episode):
+    episode_draft = participant.episodedraft_set.filter(episode=episode).first()
+    return episode_draft
+
+
+@register.filter(name='participant_drag_race_stats')
+def participant_drag_race_stats(participant, drag_race):
+    pstats = ParticipantStats.objects.filter(
+        participant=participant,
+        drag_race=drag_race,
+        stat_type='cummulative_dragrace_drafts'
+    ).first()
+    if pstats:
+        return pstats
+    else:
+        return None
+
+
+@register.filter(name='number')
+def number(value):
+    if value % 1 == 0:
+        return int(value)
+    return value

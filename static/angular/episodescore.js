@@ -20,7 +20,8 @@ episodeScoreApp.controller(
 				'pk': responseData.pk,
 				'is_scored': responseData.is_scored,
 				'title': responseData.title,
-				'number': responseData.number
+				'number': responseData.number,
+				'has_aired': responseData.has_aired,
 			}
 		}
 

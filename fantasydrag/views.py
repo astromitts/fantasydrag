@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from fantasydrag.models import (
     Panel,
     Participant,
+    ParticipantStats,
     Queen,
     DragRace,
     DragRaceType,
@@ -115,7 +116,12 @@ class AuthenticatedView(View):
         super(AuthenticatedView, self).setup(request, *args, **kwargs)
         self.user = request.user
         if self.user.is_authenticated:
-            self.participant = Participant.objects.get(user=self.user)
+            try:
+                self.participant = Participant.objects.get(user=self.user)
+            except:
+                self.participant = Participant.objects.get(display_name=self.user.username)
+                self.participant.user = self.user
+                self.participant.save()
             self.is_site_admin = self.participant.site_admin
             self.context = {
                 'participant': self.participant,
@@ -134,6 +140,11 @@ class AuthenticatedView(View):
                 self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
                 self.context.update(
                     {'drag_race': self.drag_race}
+                )
+            if 'episode_id' in kwargs:
+                self.episode = Episode.objects.get(pk=kwargs['episode_id'])
+                self.context.update(
+                    {'episode': self.episode}
                 )
 
 
@@ -303,7 +314,7 @@ class SetDrafts(AuthenticatedView):
         return HttpResponse(self.template.render(self.context, request))
 
 
-class ParticipantStats(AuthenticatedView):
+class ParticipantPanelStats(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
         this_participant = panel.participants.get(pk=kwargs['participant_id'])
@@ -328,10 +339,9 @@ class DragRaceStats(AuthenticatedView):
         return HttpResponse(template.render(self.context, request))
 
 
-class DragRaceGeneralDraft(AuthenticatedView):
+class EpisodeDraft(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/generalteamdraft.html')
-        self.context.update({})
         return HttpResponse(template.render(self.context, request))
 
 
@@ -364,10 +374,11 @@ class EpisodeDetail(AuthenticatedView):
     def post(self, request, *args, **kwargs):
         if 'ruveal' in request.POST:
             self.participant.episodes.add(self.episode)
-            self.participant.save()
         elif 'hide' in request.POST:
             self.participant.episodes.remove(self.episode)
-            self.participant.save()
+
+        self.participant.save()
+        ParticipantStats.set_dragrace_draft_scores(participant=self.participant, drag_race=self.episode.drag_race)
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 
@@ -401,7 +412,7 @@ class CreateEpisode(AuthenticatedView):
 
     def get(self, request, *args, **kwargs):
         max_episode = self.drag_race.episode_set.aggregate(Max('number'))
-        self.context.update({'form': self.form(initial={'number': max_episode['number__max'] + 1})})
+        self.context.update({'form': self.form(initial={'number': (max_episode['number__max'] or 0) + 1})})
         return HttpResponse(self.template.render(self.context, request))
 
     def post(self, request, *args, **kwargs):

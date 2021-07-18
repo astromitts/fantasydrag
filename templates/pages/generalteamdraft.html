@@ -11,7 +11,7 @@
 {% block page_content %}
 
 <span id='generalDraftModule' ng-controller='generalDraftController'>
-	<input id="id_dragraceId" name="dragraceId" value="{{drag_race.pk}}" type="hidden" />
+	<input id="id_episodeId" name="episodeId" value="{{episode.pk}}" type="hidden" />
 
 	<div class="row">
 		<div class="col-2"></div>
@@ -48,7 +48,7 @@
 							'selected': queen.isSelected,
 							'mute': !queen.isSelected && selectedCount == cap
 						}"
-					ng-repeat="queen in dragRace.queens"
+					ng-repeat="queen in allQueens"
 					ng-click="toggleQueen(queen)">
 					<td>{{queen.name}}</td>
 				</tr>
