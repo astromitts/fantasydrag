@@ -11,7 +11,7 @@ from django.db import IntegrityError
 from fantasydrag.models import (
     Panel,
     Participant,
-    ParticipantStats,
+    Stats,
     Queen,
     DragRace,
     DragRaceType,
@@ -319,7 +319,7 @@ class PublicPanelList(AuthenticatedView):
 class PanelStats(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(PanelStats, self).setup(request, *args, **kwargs)
-        self.template = loader.get_template('pages/paneldetail.html')
+        self.template = loader.get_template('pages/panel/detail.html')
 
     def get(self, request, *args, **kwargs):
         queen_scores = Queen.get_formatted_scores_for_drag_race(self.panel.drag_race, self.participant)
@@ -419,7 +419,7 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
 
         self.participant.save()
-        ParticipantStats.set_dragrace_draft_scores(participant=self.participant, drag_race=self.episode.drag_race)
+        Stats.set_dragrace_draft_scores(participant=self.participant, drag_race=self.episode.drag_race)
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 

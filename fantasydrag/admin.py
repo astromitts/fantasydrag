@@ -7,7 +7,7 @@ from fantasydrag.models import (
     DefaultRule,
     Score,
     Participant,
-    ParticipantStats,
+    Stats,
     Panel,
     Draft,
     WildCardQueen,
@@ -44,7 +44,7 @@ class ParticipantForm(FormBase):
     pass
 
 
-class ParticipantStatsForm(FormBase):
+class StatsForm(FormBase):
     pass
 
 
@@ -102,10 +102,11 @@ class ScoreAdmin(admin.ModelAdmin):
 
 class ParticipantAdmin(admin.ModelAdmin):
     form = ParticipantForm
+    list_display = ['display_name', 'user']
 
 
-class ParticipantStatsAdmin(admin.ModelAdmin):
-    form = ParticipantStatsForm
+class StatsAdmin(admin.ModelAdmin):
+    form = StatsForm
 
 
 class PanelAdmin(admin.ModelAdmin):
@@ -138,7 +139,7 @@ admin.site.register(Episode, EpisodeAdmin)
 admin.site.register(DefaultRule, DefaultRuleAdmin)
 admin.site.register(Score, ScoreAdmin)
 admin.site.register(Participant, ParticipantAdmin)
-admin.site.register(ParticipantStats, ParticipantStatsAdmin)
+admin.site.register(Stats, StatsAdmin)
 admin.site.register(Panel, PanelAdmin)
 admin.site.register(Draft, DraftAdmin)
 admin.site.register(WildCardQueen, WildCardQueenAdmin)

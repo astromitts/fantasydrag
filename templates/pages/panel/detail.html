@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block page_title %} | {{panel.name}} Panel{% endblock %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col-lg-3 col-sm-12">
+			<h2><a href="{% url 'dragrace_stats' dragrace_id=panel.drag_race.pk %}">{{panel.drag_race.display_name}}</a></h2>
+		</div>
+		<div class="col-lg-9 col-sm-12">
+			<h1>{{panel.name}}</h1>
+		</div>
+	</div>
+
+	<div class="spacer-small"></div>
+
+	{% if panel.status == 'open' and is_captain %}
+		{% include 'pages/panel/includes/pending.html' %}
+	{% endif %}
+
+	<div class="row">
+		<div class="col">
+			{% include 'pages/panel/includes/participants.html' %}
+		</div>
+		<div class="col">
+			{% include 'pages/panel/includes/queen-scorecard.html' %}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<a class="btn btn-danger form-control" href="{% url 'panel_leave' panel_id=panel.pk %}">Leave Panel</a>
+		</div>
+	</div>
+
+	{% if is_captain and status == 'in draft' %}
+	<div class="row">
+		<div class="col">
+			<form method="POST" action="">
+				{% csrf_token %}
+				<input type="submit" id="id_resetdraft" name="resetdraft" class="form-control btn btn-danger" value="RESET DRAFT" />
+			</form>
+		</div>
+	</div>
+	{% endif %}
+
+{% endblock %}

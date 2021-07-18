@@ -588,8 +588,6 @@ class RegisterApi(APIView):
                 user.save()
                 user.set_password(request.data['password'])
                 user.save()
-                participant = Participant(user=user, display_name=user.username)
-                participant.save()
                 response = {
                     'status': 'ok'
                 }
@@ -653,37 +651,26 @@ class ProfileApi(APIView):
 
     def patch(self, request, *args, **kwargs):
         self._setup(request)
-        user_updated = False
-        participant_updated = False
-        user_fields = ['first_name', 'last_name', 'email']
-        participant_fields = ['display_name']
+        field_map = {
+            'email': 'email',
+            'first_name': 'first_name',
+            'last_name': 'last_name',
+            'display_name': 'username'
+        }
 
         status = 'ok'
         message = None
 
-        for field in user_fields:
-            if request.data.get(field):
-                setattr(self.participant.user, field, request.data.get(field))
-                user_updated = True
-        if user_updated:
 
-            try:
-                self.participant.user.save()
-            except IntegrityError:
-                status = 'error'
-                message = 'That email address is in use by another participant'
+        for patch_field, user_field in field_map.items():
+            if request.data.get(patch_field):
+                setattr(self.participant.user, user_field, request.data.get(patch_field))
 
-        for field in participant_fields:
-            if request.data.get(field):
-                setattr(self.participant, field, request.data.get(field))
-                participant_updated = True
-
-        if participant_updated:
-            try:
-                self.participant.save()
-            except IntegrityError:
-                status = 'error'
-                message = 'That username is in use by another participant'
+        try:
+            self.participant.user.save()
+        except IntegrityError:
+            status = 'error'
+            message = 'That email address or username is already in use by another participant'
 
         participant = UserSerializer(instance=self.participant, many=False)
         return Response(

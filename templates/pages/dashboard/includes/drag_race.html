@@ -4,7 +4,7 @@
 {% with participant|participant_drag_race_stats:drag_race as participant_stats %}
 {% with participant|participant_drag_race_rank:drag_race as participant_rank %}
 	<div class="row">
-		<div class="col-4">
+		<div class="col-lg-4 col-sm-12">
 			<h1>
 				{{drag_race.display_name}}
 			</h1>
@@ -13,7 +13,7 @@
 	</div>
 	<div class="row"><div class="spacer-small"></div></div>
 	<div class="row">
-		<div class="col-4">
+		<div class="col-lg-4 col-sm-12">
 			{% if participant_stats %}
 			<p class="h3" style="margin-top: .8rem;">
 				Points: {{participant_stats.primary_stat|number}}<br />
@@ -60,7 +60,7 @@
 			{% endif %}
 		</div>
 
-		<div class="col">
+		<div class="col-lg-4 col-sm-12">
 			<h4 class="marker">Episodes</h4>
 			<ul>
 			{% for episode in drag_race.scored_episodes %}

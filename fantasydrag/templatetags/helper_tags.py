@@ -1,7 +1,7 @@
 from django import template
 from fantasydrag.models import (
     Draft,
-    ParticipantStats,
+    Stats,
     Queen,
 )
 
@@ -64,7 +64,7 @@ def episode_draft(participant, episode):
 
 @register.filter(name='participant_drag_race_stats')
 def participant_drag_race_stats(participant, drag_race):
-    pstats = ParticipantStats.objects.filter(
+    pstats = Stats.objects.filter(
         participant=participant,
         drag_race=drag_race,
         stat_type='cummulative_dragrace_drafts'
@@ -77,7 +77,7 @@ def participant_drag_race_stats(participant, drag_race):
 
 @register.filter(name='participant_drag_race_rank')
 def participant_drag_race_rank(participant, drag_race):
-    pstats = ParticipantStats.objects.filter(
+    pstats = Stats.objects.filter(
         participant=participant,
         drag_race=drag_race,
         stat_type='dragrace_rank'
@@ -90,6 +90,7 @@ def participant_drag_race_rank(participant, drag_race):
 
 @register.filter(name='number')
 def number(value):
-    if value % 1 == 0:
-        return int(value)
+    if value:
+        if value % 1 == 0:
+            return int(value)
     return value

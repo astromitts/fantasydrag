@@ -1,0 +1,28 @@
+{% if panel.participants.count > 1 %}
+<div class="row">
+	<div class="col">
+		<a href="{% url 'panel_set_drafts' panel_id=panel.pk %}">
+			<button class="form-control btn btn-success">BEGIN DRAFT</button>
+		</a>
+	</div>
+</div>
+{% endif %}
+
+<div class="row">
+	<div class="col">
+		<div class="alert alert-plain">
+			{% if panel.panel_type == 'open' %}
+			<p>This panel is open, which means any Fantasy Drag participants can join it. However, if you want to invite specific people to join the panel, you can send them this link:</p>
+			{% else %}
+			<p>This is a private panel. To invite people to join, send them this link:</p>
+			{% endif %}
+			<p>{{join_link}}</p>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col">
+		<a class="btn btn-primary" href="{% url 'panel_edit' panel_id=panel.pk%}">Edit</a>
+	</div>
+</div>
+<div class="spacer-medium"></div>	
