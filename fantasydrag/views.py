@@ -523,7 +523,7 @@ class QueenDetail(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         self.template = loader.get_template('pages/queendetail.html')
         queen = Queen.objects.get(pk=kwargs['queen_id'])
-        stats = queen.formatted_stats
+        stats = Stats.objects.filter(queen=queen, stat_type='queen_scores').first()
         self.context.update({'queen': queen, 'stats': stats})
         return HttpResponse(self.template.render(self.context, request))
 

@@ -683,9 +683,10 @@ class WildCardAppearance(models.Model):
 
 
 class Stats(models.Model):
-    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
-    drag_race = models.ForeignKey(DragRace, null=True, on_delete=models.SET_NULL)
+    participant = models.ForeignKey(Participant, null=True, on_delete=models.CASCADE)
+    drag_race = models.ForeignKey(DragRace, null=True, on_delete=models.CASCADE)
     panel = models.ForeignKey(Panel, null=True, on_delete=models.CASCADE)
+    queen = models.ForeignKey(Queen, null=True, on_delete=models.CASCADE)
     primary_stat = models.DecimalField(default=0, max_digits=8, decimal_places=2)
     stat_type = models.CharField(
         max_length=100,
@@ -698,13 +699,24 @@ class Stats(models.Model):
 
             # All scores for drag race for viewed episodes
             ('dragrace_panel_scores', 'dragrace_panel_scores'),
+
+            # All scores for queen in drag race
+            ('dragrace_queen_scores', 'dragrace_queen_scores'),
+
+            # Master score stats for queen
+            ('queen_scores', 'queen_scores'),
         ),
         db_index=True
     )
     data = models.JSONField(default=dict)
 
     def __str__(self):
-        return '{}: {} // {}'.format(self.stat_type, self.drag_race.display_name, self.participant.display_name)
+        if self.participant:
+            return '{}: {} // {}'.format(self.stat_type, self.drag_race.display_name, self.participant.display_name)
+        elif self.drag_race:
+            return '{}: {} // {}'.format(self.stat_type, self.drag_race.display_name, self.queen.name)
+        else:
+            return '{}: {}'.format(self.stat_type, self.queen.name)
 
     @classmethod
     def set_dragrace_panel_scores(cls, viewing_participant, panel):
@@ -838,3 +850,98 @@ class Stats(models.Model):
 
         stat_instance.data = dragrace_draft_data
         stat_instance.save()
+
+    @classmethod
+    def set_queen_master_stats(cls, queen):
+        stat_instance = cls.objects.filter(
+            queen=queen,
+            stat_type='queen_scores',
+        ).first()
+        if not stat_instance:
+            stat_instance = cls(
+                queen=queen,
+                stat_type='queen_scores',
+            )
+        stat_instance.save()
+
+        scores = queen.score_set.filter().order_by('episode__drag_race__season', 'episode__number').all()
+
+        unique_drag_races = set([s.episode.drag_race for s in scores])
+
+        formatted_scores = {
+            'total': 0,
+            'drag_races': {},
+        }
+        for drag_race in unique_drag_races:
+            formatted_scores['drag_races'][drag_race.pk] = {
+                'display_name': drag_race.display_name,
+                'pk': drag_race.pk,
+                'total': 0,
+                'episodes': {}
+            }
+
+        unique_episodes = set([s.episode for s in scores])
+        for episode in unique_episodes:
+            formatted_scores['drag_races'][episode.drag_race.pk]['episodes'][episode.pk] = {
+                'pk': episode.pk,
+                'title': episode.title,
+                'number': episode.number,
+                'total': 0,
+                'scores': [],
+            }
+
+        for score in scores:
+            formatted_scores['total'] += score.rule.point_value
+            drpk = score.episode.drag_race.pk
+            epk = score.episode.pk
+            formatted_scores['drag_races'][drpk]['episodes'][epk]['scores'].append(
+                {'rule': score.rule.name, 'value': score.rule.point_value})
+            formatted_scores['drag_races'][drpk]['total'] += score.rule.point_value
+            formatted_scores['drag_races'][drpk]['episodes'][epk]['total'] += score.rule.point_value
+        if len(unique_episodes) > 0:
+            stat_instance.primary_stat = float(float(formatted_scores['total']) / float(len(unique_episodes)))
+        stat_instance.data = formatted_scores
+        stat_instance.save()
+
+    @classmethod
+    def set_dragrace_queen_stats(cls, drag_race):
+        queens = drag_race.queens.all()
+        for queen in queens:
+
+            stat_instance = cls.objects.filter(
+                queen=queen,
+                drag_race=drag_race,
+                stat_type='dragrace_queen_scores',
+            ).first()
+            if not stat_instance:
+                stat_instance = cls(
+                    queen=queen,
+                    drag_race=drag_race,
+                    stat_type='dragrace_queen_scores',
+                )
+            stat_instance.save()
+
+            scores = queen.score_set.filter(episode__drag_race=drag_race).order_by('episode__number').all()
+            unique_episodes = set([s.episode for s in scores])
+            formatted_scores = {
+                'total': 0,
+                'episodes': {},
+            }
+            for episode in unique_episodes:
+                formatted_scores['episodes'][episode.pk] = {
+                    'pk': episode.pk,
+                    'title': episode.title,
+                    'number': episode.number,
+                    'total': 0,
+                    'scores': [],
+                }
+            for score in scores:
+                formatted_scores['total'] += score.rule.point_value
+                formatted_scores['episodes'][score.episode.pk]['scores'].append(
+                    {'rule': score.rule.name, 'value': score.rule.point_value})
+                formatted_scores['episodes'][score.episode.pk]['total'] += score.rule.point_value
+                formatted_scores['total'] += score.rule.point_value
+            if len(unique_episodes) > 0:
+                stat_instance.primary_stat = float(float(formatted_scores['total']) / float(len(unique_episodes)))
+            stat_instance.data = formatted_scores
+            stat_instance.save()

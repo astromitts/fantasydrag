@@ -661,7 +661,6 @@ class ProfileApi(APIView):
         status = 'ok'
         message = None
 
-
         for patch_field, user_field in field_map.items():
             if request.data.get(patch_field):
                 setattr(self.participant.user, user_field, request.data.get(patch_field))
