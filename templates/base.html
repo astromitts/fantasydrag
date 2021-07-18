@@ -13,7 +13,7 @@
   		<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
   		<link href="{% static 'app.css' %}" rel="stylesheet">
   		<title>
-  			{% if browser_title %}{{browser_title}} | {%endif%}FantasyDrag
+  			Drag Crush{% block page_title %}{% endblock %}
   		</title>
   		<link rel="shortcut icon" type="/image/png" href="{% static 'site_images/favicon.ico' %}"/>
   		{% block extra_style %}{% endblock %}
@@ -24,7 +24,7 @@
 				<div class="container">
 				  <a class="navbar-brand" href="{% url 'home' %}">
 				  	<img src="{% static 'site_images/crown.png' %}" />
-				  	FantasyDrag
+				  	Drag Crush
 				  </a>
 				<div>
 			    <ul class="navbar-nav">			

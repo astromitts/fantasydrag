@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block page_title %} | {{episode.title}} | {{episode.drag_race.display_name}}{% endblock %}
+
 {% block page_content %}
 {% if is_site_admin %}
 <div class="row">

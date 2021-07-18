@@ -134,10 +134,12 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures'), ]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_EXEMPT_VIEWS = [
+    'home',
     'login',
     'error',
     'register',
     'api_register',
+    'dragrace_rules'
 ]
 
 MIDDLEWARE_DEBUG = True

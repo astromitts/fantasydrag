@@ -35,7 +35,7 @@ urlpatterns = [
         name='dragrace_stats'
     ),
     path(
-        'dragrace/<int:dragrace_id>/rules/',
+        'rules/<str:drag_race_type>/',
         views.RulesList.as_view(),
         name='dragrace_rules'
     ),

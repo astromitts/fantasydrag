@@ -12,6 +12,7 @@ from fantasydrag.models import (
     Participant,
     Queen,
     DragRace,
+    DragRaceType,
     Episode,
     WildCardQueen,
 )
@@ -21,6 +22,35 @@ from fantasydrag.forms import (
     CreateEpisodeForm,
     CreatePanelForm,
 )
+
+
+def _login(form, request):
+    form = form(request.POST)
+    error = None
+    result = {
+        'valid': True,
+        'form': None
+    }
+    if form.is_valid():
+        username = request.POST.get('username').lower()
+        password = request.POST.get('password')
+        user = User.objects.filter(username__iexact=username).first()
+        if user:
+            password_check = user.check_password(password)
+            if password_check:
+                login(request, user)
+                request.session['user_is_authenticated'] = True
+            else:
+                error = 'Password did not match.'
+        else:
+            error = 'Username not found.'
+    else:
+        error = 'Invalid form submission.'
+    if error:
+        result['valid'] = False
+    result['form'] = form
+    result['error'] = '{} Please check your information and try again'.format(error)
+    return result
 
 
 class Error(View):
@@ -65,26 +95,11 @@ class LogIn(View):
         return HttpResponse(self.template.render(self.context, request))
 
     def post(self, request, *args, **kwargs):
-        form = self.form(request.POST)
-        error = None
-        if form.is_valid():
-            username = request.POST.get('username').lower()
-            password = request.POST.get('password')
-            user = User.objects.get(username__iexact=username)
-            if user:
-                password_check = user.check_password(password)
-                if password_check:
-                    login(request, user)
-                    request.session['user_is_authenticated'] = True
-                    return redirect(reverse('home'))
-                else:
-                    error = 'Password did not match.'
-            else:
-                error = 'Username not found.'
+        login_attempt = _login(self.form, request)
+        if login_attempt['valid']:
+            return redirect(reverse('home'))
         else:
-            error = 'Invalid form submission.'
-        self.context['form'] = form
-        self.context['error'] = '{} Please check your information and try again'.format(error)
+            self.context.update(login_attempt)
         return HttpResponse(self.template.render(self.context, request))
 
 
@@ -92,34 +107,34 @@ class LogOut(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         request.session['user_is_authenticated'] = False
-        return redirect(reverse('login'))
+        return redirect(reverse('home'))
 
 
 class AuthenticatedView(View):
     def setup(self, request, *args, **kwargs):
         super(AuthenticatedView, self).setup(request, *args, **kwargs)
         self.user = request.user
-        self.participant = Participant.objects.get(user=self.user)
-        self.is_site_admin = self.participant.site_admin
-        self.context = {
-            'participant': self.participant,
-            'is_site_admin': self.is_site_admin
-        }
-        if 'panel_id' in kwargs:
-            self.panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
-            self.is_captain = self.participant in self.panel.captains.all()
-            self.context.update(
-                {
-                    'is_captain': self.is_captain,
-                    'panel': self.panel
-                }
-            )
-
-        if 'dragrace_id' in kwargs:
-            self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
-            self.context.update(
-                {'drag_race': self.drag_race}
-            )
+        if self.user.is_authenticated:
+            self.participant = Participant.objects.get(user=self.user)
+            self.is_site_admin = self.participant.site_admin
+            self.context = {
+                'participant': self.participant,
+                'is_site_admin': self.is_site_admin
+            }
+            if 'panel_id' in kwargs:
+                self.panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
+                self.is_captain = self.participant in self.panel.captains.all()
+                self.context.update(
+                    {
+                        'is_captain': self.is_captain,
+                        'panel': self.panel
+                    }
+                )
+            if 'dragrace_id' in kwargs:
+                self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
+                self.context.update(
+                    {'drag_race': self.drag_race}
+                )
 
 
 class Profile(AuthenticatedView):
@@ -147,29 +162,42 @@ class LandingPage(AuthenticatedView):
         return formatted_drag_races
 
     def get(self, request, *args, **kwargs):
-        template = loader.get_template('pages/dashboard/dashboard.html')
-        current_races = DragRace.objects.filter(is_current=True).exclude(status='pending').order_by('-season').all()
-        past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
-        formatted_current_races = self._format_drag_races(current_races)
-        formatted_past_races = self._format_drag_races(past_races)
-        self.context.update({
-            'current_drag_races': formatted_current_races,
-            'past_drag_races': formatted_past_races
-        })
+        if request.user.is_authenticated:
+            template = loader.get_template('pages/dashboard/dashboard.html')
+            current_races = DragRace.objects.filter(
+                is_current=True).exclude(status='pending').order_by('-season').all()
+            past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
+            formatted_current_races = self._format_drag_races(current_races)
+            formatted_past_races = self._format_drag_races(past_races)
+            self.context.update({
+                'current_drag_races': formatted_current_races,
+                'past_drag_races': formatted_past_races
+            })
+        else:
+            template = loader.get_template('pages/about.html')
+            self.context = {
+                'form': LoginPasswordForm()
+            }
         return HttpResponse(template.render(self.context, request))
 
+    def post(self, request, *args, **kwargs):
+        template = loader.get_template('pages/about.html')
+        login_attempt = _login(LoginPasswordForm, request)
+        if login_attempt['valid']:
+            return redirect(reverse('home'))
+        else:
+            context = login_attempt
+        return HttpResponse(template.render(context, request))
 
-class RulesList(AuthenticatedView):
+
+class RulesList(View):
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/ruleslist.html')
-
-        drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
-        rules = drag_race.drag_race_type.defaultrule_set.all()
-        self.context.update({
-            'drag_race': drag_race,
-            'rules': rules
-        })
-        return HttpResponse(template.render(self.context, request))
+        drtype = DragRaceType.objects.get(name=kwargs['drag_race_type'])
+        context = {
+            'drag_race_type': drtype
+        }
+        return HttpResponse(template.render(context, request))
 
 
 class CreatePanel(AuthenticatedView):

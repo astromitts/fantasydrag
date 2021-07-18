@@ -1,17 +1,22 @@
 {% extends 'base.html' %}
-
+{% block page_title %} | Rules | {{drag_race.display_name}}{% endblock %}
 {% block page_content %}
 <div class="row">
 	<div class="col">
-		<h1>{{drag_race.display_name}}</h1>
-		<h2>Rules</h2>
+		{% if drag_race_type.name == 'standard' %}
+		<h1>Standard Drag Race Rules</h1>
+		{% elif drag_race_type.name == 'international' %}
+		<h1>International Drag Race Rules</h1>
+		{% elif drag_race_type.name == 'all star' %}
+		<h1>Drag Race All Stars Rules</h1>
+		{% endif %}
 	</div>
 </div>
 <div class="row">
 	<div class="col">
 		<table class="table">
 			<tr><th>Rule</th><th>Description</th><th>Value</th></tr>
-			{% for rule in rules %}
+			{% for rule in drag_race_type.defaultrule_set.all %}
 				<tr>
 					<td>{{rule.name}}</td>
 					<td>{{rule.description}}</td>
