@@ -12,6 +12,7 @@ urlpatterns = [
     path('register/', views.Register.as_view(), name='register'),
     path('logout/', views.LogOut.as_view(), name='logout'),
     path('', views.LandingPage.as_view(), name='home'),
+    path('about/', views.About.as_view(), name='about'),
     path('profile/', views.Profile.as_view(), name='profile'),
     path('queens/search/', views.QueenList.as_view(), name='queen_list'),
     path('queens/<int:queen_id>/', views.QueenDetail.as_view(), name='queen_detail'),
