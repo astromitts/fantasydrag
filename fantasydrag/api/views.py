@@ -406,6 +406,8 @@ class EpisodeApi(APIView):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
         if 'is_scored' in request.data:
             episode.is_scored = request.data['is_scored']
+            if request.data['is_scored'] is True:
+                EpisodeDraft.set_dragrace_stats(episode.drag_race)
         if 'has_aired' in request.data:
             episode.has_aired = request.data['has_aired']
         if 'title' in request.data:

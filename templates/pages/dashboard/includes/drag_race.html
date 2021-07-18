@@ -2,6 +2,7 @@
 
 <div class="row"><div class="col">
 {% with participant|participant_drag_race_stats:drag_race as participant_stats %}
+{% with participant|participant_drag_race_rank:drag_race as participant_rank %}
 	<div class="row">
 		<div class="col-4">
 			<h1>
@@ -9,15 +10,16 @@
 			</h1>
 
 		</div>
-		{% if participant_stats %}
-		<div class="col-8">
-			<p class="h3" style="margin-top: .8rem;">Points: {{participant_stats.primary_stat|number}}</p>
-		</div>
-		{% endif %}
 	</div>
 	<div class="row"><div class="spacer-small"></div></div>
 	<div class="row">
 		<div class="col-4">
+			{% if participant_stats %}
+			<p class="h3" style="margin-top: .8rem;">
+				Points: {{participant_stats.primary_stat|number}}<br />
+				Rank: {{participant_rank.primary_stat|number}} / {{participant_rank.data.total_players}}
+			</p>
+			{% endif %}
 			<p class="marker">
 				<a href="{% url 'dragrace_rules' drag_race_type=drag_race.drag_race_type.name %}">Rules</a>
 			</p>
@@ -25,6 +27,7 @@
 				<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
 				Stats</a>
 			</p>
+
 			{% if participant.site_admin %}
 			<p class="marker">
 				<a href="{% url 'drag_race_edit' dragrace_id=drag_race.pk %}">
@@ -146,5 +149,6 @@
 	<div class="col-12">
 		<hr />
 	</div>	
+{% endwith %}
 {% endwith %}
 </div></div>

@@ -362,6 +362,29 @@ class EpisodeDraft(models.Model):
     class Meta:
         unique_together = ['episode', 'participant']
 
+    @property
+    def total_score(self):
+        scores = Score.objects.filter(episode=self.episode, queen__in=self.queens.all())
+        total_score = 0
+        for score in scores.all():
+            total_score += score.rule.point_value
+        return total_score
+
+    @classmethod
+    def set_dragrace_stats(cls, drag_race):
+        dragrace_drafts = cls.objects.filter(episode__drag_race=drag_race).all()
+        unique_participants = []
+        for draft in dragrace_drafts:
+            if draft.participant not in unique_participants:
+                unique_participants.append(draft.participant)
+        for participant in unique_participants:
+            ParticipantStats.set_dragrace_participant_rank(
+                participant,
+                unique_participants,
+                drag_race,
+                dragrace_drafts
+            )
+
 
 class ParticipantStats(models.Model):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
@@ -371,10 +394,59 @@ class ParticipantStats(models.Model):
         max_length=100,
         choices=(
             ('cummulative_dragrace_drafts', 'cummulative_dragrace_drafts'),
+            ('dragrace_rank', 'dragrace_rank')
         ),
         db_index=True
     )
     data = models.JSONField(default=dict)
+
+    def __str__(self):
+        return '{}: {} // {}'.format(self.stat_type, self.drag_race.display_name, self.participant.display_name)
+
+    @classmethod
+    def set_dragrace_participant_rank(cls, participant, unique_participants, drag_race, dragrace_drafts):
+        stat_instance = cls.objects.filter(
+            participant=participant,
+            drag_race=drag_race,
+            stat_type='dragrace_rank',
+        ).first()
+        if not stat_instance:
+            stat_instance = cls(
+                participant=participant,
+                drag_race=drag_race,
+                stat_type='dragrace_rank',
+            )
+        stat_instance.primary_stat = 0
+        stat_instance.save()
+
+        rank_data = {
+            'total_players': len(unique_participants),
+            'participant_total': 0,
+            'scores': [],
+            'ranks': {},
+        }
+        participant_scores = {uparticipant: 0 for uparticipant in unique_participants}
+        for draft in dragrace_drafts:
+            episode_total = draft.total_score
+            participant_scores[draft.participant] += episode_total
+            if draft.participant == participant:
+                rank_data['participant_total'] += episode_total
+        for scored_participant, score in participant_scores.items():
+            rank_data['scores'].append(score)
+        rank_data['scores'].sort(reverse=True)
+        score_set = set(rank_data['scores'])
+
+        placement = 1
+        for unique_score in sorted(score_set, reverse=True):
+            rank_data['ranks'][unique_score] = {'count': 0, 'place': placement}
+            placement += 1
+
+        for score in rank_data['scores']:
+            rank_data['ranks'][score]['count'] += 1
+
+        stat_instance.data = rank_data
+        stat_instance.primary_stat = rank_data['ranks'][rank_data['participant_total']]['place']
+        stat_instance.save()
 
     @classmethod
     def set_dragrace_draft_scores(cls, participant, drag_race):

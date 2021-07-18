@@ -75,6 +75,19 @@ def participant_drag_race_stats(participant, drag_race):
         return None
 
 
+@register.filter(name='participant_drag_race_rank')
+def participant_drag_race_rank(participant, drag_race):
+    pstats = ParticipantStats.objects.filter(
+        participant=participant,
+        drag_race=drag_race,
+        stat_type='dragrace_rank'
+    ).first()
+    if pstats:
+        return pstats
+    else:
+        return None
+
+
 @register.filter(name='number')
 def number(value):
     if value % 1 == 0:
