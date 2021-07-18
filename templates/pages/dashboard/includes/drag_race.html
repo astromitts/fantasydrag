@@ -8,7 +8,7 @@
 </div>
 <div class="col">
 	<p class="marker">
-		<a href="{% url 'dragrace_rules' dragrace_id=drag_race.pk %}">Rules</a>
+		<a href="{% url 'dragrace_rules' drag_race_type=drag_race.drag_race_type.name %}">Rules</a>
 	</p>
 	<p class="marker">
 		<a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">
