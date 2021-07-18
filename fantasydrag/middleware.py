@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import resolve, reverse
 from django.urls.exceptions import Resolver404
+from legal.models import PolicyLog
 
 
 def session_request_validation(get_response):
@@ -21,11 +22,18 @@ def session_request_validation(get_response):
 
         # middleware does not have access to the user
         # session_manager_login is expected to set a session variable to use here
-        user_is_authenticated = request.session.get('user_is_authenticated')
-
+        user_is_authenticated = request.user.is_authenticated
         try:
             resolved_url = resolve(request.path)
+
             is_login_page = resolved_url.url_name == settings.AUTHENTICATION_REQUIRED_REDIRECT
+            is_policy_update = resolved_url.url_name == 'policy_update'
+            if user_is_authenticated:
+                policy_pass = request.session.get('policy_pass')
+                if not policy_pass:
+                    log = PolicyLog.fetch(request.user)
+                    if (not log.policy or not log.policy.current) and not is_policy_update:
+                        return(redirect(reverse('policy_update')))
             if is_login_page and user_is_authenticated:
                 return redirect(reverse(settings.LOGIN_SUCCESS_REDIRECT))
             if resolved_url.url_name not in settings.AUTHENTICATION_EXEMPT_VIEWS:

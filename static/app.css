@@ -12,6 +12,10 @@ form label a {
   /* font-size: 1.7rem; */
 }
 
+form.plain label {
+  font-family: "Lato", sans-serif !important;
+}
+
 label.label-plain {
   font-family: "Lato", sans-serif;
   font-size: inherit;
@@ -200,6 +204,14 @@ table {
   color: #000000;
   border-color: #333333;
   background-color: #a08af7;
+}
+.alert-danger a, .alert-error a {
+  color: #000000;
+  text-decoration: underline;
+}
+.alert-danger a:hover, .alert-error a:hover {
+  color: #cdcdcd;
+  text-decoration: underline;
 }
 
 ul {

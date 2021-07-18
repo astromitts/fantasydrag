@@ -42,6 +42,10 @@ form label {
 	@include marker;
 }
 
+form.plain label {
+	font-family: 'Lato', sans-serif !important;
+}
+
 label.label {
 	&-plain {
 		font-family: 'Lato', sans-serif;
@@ -221,6 +225,14 @@ table {
 		color: $true-black;
 		border-color: $app-black;
 		background-color: $danger;
+		a {
+			color: $true-black;
+			text-decoration: underline;
+			&:hover {
+				color: #cdcdcd;
+				text-decoration: underline;
+			}
+		}
 	}
 }
 

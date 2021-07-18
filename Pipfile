@@ -12,6 +12,8 @@ dj-database-url = "*"
 sqlparse = "*"
 asgiref = "*"
 djangorestframework = "*"
+django-summernote = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

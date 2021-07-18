@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block page_title %} | Policy Updates{% endblock %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col">
+		<h1 class="marker">Policy Agreement</h1>
+	</div>
+</div>
+<div class="spacer-medium"></div>
+<div class="row">
+	<div class="col">
+		<div class="alert alert-danger">
+			You must read and accept the dragcrush.com <a href="{% url 'privacy_policy' %}">privacy policy</a> and <a href="{% url 'eula' %}">end user license agreement</a> to continue.
+		</div>
+	</div>
+</div>
+		
+
+<form method="POST" class="plain">
+	<div class="row">
+		<div class="col">
+				{% csrf_token %}
+				<table>
+					{{form.as_table}}
+				</table>
+		</div>
+		<div class="col">
+			<input type="submit" value="continue" class="btn btn-primary form-control"/>
+		</div>
+	</div>
+</form>
+{% endblock %}

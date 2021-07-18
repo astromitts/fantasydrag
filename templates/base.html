@@ -72,11 +72,28 @@
 	<div class="container-fluid">
 		<nav class="navbar navbar-dark bg-dark">
 			<div class="container">
-				<div class="text-right py-3">
-					dragcrush.com © 2021 Copyright 
+				<div class="row">
+					<div class="col">
+						<div class="text-right py-3">
+							dragcrush.com © 2021 Copyright 
+						</div>
+					</div>
 				</div>
-				<div class="text-left py-3">
-					dragcrush.com is in no way affiliated with RuPaul's Drag Race. It's just for fun.
+				<div class="row">
+					<div class="col">
+						<div class="text-left py-3">
+							dragcrush.com is in no way affiliated with RuPaul's Drag Race. It's just for fun.
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col mx-auto">
+						<div class="text-center">
+							<a href="{% url 'privacy_policy' %}">Privacy Policy</a> |
+							<a href="{% url 'eula' %}">End User License Agreement</a> |
+							<a href="mailto:kittygirl@dragcrush.com">Contact</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</nav>
