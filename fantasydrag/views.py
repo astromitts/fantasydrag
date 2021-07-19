@@ -477,8 +477,8 @@ class EpisodeDetail(AuthenticatedView):
             viewing_participant=self.participant,
             drag_race=self.episode.drag_race
         )
-        # for queen in self.episode.drag_race.queens.all():
-        #     Stats.set_queen_master_stats(queen, self.participant)
+        for queen in self.episode.drag_race.queens.all():
+            Stats.set_queen_master_stats(queen, self.participant)
 
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
