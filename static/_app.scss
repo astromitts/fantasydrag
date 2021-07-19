@@ -375,3 +375,9 @@ h4, .h4 {
 		color: $highlight-color;
 	}
 }
+
+.entities {
+	&-alert {
+		color: RED;
+	}
+}

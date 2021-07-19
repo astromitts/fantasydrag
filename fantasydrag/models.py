@@ -649,7 +649,12 @@ class Stats(models.Model):
     drag_race = models.ForeignKey(DragRace, null=True, on_delete=models.CASCADE)
     panel = models.ForeignKey(Panel, null=True, on_delete=models.CASCADE)
     queen = models.ForeignKey(Queen, null=True, on_delete=models.CASCADE)
-    primary_stat = models.DecimalField(default=0, max_digits=8, decimal_places=2)
+    primary_stat = models.DecimalField(
+        default=0,
+        max_digits=8,
+        decimal_places=2,
+        db_index=True
+    )
     stat_type = models.CharField(
         max_length=100,
         choices=(
@@ -663,7 +668,7 @@ class Stats(models.Model):
             ('dragrace_panel_scores', 'dragrace_panel_scores'),
 
             # All panel scores for queens for viewed episodes
-            ('panel_queen_scores', 'panel_queen_scores'),
+            ('participant_queen_scores', 'participant_queen_scores'),
 
             # All scores for queen in drag race
             ('dragrace_queen_scores', 'dragrace_queen_scores'),
@@ -684,64 +689,84 @@ class Stats(models.Model):
             return '{}: {}'.format(self.stat_type, self.queen.name)
 
     @classmethod
-    def set_panel_queen_scores(cls, viewing_participant, panel):
-        stat_instance = cls.objects.filter(
-            participant=viewing_participant,
-            drag_race=panel.drag_race,
-            panel=panel,
-            stat_type='panel_queen_scores',
-        ).first()
-        if not stat_instance:
-            stat_instance = cls(
-                participant=viewing_participant,
-                drag_race=panel.drag_race,
-                panel=panel,
-                stat_type='panel_queen_scores',
-            )
-        stat_instance.primary_stat = 0
-        stat_instance.save()
-        queen_data = {
-            'episodes': {},
-            'queens': {}
-        }
-        participant_episodes = viewing_participant.episodes.all()
-        panel_queens = panel.drag_race.queens.all()
-        scores = Score.objects.filter(
-            queen__in=panel_queens,
-            episode__in=participant_episodes
-        ).all()
+    def set_participant_queen_scores(cls, viewing_participant, drag_race=None, panel=None):
+        if panel:
+            drag_race = panel.drag_race
 
-        for episode in participant_episodes:
-            queen_data['episodes'][episode.pk] = {
-                'pk': episode.pk,
-                'number': episode.number,
-                'title': episode.title
-            }
+        participant_episodes = viewing_participant.episodes.filter(drag_race=drag_race).all()
+        drag_race_queens = drag_race.queens.all()
+        for queen in drag_race_queens:
+            scores = Score.objects.filter(
+                queen=queen,
+                episode__in=participant_episodes
+            ).all()
 
-        for queen in panel_queens:
-            queen_data['queens'][queen.pk] = {
-                'pk': queen.pk,
-                'name': queen.name,
-                'total': 0,
-                'episode_scores': {}
-            }
+            if panel:
+                stat_instance = cls.objects.filter(
+                    participant=viewing_participant,
+                    drag_race=panel.drag_race,
+                    panel=panel,
+                    queen=queen,
+                    stat_type='participant_queen_scores',
+                ).first()
+                if not stat_instance:
+                    stat_instance = cls(
+                        participant=viewing_participant,
+                        drag_race=panel.drag_race,
+                        panel=panel,
+                        queen=queen,
+                        stat_type='participant_queen_scores',
+                    )
+            else:
+                stat_instance = cls.objects.filter(
+                    participant=viewing_participant,
+                    drag_race=drag_race,
+                    queen=queen,
+                    panel=None,
+                    stat_type='participant_queen_scores',
+                ).first()
+                if not stat_instance:
+                    stat_instance = cls(
+                        participant=viewing_participant,
+                        drag_race=drag_race,
+                        queen=queen,
+                        panel=None,
+                        stat_type='participant_queen_scores',
+                    )
+
+            stat_instance.primary_stat = 0
+            stat_instance.save()
+            stat_instance.primary_stat = 0
+            if panel:
+                queen_data = {
+                    'episodes': {},
+                    'drafts': [d.participant.name for d in queen.draft_set.filter(panel=panel)]
+                }
+            else:
+                queen_data = {
+                    'episodes': {}
+                }
+
             for episode in participant_episodes:
-                queen_data['queens'][queen.pk]['episode_scores'][episode.pk] = {
+                queen_data['episodes'][episode.pk] = {
+                    'pk': episode.pk,
+                    'number': episode.number,
+                    'title': episode.title,
                     'total': 0,
                     'scores': []
                 }
 
-        for score in scores:
-            queen_data['queens'][score.queen.pk]['total'] += score.rule.point_value
-            queen_data['queens'][score.queen.pk]['episode_scores'][episode.pk]['total'] += score.rule.point_value
-            queen_data['queens'][score.queen.pk]['episode_scores'][episode.pk]['scores'].append(
-                {
-                    'rule': score.rule.name,
-                    'value': score.rule.point_value
-                }
-            )
-        stat_instance.data = queen_data
-        stat_instance.save()
+            for score in scores:
+                stat_instance.primary_stat += score.rule.point_value
+                queen_data['episodes'][score.episode.pk]['total'] += score.rule.point_value
+                queen_data['episodes'][score.episode.pk]['scores'].append(
+                    {
+                        'rule': score.rule.name,
+                        'value': score.rule.point_value
+                    }
+                )
+            stat_instance.data = queen_data
+            stat_instance.save()
 
     @classmethod
     def set_dragrace_panel_scores(cls, viewing_participant, panel):

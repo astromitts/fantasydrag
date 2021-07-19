@@ -107,6 +107,8 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 class StatsAdmin(admin.ModelAdmin):
     form = StatsForm
+    list_display = ['stat_type', 'participant', 'drag_race', 'queen', 'panel']
+    list_filter = ['stat_type', 'participant', 'drag_race', 'queen', 'panel']
 
 
 class PanelAdmin(admin.ModelAdmin):

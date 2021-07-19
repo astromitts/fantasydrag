@@ -22,7 +22,7 @@
 			<table class="table">
 				<tr>
 					<th>Queen</th>
-					{% for episode in scores %}
+					{% for episode in scored_episodes %}
 						<th><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a></th>
 					{% endfor %}
 				</tr>
@@ -43,19 +43,20 @@
 					{% endwith %}
 				{% endfor %}
 				</tr>
-				{% for queen in drag_race.queens.all %}
+				{% for queen_stat in queen_stats %}
 					<tr>
 						<th>
-							<a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="right" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a>
+							<a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="right" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen_stat.queen.name}}</a>
+							<p>Total: {{queen_stat.primary_stat|number}}</p>
 						</th>
-						{% for episode, queens in scores.items %}
-						{% with queens|get:queen as this_queen %}
+						{% for episode in scored_episodes %}
+						{% with queen_stat.data.episodes|get_as_str:episode.pk as episode_score %}
 						<td>
-							{% if this_queen.rules %}
-								{% for rule in this_queen.rules %}
-								<p>{{rule.name}} ({{rule.point_value}}pts)</p>
+							{% if episode_score.scores %}
+								{% for score in episode_score.scores %}
+								<p>{{score.rule}} ({{score.value}}pts)</p>
 								{% endfor %}
-								<p>Episode Total: {{this_queen.total}}pts</p>
+								<p>Episode Total: {{episode_score.total}}pts</p>
 							{% endif %}
 						</td>
 						{% endwith %}

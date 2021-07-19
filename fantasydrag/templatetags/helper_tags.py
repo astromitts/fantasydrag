@@ -9,7 +9,7 @@ register = template.Library()
 
 
 @register.filter(name='pdb')
-def pdb(item):
+def pdb(item, item2=None):
     import pdb  # noqa
     pdb.set_trace()  # noqa
 
@@ -89,8 +89,10 @@ def participant_drag_race_rank(participant, drag_race):
 
 
 @register.filter(name='number')
-def number(value):
-    if value:
-        if value % 1 == 0:
-            return int(value)
-    return value
+def number(float_value):
+    if float_value == 0:
+        return 0
+    if float_value:
+        if float_value % 1 == 0:
+            return int(float_value)
+    return float_value

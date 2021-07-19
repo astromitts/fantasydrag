@@ -190,7 +190,8 @@ class LandingPage(AuthenticatedView):
             formatted_past_races = self._format_drag_races(past_races)
             self.context.update({
                 'current_drag_races': formatted_current_races,
-                'past_drag_races': formatted_past_races
+                'past_drag_races': formatted_past_races,
+                'viewed_episodes': self.participant.episodes.all()
             })
         else:
             template = loader.get_template('pages/about.html')
@@ -326,7 +327,7 @@ class PanelStats(AuthenticatedView):
             participant=self.participant,
             panel=self.panel,
             stat_type='panel_queen_scores'
-        ).first()
+        ).order_by('-primary_stat').all()
         panel_stats = Stats.objects.filter(
             participant=self.participant,
             panel=self.panel,
@@ -388,12 +389,19 @@ class ParticipantPanelStats(AuthenticatedView):
 
 class DragRaceStats(AuthenticatedView):
     def get(self, request, *args, **kwargs):
-        drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
         template = loader.get_template('pages/dragracedetail.html')
-        scores = drag_race.get_scores_by_episode(self.participant)
+        scores = self.drag_race.get_scores_by_episode(self.participant)
+        queen_stats = Stats.objects.filter(
+            participant=self.participant,
+            drag_race=self.drag_race,
+            panel=None,
+            stat_type='participant_queen_scores'
+        ).order_by('-primary_stat').all()
+        scored_episodes = self.drag_race.episode_set.filter(is_scored=True).all()
         self.context.update({
-            'drag_race': drag_race,
-            'scores': scores
+            'scored_episodes': scored_episodes,
+            'scores': scores,
+            'queen_stats': queen_stats
         })
         return HttpResponse(template.render(self.context, request))
 

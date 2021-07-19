@@ -57,6 +57,7 @@
 						</div>
 					{% endif %}
 				{% endwith %}
+				<div class="spacer-small"></div>
 			{% endif %}
 		</div>
 
@@ -65,6 +66,9 @@
 			<ul>
 			{% for episode in drag_race.scored_episodes %}
 			<li>
+				{% if episode not in viewed_episodes %}
+					<span class="entities entities-alert">&#9733;</span>
+				{% endif %}
 				<a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a> 
 				{% if participant_stats %}
 				{% with participant_stats.data.episodes|get_as_str:episode.number as formatted_scores %}

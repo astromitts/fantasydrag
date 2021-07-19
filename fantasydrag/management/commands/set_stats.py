@@ -24,10 +24,15 @@ class Command(BaseCommand):
                     viewing_participant=participant,
                     panel=panel
                 )
-                Stats.set_panel_queen_scores(
+                Stats.set_participant_queen_scores(
                     viewing_participant=participant,
                     panel=panel
                 )
+                for drag_race in unique_drag_races:
+                    Stats.set_participant_queen_scores(
+                        viewing_participant=participant,
+                        drag_race=drag_race
+                    )
 
         for drag_race in unique_drag_races:
             EpisodeDraft.set_dragrace_stats(drag_race)
