@@ -5,7 +5,7 @@
 	{% for queen_stat in queen_stats %}
 		<tr>
 			<td>
-				<p><a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen_stat.queen.name}}</a></p>
+				<p><a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}">{{queen_stat.queen.name}}</a></p>
 				<p class="text-secondary">{{queen_stat.data.drafts|print_list}}</p>
 			</td>
 			<td>{{queen_stat.primary_stat|number}}</td>

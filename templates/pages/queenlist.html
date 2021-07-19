@@ -41,7 +41,7 @@
 	<div class="row">
 		<div class="col">
 			{% verbatim %}
-				<a href="/queens/{{queen.pk}}/" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a>
+				<a href="/queens/{{queen.pk}}/">{{queen.name}}</a>
 				<span ng-bind-html="sceSafe(dragRacesAsList(queen.drag_races))"></span>
 			{% endverbatim %}
 		</div>
