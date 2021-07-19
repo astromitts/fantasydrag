@@ -24,6 +24,11 @@ def get_as_str(sourcedict, key):
     return sourcedict.get(str(key))
 
 
+@register.filter(name='print_list')
+def print_list(_list):
+    return ', '.join(_list)
+
+
 @register.filter(name='get_panelists_for_queen')
 def get_panelists_for_queen(queen, panel):
     drafts = Draft.objects.filter(queen=queen, panel=panel).all()

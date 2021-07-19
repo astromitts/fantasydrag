@@ -326,7 +326,7 @@ class PanelStats(AuthenticatedView):
         queen_stats = Stats.objects.filter(
             participant=self.participant,
             panel=self.panel,
-            stat_type='panel_queen_scores'
+            stat_type='participant_queen_scores'
         ).order_by('-primary_stat').all()
         panel_stats = Stats.objects.filter(
             participant=self.participant,
@@ -469,10 +469,6 @@ class EpisodeDetail(AuthenticatedView):
                 panel=panel
             )
 
-        Stats.set_participant_queen_scores(
-            viewing_participant=self.participant,
-            drag_race=self.episode.drag_race
-        )
         Stats.set_participant_wildqueen_scores(
             viewing_participant=self.participant,
             drag_race=self.episode.drag_race
@@ -481,8 +477,8 @@ class EpisodeDetail(AuthenticatedView):
             viewing_participant=self.participant,
             drag_race=self.episode.drag_race
         )
-        for queen in self.episode.drag_race.queens.all():
-            Stats.set_queen_master_stats(queen, self.participant)
+        # for queen in self.episode.drag_race.queens.all():
+        #     Stats.set_queen_master_stats(queen, self.participant)
 
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
