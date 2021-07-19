@@ -322,11 +322,20 @@ class PanelStats(AuthenticatedView):
         self.template = loader.get_template('pages/panel/detail.html')
 
     def get(self, request, *args, **kwargs):
-        queen_scores = Queen.get_formatted_scores_for_drag_race(self.panel.drag_race, self.participant)
+        queen_stats = Stats.objects.filter(
+            participant=self.participant,
+            panel=self.panel,
+            stat_type='panel_queen_scores'
+        ).first()
+        panel_stats = Stats.objects.filter(
+            participant=self.participant,
+            panel=self.panel,
+            stat_type='dragrace_panel_scores'
+        ).first()
 
         self.context.update({
-            'queen_scores': queen_scores,
-            'panel_scores': self.panel.get_formatted_scores_for_panelists(self.participant),
+            'queen_stats': queen_stats,
+            'panel_stats': panel_stats,
             'join_link': self.panel.get_join_link(request)
         })
 
@@ -360,10 +369,19 @@ class ParticipantPanelStats(AuthenticatedView):
         panel = self.participant.panel_set.get(pk=kwargs['panel_id'])
         this_participant = panel.participants.get(pk=kwargs['participant_id'])
         template = loader.get_template('pages/panelistdetail.html')
-        scores = this_participant.get_all_formatted_scores_for_panel(panel, self.participant)
+        panel_stats = Stats.objects.filter(
+            participant=self.participant,
+            panel=self.panel,
+            stat_type='dragrace_panel_scores'
+        ).first()
+
+        panelist_stats = {}
+        for panel_stat in panel_stats.data:
+            if panel_stat['participant']['pk'] == this_participant.pk:
+                panelist_stats = panel_stat
         self.context.update({
             'this_participant': this_participant,
-            'scores': scores
+            'panelist_stats': panelist_stats
         })
         return HttpResponse(template.render(self.context, request))
 
@@ -419,7 +437,19 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
 
         self.participant.save()
-        Stats.set_dragrace_draft_scores(participant=self.participant, drag_race=self.episode.drag_race)
+        for panel in self.participant.panel_set.all():
+            Stats.set_dragrace_draft_scores(
+                participant=self.participant,
+                drag_race=panel.drag_race
+            )
+            Stats.set_dragrace_panel_scores(
+                viewing_participant=self.participant,
+                panel=panel
+            )
+            Stats.set_panel_queen_scores(
+                viewing_participant=self.participant,
+                panel=panel
+            )
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 

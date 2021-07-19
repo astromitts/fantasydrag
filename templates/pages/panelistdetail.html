@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load helper_tags %}
 
 {% block page_title %} | {{panel.name}} | {{this_participant.name}} {% endblock %}
 
 {% block page_content %}
 	<div class="row">
 		<div class="col">
-			<h1>{{this_participant.name}}</h1>
+			<h1>{{panelist_stats.participant.name}}</h1>
 			<h2><a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a></h2>
 		</div>
 	</div>
@@ -16,16 +17,16 @@
 	</div>
 	<div class="row">
 		<div class="col-4 alert alert-success marker">
-			Current Total: {{scores.total_score}}
+			Current Total: {{panelist_stats.score.total_score}}
 		</div>
 		<div class="col">
 			<div class="row">
 				<table class="table">
 					<tr><th>Queen</th><th>Current Score</th></tr>
-					{% for queen, score in scores.draft_scores.items %}
+					{% for draft in panelist_stats.score.draft_scores %}
 						<tr>
-							<td><a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a></td>
-							<td>{{score}}</td>
+							<td><a href="{% url 'queen_detail' queen_id=draft.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{draft.name}}</a></td>
+							<td>{{draft.score}}</td>
 						</tr>
 					{% endfor %}
 				</table>
@@ -39,12 +40,12 @@
 			<h4 class="marker">Wildcard Queens</h4>
 			<table class="table">
 				<tr><th>Queen</th><th>Current Score</th></tr>
-				{% for queen, score in scores.wildcard_scores.items %}
-					<tr>
-						<td><a href="{% url 'queen_detail' queen_id=queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen.name}}</a></td>
-						<td>{{score}}</td>
-					</tr>
-				{% endfor %}
+				{% for wq_draft in panelist_stats.score.wq_scores %}
+						<tr>
+							<td><a href="{% url 'queen_detail' queen_id=wq_draft.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{wq_draft.name}}</a></td>
+							<td>{{wq_draft.score}}</td>
+						</tr>
+					{% endfor %}
 			</table>
 		</div>
 	</div>

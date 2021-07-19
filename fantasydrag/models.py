@@ -71,44 +71,6 @@ class Queen(models.Model):
         super(Queen, self).save(*args, **kwargs)
 
     @property
-    def stats(self):
-        scores = self.score_set.order_by('episode__drag_race_season', 'episode__number').all()
-        formatted_scores = {
-            'total': 0,
-            'drag_races': {},
-            'average': 0
-        }
-        distinct_episodes = []
-        for score in scores:
-            season = score.episode.drag_race
-            this_season = formatted_scores['drag_races'].get(
-                season.pk,
-                {
-                    'total': 0,
-                    'episodes': {}
-                }
-            )
-            this_episode = this_season['episodes'].get(score.episode.pk, {'total': 0, 'scores': []})
-            formatted_scores['total'] += score.rule.point_value
-            this_season['total'] += score.rule.point_value
-            this_episode['total'] += score.rule.point_value
-            this_episode['scores'].append(
-                {
-                    'rule': score.rule.name,
-                    'points': score.rule.point_value
-                }
-            )
-
-            this_season['episodes'][score.episode.pk] = this_episode
-
-            formatted_scores['drag_races'][season.pk] = this_season
-            if score.episode not in distinct_episodes:
-                distinct_episodes.append(score.episode)
-        if distinct_episodes:
-            formatted_scores['average'] = float(float(formatted_scores['total']) / float(len(distinct_episodes)))
-        return formatted_scores
-
-    @property
     def formatted_stats(self):
         scores = self.score_set.order_by('episode__drag_race_season', 'episode__number').all()
         formatted_scores = {
@@ -700,6 +662,9 @@ class Stats(models.Model):
             # All scores for drag race for viewed episodes
             ('dragrace_panel_scores', 'dragrace_panel_scores'),
 
+            # All panel scores for queens for viewed episodes
+            ('panel_queen_scores', 'panel_queen_scores'),
+
             # All scores for queen in drag race
             ('dragrace_queen_scores', 'dragrace_queen_scores'),
 
@@ -717,6 +682,66 @@ class Stats(models.Model):
             return '{}: {} // {}'.format(self.stat_type, self.drag_race.display_name, self.queen.name)
         else:
             return '{}: {}'.format(self.stat_type, self.queen.name)
+
+    @classmethod
+    def set_panel_queen_scores(cls, viewing_participant, panel):
+        stat_instance = cls.objects.filter(
+            participant=viewing_participant,
+            drag_race=panel.drag_race,
+            panel=panel,
+            stat_type='panel_queen_scores',
+        ).first()
+        if not stat_instance:
+            stat_instance = cls(
+                participant=viewing_participant,
+                drag_race=panel.drag_race,
+                panel=panel,
+                stat_type='panel_queen_scores',
+            )
+        stat_instance.primary_stat = 0
+        stat_instance.save()
+        queen_data = {
+            'episodes': {},
+            'queens': {}
+        }
+        participant_episodes = viewing_participant.episodes.all()
+        panel_queens = panel.drag_race.queens.all()
+        scores = Score.objects.filter(
+            queen__in=panel_queens,
+            episode__in=participant_episodes
+        ).all()
+
+        for episode in participant_episodes:
+            queen_data['episodes'][episode.pk] = {
+                'pk': episode.pk,
+                'number': episode.number,
+                'title': episode.title
+            }
+
+        for queen in panel_queens:
+            queen_data['queens'][queen.pk] = {
+                'pk': queen.pk,
+                'name': queen.name,
+                'total': 0,
+                'episode_scores': {}
+            }
+            for episode in participant_episodes:
+                queen_data['queens'][queen.pk]['episode_scores'][episode.pk] = {
+                    'total': 0,
+                    'scores': []
+                }
+
+        for score in scores:
+            queen_data['queens'][score.queen.pk]['total'] += score.rule.point_value
+            queen_data['queens'][score.queen.pk]['episode_scores'][episode.pk]['total'] += score.rule.point_value
+            queen_data['queens'][score.queen.pk]['episode_scores'][episode.pk]['scores'].append(
+                {
+                    'rule': score.rule.name,
+                    'value': score.rule.point_value
+                }
+            )
+        stat_instance.data = queen_data
+        stat_instance.save()
 
     @classmethod
     def set_dragrace_panel_scores(cls, viewing_participant, panel):
