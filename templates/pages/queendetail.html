@@ -35,7 +35,16 @@
 					<tr><td></td><th>Total: {{dr_stats.total}}</th></tr>
 					{% for episode, ep_stats in dr_stats.episodes.items %}
 					<tr>
-						<th>{{ep_stats.title}}</th>
+						<th>
+							{% if ep_stats.pk not in viewed_episodes %}
+							<span data-toggle="tooltip" data-placement="left" title="You have not ruvealed scores for this episode">
+								<span class="entities entities-alert">&#9733;</span>
+								<a href="{% url 'episode_detail' episode_id=ep_stats.pk %}">{{ep_stats.title}} ({{ep_stats.number}})</a>
+							</span>
+							{% else %}
+							<a href="{% url 'episode_detail' episode_id=ep_stats.pk %}">{{ep_stats.title}} ({{ep_stats.number}})</a>
+							{% endif %}
+						</th>
 						<td>
 							{% for score in ep_stats.scores %}
 							{{score.rule}}: {{score.value}}pts<br />

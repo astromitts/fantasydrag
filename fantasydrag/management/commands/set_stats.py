@@ -2,9 +2,10 @@ from django.core.management.base import BaseCommand
 from fantasydrag.models import (
     EpisodeDraft,
     Panel,
-    Stats,
     Queen,
+    Participant,
 )
+from fantasydrag.stats import Stats
 
 
 class Command(BaseCommand):
@@ -28,15 +29,30 @@ class Command(BaseCommand):
                     viewing_participant=participant,
                     panel=panel
                 )
+                Stats.set_participant_wildqueen_scores(
+                    viewing_participant=participant,
+                    panel=panel
+                )
                 for drag_race in unique_drag_races:
                     Stats.set_participant_queen_scores(
                         viewing_participant=participant,
                         drag_race=drag_race
                     )
+                    Stats.set_participant_wildqueen_scores(
+                        viewing_participant=participant,
+                        drag_race=drag_race
+                    )
 
         for drag_race in unique_drag_races:
-            EpisodeDraft.set_dragrace_stats(drag_race)
+            dragrace_drafts = EpisodeDraft.objects.filter(episode__drag_race=drag_race).all()
+            unique_participants = []
+            for draft in dragrace_drafts:
+                if draft.participant not in unique_participants:
+                    unique_participants.append(draft.participant)
+                    Stats.set_dragrace_participant_ranks(drag_race, draft.participant)
+
             Stats.set_dragrace_queen_stats(drag_race)
 
         for queen in Queen.objects.all():
-            Stats.set_queen_master_stats(queen)
+            for participant in Participant.objects.all():
+                Stats.set_queen_master_stats(queen, participant)

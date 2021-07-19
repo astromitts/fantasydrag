@@ -21,32 +21,41 @@
 			<div style="width: 100%; overflow-y: scroll;">
 			<table class="table">
 				<tr>
-					<th>Queen</th>
+					<td></td>
 					{% for episode in scored_episodes %}
-						<th><a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a></th>
+						<th>
+							{% if episode not in viewed_episodes %}
+							<span data-toggle="tooltip" data-placement="left" title="You have not ruvealed scores for this episode">
+								<span class="entities entities-alert">&#9733;</span>
+								<a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a>
+							</span>
+							{% else %}
+							<a href="{% url 'episode_detail' episode_id=episode.id %}">{{episode.title}} ({{episode.number}})</a>
+							{% endif %}</th>
 					{% endfor %}
 				</tr>
 				<tr>
 					<th>Wildcards</th>
-				{% for episode in scores %}
-					{% with episode|wildcard_queens_for_episode as qw_scores %}
+					{% for episode in scored_episodes %}
 						<td>
-						{% if qw_scores %}
-							{% for qw in qw_scores %}
-								{{qw.queen}}: {{qw.appearance.name}} ({{qw.appearance.point_value}}pts)
-								{% if not forloop.last %}
-								<br />
+						{% for wq_stat in wq_stats %}
+							{% with wq_stat.data.episodes|get_as_str:episode.pk as wq_scores %}
+								{% if wq_scores.scores %}
+									{% for score in wq_scores.scores %}
+										<p>
+											{{wq_stat.queen.name}}: {{score.rule}}		({{score.value|number}}pts)
+										</p>
+									{% endfor %}
 								{% endif %}
-							{% endfor %}
-						{% endif %}
+							{% endwith %}
+						{% endfor %}
 						</td>
-					{% endwith %}
-				{% endfor %}
+					{% endfor %}
 				</tr>
 				{% for queen_stat in queen_stats %}
 					<tr>
 						<th>
-							<a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}" class="spoiler" data-toggle="tooltip" data-placement="right" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{queen_stat.queen.name}}</a>
+							<a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}">{{queen_stat.queen.name}}</a>
 							<p>Total: {{queen_stat.primary_stat|number}}</p>
 						</th>
 						{% for episode in scored_episodes %}

@@ -7,13 +7,14 @@ from fantasydrag.models import (
     DefaultRule,
     Score,
     Participant,
-    Stats,
     Panel,
     Draft,
     WildCardQueen,
     WildCardAppearance,
     AppearanceType,
 )
+
+from fantasydrag.stats import Stats
 
 
 class FormBase(forms.ModelForm):

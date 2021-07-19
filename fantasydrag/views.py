@@ -11,13 +11,13 @@ from django.db import IntegrityError
 from fantasydrag.models import (
     Panel,
     Participant,
-    Stats,
     Queen,
     DragRace,
     DragRaceType,
     Episode,
     WildCardQueen,
 )
+from fantasydrag.stats import Stats
 from fantasydrag.forms import (
     LoginPasswordForm,
     RegisterForm,
@@ -390,18 +390,24 @@ class ParticipantPanelStats(AuthenticatedView):
 class DragRaceStats(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/dragracedetail.html')
-        scores = self.drag_race.get_scores_by_episode(self.participant)
         queen_stats = Stats.objects.filter(
             participant=self.participant,
             drag_race=self.drag_race,
             panel=None,
             stat_type='participant_queen_scores'
         ).order_by('-primary_stat').all()
+        wq_queen_stats = Stats.objects.filter(
+            participant=self.participant,
+            drag_race=self.drag_race,
+            panel=None,
+            stat_type='participant_wildqueen_scores'
+        ).order_by('-primary_stat').all()
         scored_episodes = self.drag_race.episode_set.filter(is_scored=True).all()
         self.context.update({
+            'viewed_episodes': self.participant.episodes.filter(drag_race=self.drag_race).all(),
             'scored_episodes': scored_episodes,
-            'scores': scores,
-            'queen_stats': queen_stats
+            'queen_stats': queen_stats,
+            'wq_stats': wq_queen_stats
         })
         return HttpResponse(template.render(self.context, request))
 
@@ -445,7 +451,7 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
 
         self.participant.save()
-        for panel in self.participant.panel_set.all():
+        for panel in self.participant.panel_set.filter(drag_race=self.episode.drag_race).all():
             Stats.set_dragrace_draft_scores(
                 participant=self.participant,
                 drag_race=panel.drag_race
@@ -454,10 +460,30 @@ class EpisodeDetail(AuthenticatedView):
                 viewing_participant=self.participant,
                 panel=panel
             )
-            Stats.set_panel_queen_scores(
+            Stats.set_participant_queen_scores(
                 viewing_participant=self.participant,
                 panel=panel
             )
+            Stats.set_participant_wildqueen_scores(
+                viewing_participant=self.participant,
+                panel=panel
+            )
+
+        Stats.set_participant_queen_scores(
+            viewing_participant=self.participant,
+            drag_race=self.episode.drag_race
+        )
+        Stats.set_participant_wildqueen_scores(
+            viewing_participant=self.participant,
+            drag_race=self.episode.drag_race
+        )
+        Stats.set_participant_queen_scores(
+            viewing_participant=self.participant,
+            drag_race=self.episode.drag_race
+        )
+        for queen in self.episode.drag_race.queens.all():
+            Stats.set_queen_master_stats(queen, self.participant)
+
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 
@@ -561,8 +587,18 @@ class QueenDetail(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         self.template = loader.get_template('pages/queendetail.html')
         queen = Queen.objects.get(pk=kwargs['queen_id'])
-        stats = Stats.objects.filter(queen=queen, stat_type='queen_scores').first()
-        self.context.update({'queen': queen, 'stats': stats})
+        stats = Stats.objects.filter(
+            queen=queen,
+            participant=self.participant,
+            stat_type='queen_scores'
+        ).first()
+        self.context.update(
+            {
+                'queen': queen,
+                'stats': stats,
+                'viewed_episodes': [episode.pk for episode in self.participant.episodes.all()]
+            }
+        )
         return HttpResponse(self.template.render(self.context, request))
 
 

@@ -1,9 +1,9 @@
 from django import template
 from fantasydrag.models import (
     Draft,
-    Stats,
     Queen,
 )
+from fantasydrag.stats import Stats
 
 register = template.Library()
 
