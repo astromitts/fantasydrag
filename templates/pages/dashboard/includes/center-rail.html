@@ -1,7 +1,9 @@
 {% verbatim %}
 <h4 class="marker">Episodes</h4>
+<span ng-repeat="episode in dragrace.episodes">
+	<a id="episode_{{episode.pk}}"></a>
 	<table class="table">
-		<tbody ng-repeat="episode in dragrace.episodes">
+		<tbody>
 		<tr ng-if="episode.is_viewed" class="clickable">
 			<td class="icon icon-btn help"
 				data-toggle="tooltip" 
@@ -64,4 +66,5 @@
 		</tr>
 		</tbody>
 	</table>
+</span>
 {% endverbatim %}

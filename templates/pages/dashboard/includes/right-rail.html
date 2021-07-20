@@ -1,7 +1,7 @@
 {% verbatim %}
 <span ng-if="dragrace.status == 'open' || dragrace.panels">
 	<h4 class="marker">Panels</h4>
-	<table>
+	<a id="panel_{{panel.pk}}"></a><table>
 		<tbody ng-repeat="panel in dragrace.panels">
 			<tr class="help"
 					data-toggle="tooltip" 

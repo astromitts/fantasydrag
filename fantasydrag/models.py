@@ -187,7 +187,7 @@ class DragRace(models.Model):
 
     @property
     def detail_url(self):
-        return reverse('dragrace_rules', kwargs={'drag_race_type': self.drag_race_type_name})
+        return reverse('dragrace_stats', kwargs={'dragrace_id': self.pk})
 
     @property
     def edit_url(self):
