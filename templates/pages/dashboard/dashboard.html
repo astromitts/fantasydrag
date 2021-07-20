@@ -39,8 +39,28 @@
 </span>
 <div class="row">
 	<div class="col">
-		<button class="btn btn-info form-control" ng-show="!showAll" ng-click="showAll=true;">Show Past Seasons</button>
-		<button class="btn btn-info form-control" ng-show="showAll" ng-click="showAll=false;">Hide Past Seasons</button>
+		<button class="btn btn-info form-control" ng-show="!showAll" ng-click="showAll=true; fetchPastSeasons()">Show All Drag Races</button>
+		<button class="btn btn-info form-control" ng-show="showAll" ng-click="showAll=false;">Hide Old Drag Races</button>
 	</div>
+
 </div>
+<div class="spacer-medium"></div>
+<span ng-repeat="dragrace in oldDragRaces" ng-show="showAll">
+	<div class="row">
+		<div class="col-lg-4 col-sm-12">
+			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
+		</div>
+
+		<div class="col-lg-4 col-sm-12" ng-if="dragrace.panels.length > 0">
+			{% include 'pages/dashboard/includes/panels-rail.html' %}
+		</div>
+		<div class="spacer-small"></div>
+		<div class="col">
+			{% include 'pages/dashboard/includes/episodes-rail.html' %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col"><hr></div>
+	</div>
+</span>
 {% endblock %}

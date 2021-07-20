@@ -76,9 +76,25 @@ dashboardApp.controller(
 			);
 		}
 
+		$scope.fetchPastSeasons = function() {
+			if(!$scope.oldDragRacesLoaded) {
+				$scope.state = 'loading';
+				$http.get('/api/dashboard/?request=old-seasons').then(function(response){
+					$scope.oldDragRaces = response.data.drag_races;
+					$(function () {
+		  				$('[data-toggle="tooltip"]').tooltip()
+					});
+					$scope.oldDragRacesLoaded = true;
+					$scope.state = 'loaded';
+				});
+			}
+		}
+
 		$scope.alert = function(message) {alert(message)};
 		$scope.initQueryParams();
 		$scope.state = 'loading';
+		$scope.oldDragRacesLoaded = false;
+		$scope.oldDragRaces = [];
 		
 		$http.get('/api/user/').then(function(response){
 			$scope.user = response.data.user;
