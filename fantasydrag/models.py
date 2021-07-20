@@ -4,7 +4,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from fantasydrag.utils import calculate_draft_data, DRAFT_CAPS
+from fantasydrag.utils import (
+    DRAFT_CAPS,
+    calculate_draft_data,
+    refresh_dragrace_stats_for_participant
+)
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -252,11 +256,6 @@ class Episode(models.Model):
     def detail_url(self):
         return reverse('episode_detail', kwargs={'episode_id': self.pk})
 
-    def refresh_dragrace(self, participant):
-
-        return self._
-
-
 
 class DefaultRule(models.Model):
     name = models.CharField(max_length=250)
@@ -369,9 +368,11 @@ class Participant(models.Model):
             set_episodes = False
         super(Participant, self).save(*args, **kwargs)
         if set_episodes:
+            # for new participant, reveal all episodes of past seasons and set up stats datas
             for drag_race in DragRace.objects.exclude(status__in=['pending', 'active']).all():
                 for episode in drag_race.episode_set.all():
                     self.episodes.add(episode)
+                refresh_dragrace_stats_for_participant(self, drag_race)
             self.save(*args, **kwargs)
 
 

@@ -5,50 +5,44 @@
 
 {% block page_content %}
 	<div class="row">
-		<div class="col">
-			<h1>{{panelist_stats.participant.name}}</h1>
-			<h2><a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.drag_race.display_name}}: {{panel.name}}</a></h2>
+		<div class="col-lg-12  col-sm-12">
+			<h3 class="inline"><a href="{% url 'panel_stats' panel_id=panel.pk %}">{{panel.name}}</a></h3>
+		</div>
+		<div class="col-lg-12 col-sm-12">
+			<h1 class="inline">{{panelist_stats.participant.name}}</h1>
 		</div>
 	</div>
 
 	<div class="row">
-		<div class="col-4"></div>
-		<div class="col marker"><h3 class="marker">Drafted Queens</h3></div>
-	</div>
-	<div class="row">
-		<div class="col-4 alert alert-success marker">
-			Current Total: {{panelist_stats.score.total_score}}
-		</div>
-		<div class="col">
-			<div class="row">
-				<table class="table">
-					<tr><th>Queen</th><th>Current Score</th></tr>
-					{% for draft in panelist_stats.score.draft_scores %}
-						<tr>
-							<td><a href="{% url 'queen_detail' queen_id=draft.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{draft.name}}</a></td>
-							<td>{{draft.score}}</td>
-						</tr>
-					{% endfor %}
-				</table>
+		<div class="col-lg-4 col-sm-12">
+			<div class="alert alert-success marker">
+				Current Total: {{panelist_stats.score.total_score}}
 			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-4"></div>
-		<div class="col">
-			<hr />
+		<div class="col-lg-8 col-sm-12">
+			<h3 class="marker">Drafted Queens</h3>
+			<table class="table">
+				<tr><th>Queen</th><th>Current Score</th></tr>
+				{% for draft in panelist_stats.score.draft_scores %}
+					<tr>
+						<td>
+							<a href="{% url 'queen_detail' queen_id=draft.pk %}">{{draft.name}}</a>
+						</td>
+						<td>{{draft.score}}</td>
+					</tr>
+				{% endfor %}
+			</table>
 			<h4 class="marker">Wildcard Queens</h4>
 			<table class="table">
 				<tr><th>Queen</th><th>Current Score</th></tr>
 				{% for wq_draft in panelist_stats.score.wq_scores %}
 						<tr>
-							<td><a href="{% url 'queen_detail' queen_id=wq_draft.pk %}" class="spoiler" data-toggle="tooltip" data-placement="bottom" title="May contain spoilers" ><span class="spoiler-alert">&#9889;</span>{{wq_draft.name}}</a></td>
+							<td><a href="{% url 'queen_detail' queen_id=wq_draft.pk %}">{{wq_draft.name}}</a></td>
 							<td>{{wq_draft.score}}</td>
 						</tr>
 					{% endfor %}
 			</table>
 		</div>
 	</div>
-
 
 {% endblock %}
