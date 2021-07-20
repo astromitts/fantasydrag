@@ -383,21 +383,13 @@ h4, .h4 {
 		display: table-cell;
 	}
 }
-.table-every-other {
-	width: 100%;
-	tbody tr:nth-of-type(even) {
-	    border-bottom: 1px solid gray;
+.table {
+	font-size: 16px;
+	@media (min-width: $small-phone) {
+		font-size: 20px;
 	}
-	tbody tr:nth-of-type(odd) {
-	    td {
-	    	padding-top: 1rem;
-	    }
-	}
-	textarea {
-		color: gray;
-	}
-}
 
+}
 .form-control {
 	&-small {
 		width: 6rem;

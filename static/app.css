@@ -369,17 +369,13 @@ h4, .h4 {
   display: table-cell;
 }
 
-.table-every-other {
-  width: 100%;
+.table {
+  font-size: 16px;
 }
-.table-every-other tbody tr:nth-of-type(even) {
-  border-bottom: 1px solid gray;
-}
-.table-every-other tbody tr:nth-of-type(odd) td {
-  padding-top: 1rem;
-}
-.table-every-other textarea {
-  color: gray;
+@media (min-width: 767.98px) {
+  .table {
+    font-size: 20px;
+  }
 }
 
 .form-control-small {
