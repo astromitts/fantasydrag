@@ -853,7 +853,6 @@ class DashboardApi(APIView):
 
                 for drag_race in current_races:
                     dr_data = self._serialize_dragrace(drag_race)
-
                     self.response['drag_races'].append(dr_data)
         else:
             self.response['drag_race'] = self._serialize_dragrace(drag_race)

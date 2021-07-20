@@ -61,6 +61,7 @@ dashboardApp.controller(
 		};
 
 		$scope.ruvealScores = function(episode, dragrace) {
+			$scope.state = 'loading';
 			$http.post(
 				'/api/dashboard/',
 				{
@@ -69,6 +70,7 @@ dashboardApp.controller(
 				}
 			).then(
 				function(response){
+					$scope.state = 'loaded';
 					window.location.pathname = episode.detail_url;
 				}
 			);
@@ -76,6 +78,7 @@ dashboardApp.controller(
 
 		$scope.alert = function(message) {alert(message)};
 		$scope.initQueryParams();
+		$scope.state = 'loading';
 		
 		$http.get('/api/user/').then(function(response){
 			$scope.user = response.data.user;
@@ -86,7 +89,8 @@ dashboardApp.controller(
 					$scope.initExpandedItems();
 					$(function () {
 		  				$('[data-toggle="tooltip"]').tooltip()
-					})
+					});
+					$scope.state = 'loaded';
 				});
 			}
 		});

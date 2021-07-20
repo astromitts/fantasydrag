@@ -10,47 +10,37 @@
 {% endblock %}
 
 {% block page_content %}
-<span id='dashboardModule' ng-controller='dashboardController'>
-
-	{% if is_site_admin %}
-	<div class="row">
-		<div class="col-2">
-			<a href="{% url 'drag_race_new' %}">
-				<button class="btn btn-primary form-control">New Drag Race</button>
-			</a>
-		</div>
+{% if is_site_admin %}
+<div class="row">
+	<div class="col-2">
+		<a href="{% url 'drag_race_new' %}">
+			<button class="btn btn-primary form-control">New Drag Race</button>
+		</a>
 	</div>
-	{% endif %}
-	<span ng-repeat="dragrace in dragRaces">
-		<div class="row">
-			<div class="col-lg-4 col-sm-12">
-				{% include 'pages/dashboard/includes/left-rail.html' %}
-			</div>
-
-			<div class="col-lg-4 col-sm-12">
-				{% include 'pages/dashboard/includes/center-rail.html' %}
-			</div>
-			<div class="spacer-small"></div>
-			<div class="col">
-				{% include 'pages/dashboard/includes/right-rail.html' %}
-			</div>
-		</div>
-		<div class="row">
-			<div class="col"><hr></div>
-		</div>
-	</span>
+</div>
+{% endif %}
+<span ng-repeat="dragrace in dragRaces">
 	<div class="row">
+		<div class="col-lg-4 col-sm-12">
+			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
+		</div>
+
+		<div class="col-lg-4 col-sm-12" ng-if="dragrace.panels.length > 0">
+			{% include 'pages/dashboard/includes/panels-rail.html' %}
+		</div>
+		<div class="spacer-small"></div>
 		<div class="col">
-			<button class="btn btn-info form-control" ng-show="!showAll" ng-click="showAll=true;">Show Past Seasons</button>
-			<button class="btn btn-info form-control" ng-show="showAll" ng-click="showAll=false;">Hide Past Seasons</button>
+			{% include 'pages/dashboard/includes/episodes-rail.html' %}
 		</div>
 	</div>
-	<span ng-if="showAll">
-		{% for drag_race, data in past_drag_races.items %}
-			<div class="row">
-			{% include 'pages/dashboard/includes/drag_race.html' %}
-			</div>
-		{% endfor %}
-	</span>
+	<div class="row">
+		<div class="col"><hr></div>
+	</div>
 </span>
+<div class="row">
+	<div class="col">
+		<button class="btn btn-info form-control" ng-show="!showAll" ng-click="showAll=true;">Show Past Seasons</button>
+		<button class="btn btn-info form-control" ng-show="showAll" ng-click="showAll=false;">Hide Past Seasons</button>
+	</div>
+</div>
 {% endblock %}

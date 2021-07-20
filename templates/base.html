@@ -48,7 +48,14 @@
 			</div>
 			</nav>
 		</div>
-		<div id="page_content" class="body container container-fluid">
+		{% if pageModule and pageController %}
+		<div id="{{pageModule}}" class="body container container-fluid" ng-controller='{{pageController}}'>
+		<div class="loading" ng-show="state=='loading'">
+			<div class="spinner"><img src="{% static 'site_images/ripple-loading.gif' %}"></div>
+		</div>
+		{% else %}
+		<div class="body container container-fluid">
+		{% endif %}
 			{% if messages %}
 			<div class="row">
 				<div class="col">

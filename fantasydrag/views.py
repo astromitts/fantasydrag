@@ -172,27 +172,12 @@ class DragRaceAddEdit(AuthenticatedView):
 
 
 class LandingPage(AuthenticatedView):
-
-    def _format_drag_races(self, drag_races):
-        formatted_drag_races = {}
-        for drag_race in drag_races:
-            formatted_drag_races[drag_race] = {'participant_panels': []}
-            formatted_drag_races[drag_race]['participant_panels'] = self.participant.panel_set.filter(
-                drag_race=drag_race).all()
-        return formatted_drag_races
-
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             template = loader.get_template('pages/dashboard/dashboard.html')
-            current_races = DragRace.objects.filter(
-                is_current=True).exclude(status='pending').order_by('-season').all()
-            past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
-            formatted_current_races = self._format_drag_races(current_races)
-            formatted_past_races = self._format_drag_races(past_races)
             self.context.update({
-                'current_drag_races': formatted_current_races,
-                'past_drag_races': formatted_past_races,
-                'viewed_episodes': self.participant.episodes.all()
+                'pageModule': 'dashboardModule',
+                'pageController': 'dashboardController'
             })
         else:
             template = loader.get_template('pages/about.html')
