@@ -5,20 +5,9 @@
 	<table class="table">
 		<tbody>
 		<tr ng-if="episode.is_viewed" class="clickable">
-			<td class="icon icon-btn help"
-				data-toggle="tooltip" 
-				data-placement="left" title="View Episode Draft"
-				ng-click="toggleEpisodeDraft(episode)">
-				<span ng-if="expandedEpisodes.indexOf(episode) !== -1">
-					<img src="/static/site_images/retract.png" />
-				</span>
-				<span ng-if="expandedEpisodes.indexOf(episode) == -1">
-					<img src="/static/site_images/expand.png" />
-				</span>
-			</td>
 			<td class="help"
 					data-toggle="tooltip" 
-					data-placement="left" title="View Episode Draft"
+					data-placement="top" title="Expand Episode Details"
 					ng-click="toggleEpisodeDraft(episode)">
 				#{{episode.number}} {{episode.title}}
 			</td>
@@ -28,7 +17,6 @@
 			data-toggle="tooltip" 
 			data-placement="left" title="You have not ruvealed scores for this episode"
 			ng-click="toggleEpisodeDraft(episode)">
-			<td></td>
 			<td>
 				<span >
 					#{{episode.number}} {{episode.title}}
@@ -37,7 +25,6 @@
 			</td>
 		</tr>
 		<tr ng-if="episode.is_viewed" >
-			<td ng-if="expandedEpisodes.indexOf(episode) !== -1"></td>
 			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
 				<p>Episode Draft</p>
 				<table class="table">
@@ -49,17 +36,17 @@
 			</td>
 		</tr>
 		<tr ng-if="!episode.is_viewed">
-			<td colspan="100%" ng-if="expandedEpisodes.indexOf(episode) !== -1">
-				<button class="btn btn-primary form-control"
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<button class="btn btn-warning form-control"
 				ng-click="ruvealScores(episode, dragrace)">
 					Ruveal Scores!
 				</button>
 			</td>
 		</tr>
-		<tr>
+		<tr ng-if="episode.is_viewed">
 			<td colspan="100%" ng-if="expandedEpisodes.indexOf(episode) !== -1">
 				<a href="{{episode.detail_url}}">
-					<button class="btn btn-primary form-control">Episode Detail</button></a>
+					<button class="btn btn-info form-control">Episode Detail</button></a>
 				</td>
 			</tr>
 		</tbody>
