@@ -252,6 +252,11 @@ class Episode(models.Model):
     def detail_url(self):
         return reverse('episode_detail', kwargs={'episode_id': self.pk})
 
+    def refresh_dragrace(self, participant):
+
+        return self._
+
+
 
 class DefaultRule(models.Model):
     name = models.CharField(max_length=250)

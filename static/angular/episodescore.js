@@ -70,6 +70,22 @@ episodeScoreApp.controller(
 			)
 		}
 
+		$scope.resetStats = function() {
+			$scope.state = 'loading';
+			$http.post(
+				'/api/stats/', 
+				{
+					'request': 'reset-episode-scores',
+					'episode_id': $scope.episodeId,
+				}
+			).then(
+				function(response) {
+					$scope.state = 'loaded';
+				}
+			)
+		}
+
+		$scope.state = 'loading';
 		$http.get('/api/episode/' + $scope.episodeId + '/score/').then(function setAlerts(response){
 			$scope.setEpisodeProperties(response.data)
 			$scope.queens = response.data.queens;
@@ -77,6 +93,7 @@ episodeScoreApp.controller(
 			$scope.rules = response.data.rules;
 			$scope.currentQueen = null;
 			$scope.currentRule = null;
+			$scope.state = 'loaded';
 		});
 
 	}

@@ -140,6 +140,24 @@ def get_draft_data(view, response_status='ok', response_message=None):
     }
 
 
+def setcontext(view, request):
+    view.participant = Participant.objects.filter(user=request.user).first()
+    if view.participant:
+        view.response = {
+            'user': {
+                'is_authenticated': request.user.is_authenticated,
+                'is_site_admin': view.participant.site_admin
+            }
+        }
+    else:
+        view.response = {
+            'user': {
+                'is_authenticated': request.user.is_authenticated,
+                'is_site_admin': False
+            }
+        }
+
+
 def set_user_context(view, request, panel_id):
     view.panel = Panel.objects.get(pk=panel_id)
     view.user = request.user
@@ -414,8 +432,6 @@ class EpisodeApi(APIView):
         episode = Episode.objects.get(pk=kwargs['episode_id'])
         if 'is_scored' in request.data:
             episode.is_scored = request.data['is_scored']
-            if request.data['is_scored'] is True:
-                EpisodeDraft.set_dragrace_stats(episode.drag_race)
         if 'has_aired' in request.data:
             episode.has_aired = request.data['has_aired']
         if 'title' in request.data:
@@ -746,6 +762,29 @@ class SiteUserApi(APIView):
         })
 
 
+class StatsApi(APIView):
+    def post(self, request, *args, **kwargs):
+        setcontext(self, request)
+        request_type = request.data['request']
+        status = 'ok'
+        message = None
+        if request_type == 'reset-episode-scores':
+            episode = Episode.objects.get(pk=request.data['episode_id'])
+            participants = episode.participant_set.all()
+            for participant in participants:
+                refresh_dragrace_stats_for_participant(self.participant, episode.drag_race)
+        else:
+            status = 'error'
+            message = 'Request not recognized'
+
+        response = {
+            'status': status,
+            'message': message,
+            'request': request_type
+        }
+        return Response(response)
+
+
 class DashboardApi(APIView):
     def _serialize_dragrace(self, drag_race):
         dr_data = DragRaceSerializerMeta(instance=drag_race).data
@@ -812,25 +851,8 @@ class DashboardApi(APIView):
             dr_data['panels'].append(panel_data)
         return dr_data
 
-    def _setcontext(self, request):
-        self.participant = Participant.objects.filter(user=request.user).first()
-        if self.participant:
-            self.response = {
-                'user': {
-                    'is_authenticated': request.user.is_authenticated,
-                    'is_site_admin': self.participant.site_admin
-                }
-            }
-        else:
-            self.response = {
-                'user': {
-                    'is_authenticated': request.user.is_authenticated,
-                    'is_site_admin': False
-                }
-            }
-
     def get(self, request, *args, **kwargs):
-        self._setcontext(request)
+        setcontext(self, request)
         if kwargs.get('dragrace_id'):
             drag_race = DragRace.objects.get(pk=kwargs.get('dragrace_id'))
         else:
@@ -859,7 +881,7 @@ class DashboardApi(APIView):
         return Response(self.response)
 
     def post(self, request, *args, **kwargs):
-        self._setcontext(request)
+        setcontext(self, request)
         request_type = request.data['request']
         if request_type == 'ruveal-episode':
             episode = Episode.objects.get(pk=request.data['episode_id'])

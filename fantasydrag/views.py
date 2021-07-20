@@ -456,7 +456,9 @@ class SetEpisodeScores(AuthenticatedView):
         self.context.update({
             'drag_race': self.episode.drag_race,
             'scores': self.episode.score_set.all(),
-            'episode': self.episode
+            'episode': self.episode,
+            'pageModule': 'episodeScoreModule',
+            'pageController': 'episodeScoreController'
         })
 
     def get(self, request, *args, **kwargs):

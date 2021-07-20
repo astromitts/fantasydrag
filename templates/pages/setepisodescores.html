@@ -7,113 +7,119 @@
 {% endblock %}
 
 {% block page_content %}
-<span id='episodeScoreModule' ng-controller='episodeScoreController'>
-	<input type="hidden" id="id_episodeId" value="{{episode.pk}}" />
+<input type="hidden" id="id_episodeId" value="{{episode.pk}}" />
 
-	<div class="row">
-		<div class="col">
-			<h3><a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">{{drag_race.display_name}}</a></h3>
-		</div>
-		<div class="col-1">
-			<a href="{% url 'set_episode_wildcards' dragrace_id=drag_race.pk episode_id=episode.pk%}" class="marker">Widlcards</a>
-		</div>
+<div class="row">
+	<div class="col">
+		<h3><a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">{{drag_race.display_name}}</a></h3>
 	</div>
+	<div class="col-1">
+		<a href="{% url 'set_episode_wildcards' dragrace_id=drag_race.pk episode_id=episode.pk%}" class="marker">Wildcards</a>
+	</div>
+</div>
 
-	<div class="row">
-		<div class="col">
-			<h1 ng-show="!editTitle">
-				<a href="{% url 'episode_detail' episode_id=episode.pk %}">
-			{% verbatim %}Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}{% endverbatim %}</span></a></h1>
-			
+<div class="row">
+	<div class="col">
+		<h1 ng-show="!editTitle">
+			<a href="{% url 'episode_detail' episode_id=episode.pk %}">
+		{% verbatim %}Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}{% endverbatim %}</span></a></h1>
+		
 
-			{% if participant.site_admin %}
-			{% verbatim %}
-				<input ng-show="editTitle" type="text" class="form-control" ng-model="episode.title" />
-			{% endverbatim %}
-			{% endif %}
-		</div>
 		{% if participant.site_admin %}
-		<div class="col">
-			<button class="btn btn-danger btn-sm" 
-				ng-click="editTitle=true"
-				ng-show="!editTitle">[E]</button>
-			<button class="btn btn-primary btn-sm" 
-				ng-click="editTitle=false; patchEpisode({'title': episode.title})"
-				ng-show="editTitle"
-				>[S]</button>
-		</div>
+		{% verbatim %}
+			<input ng-show="editTitle" type="text" class="form-control" ng-model="episode.title" />
+		{% endverbatim %}
 		{% endif %}
 	</div>
-
 	{% if participant.site_admin %}
-		<div class="row">
-			<div class="col">
-				<input ng-if="episode.is_scored" type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as scored" class="form-control btn btn-danger" ng-click="patchEpisode({'is_scored': false})"/>
-
-				<input ng-if="!episode.is_scored" type="submit" id="id_setscored" name="setscored" value="Set episode as scored" class="form-control btn btn-info" ng-click="patchEpisode({'is_scored': true})"/>
-
-				<input ng-if="episode.has_aired" type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as aired" class="form-control btn btn-danger" ng-click="patchEpisode({'has_aired': false})"/>
-
-				<input ng-if="!episode.has_aired" type="submit" id="id_setscored" name="setscored" value="Set episode as aired" class="form-control btn btn-info" ng-click="patchEpisode({'has_aired': true})"/>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col">
-				{% csrf_token %}
-				{% verbatim %}
-				<label for="rule">Rule:</label>
-				<select 
-					id="id_rule" 
-					name="rule" 
-					class="form-control"
-					ng-change="updateCurrentRule()"
-					ng-model="ruleSelector">
-					<option 
-					ng-model="currentRule" ng-repeat="rule in rules track by $index" value="{{$index}}">({{rule.point_value}} pts) {{rule.name}}</option>
-				</select>
-				<label for="queen">Queen:</label>
-				<select 
-					id="id_queen" 
-					name="queen" 
-					class="form-control"
-					ng-change="updateCurrentQueen()"
-					ng-model="queenSelector">>
-					<option ng-model="currentQueen" ng-repeat="queen in queens track by $index" value="{{$index}}">{{queen.name}}</option>
-				</select>
-				<div class="spacer-medium"></div>
-				<input ng-if="currentQueen && currentRule" type="submit" value="add score" class="form-control btn btn-primary" name="addscore" id="id_addscore" ng-click="addScore(currentRule, currentQueen)"/>
-				{% endverbatim %}
-			</div>
-		</div>
+	<div class="col">
+		<button class="btn btn-danger btn-sm" 
+			ng-click="editTitle=true"
+			ng-show="!editTitle">[E]</button>
+		<button class="btn btn-primary btn-sm" 
+			ng-click="editTitle=false; patchEpisode({'title': episode.title})"
+			ng-show="editTitle"
+			>[S]</button>
+	</div>
 	{% endif %}
+</div>
+
+{% if participant.site_admin %}
 	<div class="row">
-		<div class="col">
-			<table class="table">
-				<tr>
-					<th>Queen</th><th>Score</th><th>Points</th><td></td>
-				</tr>
-				<tr ng-repeat="score in scores">
-					{% verbatim %}
-					<th>{{score.queen.name}}</th>
-					<td>
-						<p>{{score.rule.name}}</p>
-						<p class="text-secondary">{{score.rule.description}}</p>
-					</td>
-					<td>{{score.rule.point_value}}</td>
+		<div class="col" ng-if="episode.is_scored">
+			<input type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as scored" class="form-control btn btn-warning" ng-click="patchEpisode({'is_scored': false})"/>
+		</div>
+		<div class="col" ng-if="!episode.is_scored">
+			<input type="submit" id="id_setscored" name="setscored" value="Set episode as scored" class="form-control btn btn-info" ng-click="patchEpisode({'is_scored': true})"/>
 
-					{% endverbatim %}
-					<td>
-						{% if participant.site_admin %}
+		</div>
+		<div class="col" ng-if="episode.has_aired">
+			<input type="submit" id="id_unsetscored" name="unsetscored" value="Unset episode as aired" class="form-control btn btn-warning" ng-click="patchEpisode({'has_aired': false})"/>
 
-							{% verbatim %}
-								<input type="submit" class="btn btn-sm btn-danger" value="remove" name="deletescore" id="id_deletescore_{{score.pk}}"
-								ng-click="deleteScore(score)">
-							{% endverbatim %}
-						{% endif %}
-					</td>
-				</tr>
-			</table>
+		</div>
+		<div class="col" ng-if="!episode.has_aired">
+			<input type="submit" id="id_setscored" name="setscored" value="Set episode as aired" class="form-control btn btn-info" ng-click="patchEpisode({'has_aired': true})"/>
+		</div>
+		<div class="col" ng-if="episode.is_scored">
+			<input type="submit" id="id_resetstats" name="resetstats" value="Reset Stats" class="form-control btn btn-primary" ng-click="resetStats()"/>
 		</div>
 	</div>
-</span>
+	<div class="row">
+		<div class="col">
+			{% csrf_token %}
+			{% verbatim %}
+			<label for="rule">Rule:</label>
+			<select 
+				id="id_rule" 
+				name="rule" 
+				class="form-control"
+				ng-change="updateCurrentRule()"
+				ng-model="ruleSelector">
+				<option 
+				ng-model="currentRule" ng-repeat="rule in rules track by $index" value="{{$index}}">({{rule.point_value}} pts) {{rule.name}}</option>
+			</select>
+			<label for="queen">Queen:</label>
+			<select 
+				id="id_queen" 
+				name="queen" 
+				class="form-control"
+				ng-change="updateCurrentQueen()"
+				ng-model="queenSelector">>
+				<option ng-model="currentQueen" ng-repeat="queen in queens track by $index" value="{{$index}}">{{queen.name}}</option>
+			</select>
+			<div class="spacer-medium"></div>
+			<input ng-if="currentQueen && currentRule" type="submit" value="add score" class="form-control btn btn-primary" name="addscore" id="id_addscore" ng-click="addScore(currentRule, currentQueen)"/>
+			{% endverbatim %}
+		</div>
+	</div>
+{% endif %}
+<div class="row">
+	<div class="col">
+		<table class="table">
+			<tr>
+				<th>Queen</th><th>Score</th><th>Points</th><td></td>
+			</tr>
+			<tr ng-repeat="score in scores">
+				{% verbatim %}
+				<th>{{score.queen.name}}</th>
+				<td>
+					<p>{{score.rule.name}}</p>
+					<p class="text-secondary">{{score.rule.description}}</p>
+				</td>
+				<td>{{score.rule.point_value}}</td>
+
+				{% endverbatim %}
+				<td>
+					{% if participant.site_admin %}
+
+						{% verbatim %}
+							<input type="submit" class="btn btn-sm btn-danger" value="remove" name="deletescore" id="id_deletescore_{{score.pk}}"
+							ng-click="deleteScore(score)">
+						{% endverbatim %}
+					{% endif %}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
 {% endblock %}
