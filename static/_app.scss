@@ -46,7 +46,7 @@ body {
 	margin-top: 1rem !important;
 	padding-bottom: 3rem !important;
 	background-color: #FFFFFF;
-	padding: 3rem;
+	padding: 1rem;
 	border-radius: 15px;
 }
 
@@ -267,21 +267,25 @@ ul {
 h1, .h1 {
 	@include header;
 	font-size: 2.1rem;
+	line-height: 3rem;
 }
 
 h2, .h2 {
 	@include header;
 	font-size: 1.7rem;
+	line-height: 2rem;
 }
 
 h3, .h3 {
 	@include header;
 	font-size: 1.5rem;
+	line-height: 2rem;
 }
 
 h4, .h4 {
 	@include header;
 	font-size: 1.3rem;
+	line-height: 1.8rem;
 }
 .spacer {
 	display: block;
