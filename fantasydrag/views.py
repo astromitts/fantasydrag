@@ -24,6 +24,7 @@ from fantasydrag.forms import (
     CreateEpisodeForm,
     CreatePanelForm,
 )
+from fantasydrag.utils import refresh_dragrace_stats_for_participant
 
 
 def _login(form, request):
@@ -451,41 +452,7 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
 
         self.participant.save()
-        for panel in self.participant.panel_set.filter(drag_race=self.episode.drag_race).all():
-            Stats.set_dragrace_panel_scores(
-                viewing_participant=self.participant,
-                panel=panel
-            )
-            Stats.set_participant_queen_scores(
-                viewing_participant=self.participant,
-                panel=panel
-            )
-            Stats.set_participant_wildqueen_scores(
-                viewing_participant=self.participant,
-                panel=panel
-            )
-
-        Stats.set_dragrace_participant_ranks(
-            participant=self.participant,
-            drag_race=self.episode.drag_race
-        )
-
-        Stats.set_dragrace_draft_scores(
-            participant=self.participant,
-            drag_race=self.episode.drag_race
-        )
-
-        Stats.set_participant_wildqueen_scores(
-            viewing_participant=self.participant,
-            drag_race=self.episode.drag_race
-        )
-        Stats.set_participant_queen_scores(
-            viewing_participant=self.participant,
-            drag_race=self.episode.drag_race
-        )
-        for queen in self.episode.drag_race.queens.all():
-            Stats.set_queen_master_stats(queen, self.participant)
-
+        refresh_dragrace_stats_for_participant(self.participant, self.episode.drag_race)
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 

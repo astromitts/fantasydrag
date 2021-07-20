@@ -7,6 +7,7 @@ urlpatterns = [
     path('api/profile/', views.ProfileApi.as_view(), name='api_profile'),
     path('api/register/', views.RegisterApi.as_view(), name='api_register'),
     path('api/dashboard/', views.DashboardApi.as_view(), name='api_dashboard'),
+    path('api/dashboard/<int:dragrace_id>/', views.DashboardApi.as_view(), name='api_dashboard'),
     path('api/dragrace/', views.DragRaceApi.as_view(), name='api_drag_race'),
     path('api/dragrace/<int:dragrace_id>/', views.DragRaceApi.as_view(), name='api_drag_race'),
     path('api/defaultrules/', views.DefaultRulesApi.as_view(), name='api_default_rules'),

@@ -41,6 +41,7 @@ from fantasydrag.api.serializers import (
     StatSerializer,
 )
 from fantasydrag.stats import Stats
+from fantasydrag.utils import refresh_dragrace_stats_for_participant
 
 
 def get_available_queens(view, participant):
@@ -746,94 +747,125 @@ class SiteUserApi(APIView):
 
 
 class DashboardApi(APIView):
-    def get(self, request, *args, **kwargs):
-        participant = Participant.objects.filter(user=request.user).first()
-        request_type = request.GET.get('request')
-        dashboard_data = {
-            'user': {
-                'is_authenticated': request.user.is_authenticated,
-                'is_site_admin': participant.site_admin
-            }
-        }
-        if request_type == 'old-seasons':
-            dashboard_data.update({'drag_races': []})
-            past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
-            for drag_race in past_races:
+    def _serialize_dragrace(self, drag_race):
+        dr_data = DragRaceSerializerMeta(instance=drag_race).data
+        episodes = drag_race.episode_set.filter(is_scored=True).all()
+        participant_episodes = self.participant.episodes.filter(is_scored=True, drag_race=drag_race).all()
+        next_episode = drag_race.next_episode
 
-                episodes = drag_race.episode_set.filter(is_scored=True).all()
-                dr_data = DragRaceSerializerMeta(instance=drag_race).data
-                dr_data['episodes'] = EpisodeSerializerShort(instance=episodes, many=True).data
-                dashboard_data['drag_races'].append(dr_data)
-
+        if next_episode:
+            dr_data['next_episode'] = EpisodeSerializerShort(instance=next_episode).data
+            next_episode_draft = EpisodeDraft.objects.filter(
+                participant=self.participant,
+                episode=next_episode
+            ).first()
+            dr_data['next_episode_draft'] = EpisodeDraftSerializerShort(instance=next_episode_draft).data
         else:
-            dashboard_data.update({'drag_races': []})
-            current_races = DragRace.objects.filter(
-                is_current=True).exclude(status='pending').order_by('-season').all()
+            dr_data['next_episode'] = None
+            dr_data['next_episode_draft'] = None
 
-            for drag_race in current_races:
-                dr_data = DragRaceSerializerMeta(instance=drag_race).data
+        episode_draft_stats = Stats.objects.filter(
+            participant=self.participant,
+            drag_race=drag_race,
+            stat_type='cummulative_dragrace_drafts').first()
+        if episode_draft_stats:
+            dr_data['episode_drafts'] = StatSerializer(instance=episode_draft_stats).data
 
-                episodes = drag_race.episode_set.filter(is_scored=True).all()
-                participant_episodes = participant.episodes.filter(is_scored=True, drag_race=drag_race).all()
-                next_episode = drag_race.next_episode
+            rank_stats = Stats.objects.filter(
+                participant=self.participant,
+                drag_race=drag_race,
+                stat_type='dragrace_rank').first()
+            dr_data['general_rank'] = StatSerializer(instance=rank_stats).data
+        else:
+            dr_data['episode_drafts'] = None
+            dr_data['general_rank'] = None
 
-                if next_episode:
-                    dr_data['next_episode'] = EpisodeSerializerShort(instance=next_episode).data
-                    next_episode_draft = EpisodeDraft.objects.filter(
-                        participant=participant,
-                        episode=next_episode
-                    ).first()
-                    dr_data['next_episode_draft'] = EpisodeDraftSerializerShort(instance=next_episode_draft).data
-                else:
-                    dr_data['next_episode'] = None
-                    dr_data['next_episode_draft'] = None
+        dr_data['episodes'] = []
 
-                episode_draft_stats = Stats.objects.filter(
-                    participant=participant,
+        for episode in episodes:
+            ep_data = EpisodeSerializerShort(instance=episode).data
+            if episode in participant_episodes:
+                ep_data['is_viewed'] = True
+            else:
+                ep_data['is_viewed'] = False
+            dr_data['episodes'].append(ep_data)
+
+        dr_data['panels'] = []
+        panels = self.participant.panel_set.filter(drag_race=drag_race).all()
+        for _panel in panels:
+            panel_scores = StatSerializer(
+                instance=Stats.objects.filter(
+                    stat_type='dragrace_panel_scores',
+                    participant=self.participant,
                     drag_race=drag_race,
-                    stat_type='cummulative_dragrace_drafts').first()
-                if episode_draft_stats:
-                    dr_data['episode_drafts'] = StatSerializer(instance=episode_draft_stats).data
+                    panel=_panel
+                ).first()
+            ).data
+            panel_data = PanelSerializerMeta(instance=_panel).data
+            for _p in panel_data['participants']:
+                _p['scores'] = {}
+                pk = _p['pk']
+                if panel_scores.get('data'):
+                    for pscore in panel_scores['data']:
+                        if pscore['participant']['pk'] == pk:
+                            _p['scores'] = pscore['score']
+            dr_data['panels'].append(panel_data)
+        return dr_data
 
-                    rank_stats = Stats.objects.filter(
-                        participant=participant,
-                        drag_race=drag_race,
-                        stat_type='dragrace_rank').first()
-                    dr_data['general_rank'] = StatSerializer(instance=rank_stats).data
-                else:
-                    dr_data['episode_drafts'] = None
-                    dr_data['general_rank'] = None
+    def _setcontext(self, request):
+        self.participant = Participant.objects.filter(user=request.user).first()
+        if self.participant:
+            self.response = {
+                'user': {
+                    'is_authenticated': request.user.is_authenticated,
+                    'is_site_admin': self.participant.site_admin
+                }
+            }
+        else:
+            self.response = {
+                'user': {
+                    'is_authenticated': request.user.is_authenticated,
+                    'is_site_admin': False
+                }
+            }
 
-                dr_data['episodes'] = []
+    def get(self, request, *args, **kwargs):
+        self._setcontext(request)
+        if kwargs.get('dragrace_id'):
+            drag_race = DragRace.objects.get(pk=kwargs.get('dragrace_id'))
+        else:
+            drag_race = None
+        request_type = request.GET.get('request')
 
-                for episode in episodes:
-                    ep_data = EpisodeSerializerShort(instance=episode).data
-                    if episode in participant_episodes:
-                        ep_data['is_viewed'] = True
-                    else:
-                        ep_data['is_viewed'] = False
-                    dr_data['episodes'].append(ep_data)
+        if not drag_race:
+            if request_type == 'old-seasons':
+                self.response.update({'drag_races': []})
+                past_races = DragRace.objects.filter(is_current=False).exclude(
+                    status='pending').order_by('-season').all()
+                for drag_race in past_races:
+                    dr_data = self._serialize_dragrace(drag_race)
+                    self.response['drag_races'].append(dr_data)
 
-                dr_data['panels'] = []
-                panels = participant.panel_set.filter(drag_race=drag_race).all()
-                for _panel in panels:
-                    panel_scores = StatSerializer(
-                        instance=Stats.objects.filter(
-                            stat_type='dragrace_panel_scores',
-                            participant=participant,
-                            drag_race=drag_race,
-                            panel=_panel
-                        ).first()
-                    ).data
-                    panel_data = PanelSerializerMeta(instance=_panel).data
-                    for _p in panel_data['participants']:
-                        _p['scores'] = {}
-                        pk = _p['pk']
-                        if panel_scores.get('data'):
-                            for pscore in panel_scores['data']:
-                                if pscore['participant']['pk'] == pk:
-                                    _p['scores'] = pscore['score']
-                    dr_data['panels'].append(panel_data)
+            else:
+                self.response.update({'drag_races': []})
+                current_races = DragRace.objects.filter(
+                    is_current=True).exclude(status='pending').order_by('-season').all()
 
-                dashboard_data['drag_races'].append(dr_data)
-        return Response(dashboard_data)
+                for drag_race in current_races:
+                    dr_data = self._serialize_dragrace(drag_race)
+
+                    self.response['drag_races'].append(dr_data)
+        else:
+            self.response['drag_race'] = self._serialize_dragrace(drag_race)
+        return Response(self.response)
+
+    def post(self, request, *args, **kwargs):
+        self._setcontext(request)
+        request_type = request.data['request']
+        if request_type == 'ruveal-episode':
+            episode = Episode.objects.get(pk=request.data['episode_id'])
+            self.participant.episodes.add(episode)
+            self.participant.save()
+            refresh_dragrace_stats_for_participant(self.participant, episode.drag_race)
+            self.response['drag_race'] = self._serialize_dragrace(episode.drag_race)
+            return Response(self.response)

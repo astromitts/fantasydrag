@@ -60,6 +60,20 @@ dashboardApp.controller(
 			updateUrl($scope.queryParams, $scope.anchoredObject);
 		};
 
+		$scope.ruvealScores = function(episode, dragrace) {
+			$http.post(
+				'/api/dashboard/',
+				{
+					'request': 'ruveal-episode', 
+					'episode_id': episode.pk
+				}
+			).then(
+				function(response){
+					window.location.pathname = episode.detail_url;
+				}
+			);
+		}
+
 		$scope.alert = function(message) {alert(message)};
 		$scope.initQueryParams();
 		

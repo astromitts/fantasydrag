@@ -73,3 +73,41 @@ def calculate_draft_data(panel=None, participant_count=None, queen_count=None):
         'draft_dict': draft_dict,
         'participant_drafts': draft_panel_list,
     }
+
+
+def refresh_dragrace_stats_for_participant(participant, drag_race):
+    from fantasydrag.stats import Stats  # noqa
+    for panel in participant.panel_set.filter(drag_race=drag_race).all():
+        Stats.set_dragrace_panel_scores(
+            viewing_participant=participant,
+            panel=panel
+        )
+        Stats.set_participant_queen_scores(
+            viewing_participant=participant,
+            panel=panel
+        )
+        Stats.set_participant_wildqueen_scores(
+            viewing_participant=participant,
+            panel=panel
+        )
+
+    Stats.set_dragrace_participant_ranks(
+        participant=participant,
+        drag_race=drag_race
+    )
+
+    Stats.set_dragrace_draft_scores(
+        participant=participant,
+        drag_race=drag_race
+    )
+
+    Stats.set_participant_wildqueen_scores(
+        viewing_participant=participant,
+        drag_race=drag_race
+    )
+    Stats.set_participant_queen_scores(
+        viewing_participant=participant,
+        drag_race=drag_race
+    )
+    for queen in drag_race.queens.all():
+        Stats.set_queen_master_stats(queen, participant)
