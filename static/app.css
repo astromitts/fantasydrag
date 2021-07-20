@@ -5,6 +5,31 @@
   /* font-size: 1.7rem; */
 }
 
+body {
+  background-image: url("/static/site_images/bg-lightening.png");
+}
+
+.body {
+  margin-top: 1rem !important;
+  padding-bottom: 3rem !important;
+  background-color: #FFFFFF;
+  padding: 3rem;
+  border-radius: 15px;
+}
+
+.container-fluid-shrink {
+  width: 90%;
+}
+@media (min-width: 767.98px) {
+  .container-fluid-shrink {
+    width: 100%;
+  }
+}
+
+.row {
+  margin: 0 !important;
+}
+
 form label {
   font-family: "Rock Salt", sans-serif;
 }
@@ -36,11 +61,6 @@ label.label-plain {
 .container-fluid {
   padding-right: 0 !important;
   padding-left: 0 !important;
-}
-
-.body {
-  margin-top: 1rem !important;
-  padding-bottom: 3rem !important;
 }
 
 .navbar-dark .navbar-nav .nav-link {

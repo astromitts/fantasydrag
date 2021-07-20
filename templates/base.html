@@ -49,7 +49,7 @@
 			</nav>
 		</div>
 		{% if pageModule and pageController %}
-		<div id="{{pageModule}}" class="body container container-fluid" ng-controller='{{pageController}}'>
+		<div id="{{pageModule}}" class="body container container-fluid container-fluid-shrink" ng-controller='{{pageController}}'>
 		<div class="loading" ng-show="state=='loading'">
 			<div class="spinner"><img src="{% static 'site_images/ripple-loading.gif' %}"></div>
 		</div>
@@ -76,16 +76,23 @@
 	<div class="container-fluid">
 		<nav class="navbar navbar-dark bg-dark">
 			<div class="container">
-				<div class="col-lg-4 col-sm-12 py-3">
+				<div class="col-lg-4 col-sm-12">
 						dragcrush.com © 2021 Copyright 
 				</div>
-				<div class="col-lg-8 col-sm-12 py-3">
+				<div class="col-lg-8 col-sm-12">
 					<a href="{% url 'about' %}">About</a> |
 					<a href="{% url 'privacy_policy' %}">Privacy Policy</a> |
 					<a href="{% url 'eula' %}">End User License Agreement</a> |
 					<a href="mailto:kittygirl@dragcrush.com">Contact</a>
 				</div>
-				<div class="col-lg-12 col-sm-12 py-3">
+				<div class="col-lg-4 col-sm-12">
+					Additional Resources:
+				</div>
+				<div class="col-lg-8 col-sm-12">
+					<a href="https://www.freepik.com/vectors/pattern" target="_blank">Pattern vector created by freepik - www.freepik.com</a> |
+					<a href="https://loading.io/" target="_blank">Loading graphic by loading.io</a>
+				</div>
+				<div class="col-lg-12 col-sm-12">
 					dragcrush.com is in no way affiliated with RuPaul's Drag Race. It's just for fun.
 				</div>
 			</div>

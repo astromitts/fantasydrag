@@ -38,6 +38,29 @@ $edit-icon-size: 2.2rem;
 	@include marker;
 }
 
+body {
+	background-image: url('/static/site_images/bg-lightening.png')
+}
+
+.body {
+	margin-top: 1rem !important;
+	padding-bottom: 3rem !important;
+	background-color: #FFFFFF;
+	padding: 3rem;
+	border-radius: 15px;
+}
+
+.container-fluid-shrink {
+	width: 90%;
+	@media (min-width: $small-phone) {
+		width: 100%;
+	}
+}
+
+.row {
+	margin: 0 !important;
+}
+
 form label {
 	@include marker;
 }
@@ -69,11 +92,6 @@ label.label {
 .container-fluid {
 	padding-right: 0 !important;
 	padding-left: 0 !important;
-}
-
-.body {
-	margin-top: 1rem !important;
-	padding-bottom: 3rem !important;
 }
 
 .navbar-dark .navbar-nav .nav-link {
