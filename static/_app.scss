@@ -288,12 +288,39 @@ h4, .h4 {
 	color: #CCCCCC
 }
 
+.clickable {
+	cursor: pointer;
+	color: $highlight-color;
+	font-weight: bold;
+}
+.help {
+	cursor: help;
+	color: $highlight-color;
+	font-weight: bold;
+}
+
 .selectable {
 	&:hover {
 		background-color: $selected;
 	}
 	&-selected {
 		background-color: $success;
+	}
+}
+.icon-bumper {
+	margin-left: 1.8rem;
+}
+.icon {
+	display: inline-block;
+	&-btn {
+		img{
+			width: 1.5rem;
+			height: 1.5rem;
+		}
+	}
+	&-placeholder {
+		width: 1.5rem;
+		height: 1.5rem;
 	}
 }
 

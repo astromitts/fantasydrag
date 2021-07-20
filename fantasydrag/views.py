@@ -452,10 +452,6 @@ class EpisodeDetail(AuthenticatedView):
 
         self.participant.save()
         for panel in self.participant.panel_set.filter(drag_race=self.episode.drag_race).all():
-            Stats.set_dragrace_draft_scores(
-                participant=self.participant,
-                drag_race=panel.drag_race
-            )
             Stats.set_dragrace_panel_scores(
                 viewing_participant=self.participant,
                 panel=panel
@@ -468,6 +464,16 @@ class EpisodeDetail(AuthenticatedView):
                 viewing_participant=self.participant,
                 panel=panel
             )
+
+        Stats.set_dragrace_participant_ranks(
+            participant=self.participant,
+            drag_race=self.episode.drag_race
+        )
+
+        Stats.set_dragrace_draft_scores(
+            participant=self.participant,
+            drag_race=self.episode.drag_race
+        )
 
         Stats.set_participant_wildqueen_scores(
             viewing_participant=self.participant,

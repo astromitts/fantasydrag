@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import IntegrityError
 from django.db.models import Q
+from flags.models import FeatureFlag
 
 from fantasydrag.models import (
     AppearanceType,
@@ -23,9 +24,13 @@ from fantasydrag.api.serializers import (
     AppearanceTypeSerializer,
     DraftSerializer,
     DragRaceSerializer,
+    DragRaceSerializerMeta,
     EpisodeScore,
     EpisodeDraftSerializer,
+    EpisodeDraftSerializerShort,
+    EpisodeSerializerShort,
     PanelSerializer,
+    PanelSerializerMeta,
     ParticipantSerializer,
     QueenSearchSerializer,
     QueenSerializer,
@@ -33,7 +38,9 @@ from fantasydrag.api.serializers import (
     ScoreSerializer,
     UserSerializer,
     WQDraftSerializer,
+    StatSerializer,
 )
+from fantasydrag.stats import Stats
 
 
 def get_available_queens(view, participant):
@@ -712,3 +719,121 @@ class CreatePanelApi(APIView):
         else:
             panel_data = PanelSerializer(instance=panel)
             return Response(panel_data.data)
+
+
+class SiteUserApi(APIView):
+    def get(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(user=request.user).first()
+        if participant:
+            site_admin = participant.site_admin
+        else:
+            site_admin = False
+
+        feature_flags = FeatureFlag.objects.all()
+        flags = {}
+        for flag in feature_flags:
+            if flag.has_users and request.user in flag.users.all():
+                flags[flag.title] = flag.value == 1
+            else:
+                flags[flag.title] = flag.value == 1
+        return Response({
+            'user': {
+                'is_authenticated': request.user.is_authenticated,
+                'is_site_admin': site_admin,
+            },
+            'flags': flags
+        })
+
+
+class DashboardApi(APIView):
+    def get(self, request, *args, **kwargs):
+        participant = Participant.objects.filter(user=request.user).first()
+        request_type = request.GET.get('request')
+        dashboard_data = {
+            'user': {
+                'is_authenticated': request.user.is_authenticated,
+                'is_site_admin': participant.site_admin
+            }
+        }
+        if request_type == 'old-seasons':
+            dashboard_data.update({'drag_races': []})
+            past_races = DragRace.objects.filter(is_current=False).exclude(status='pending').order_by('-season').all()
+            for drag_race in past_races:
+
+                episodes = drag_race.episode_set.filter(is_scored=True).all()
+                dr_data = DragRaceSerializerMeta(instance=drag_race).data
+                dr_data['episodes'] = EpisodeSerializerShort(instance=episodes, many=True).data
+                dashboard_data['drag_races'].append(dr_data)
+
+        else:
+            dashboard_data.update({'drag_races': []})
+            current_races = DragRace.objects.filter(
+                is_current=True).exclude(status='pending').order_by('-season').all()
+
+            for drag_race in current_races:
+                dr_data = DragRaceSerializerMeta(instance=drag_race).data
+
+                episodes = drag_race.episode_set.filter(is_scored=True).all()
+                participant_episodes = participant.episodes.filter(is_scored=True, drag_race=drag_race).all()
+                next_episode = drag_race.next_episode
+
+                if next_episode:
+                    dr_data['next_episode'] = EpisodeSerializerShort(instance=next_episode).data
+                    next_episode_draft = EpisodeDraft.objects.filter(
+                        participant=participant,
+                        episode=next_episode
+                    ).first()
+                    dr_data['next_episode_draft'] = EpisodeDraftSerializerShort(instance=next_episode_draft).data
+                else:
+                    dr_data['next_episode'] = None
+                    dr_data['next_episode_draft'] = None
+
+                episode_draft_stats = Stats.objects.filter(
+                    participant=participant,
+                    drag_race=drag_race,
+                    stat_type='cummulative_dragrace_drafts').first()
+                if episode_draft_stats:
+                    dr_data['episode_drafts'] = StatSerializer(instance=episode_draft_stats).data
+
+                    rank_stats = Stats.objects.filter(
+                        participant=participant,
+                        drag_race=drag_race,
+                        stat_type='dragrace_rank').first()
+                    dr_data['general_rank'] = StatSerializer(instance=rank_stats).data
+                else:
+                    dr_data['episode_drafts'] = None
+                    dr_data['general_rank'] = None
+
+                dr_data['episodes'] = []
+
+                for episode in episodes:
+                    ep_data = EpisodeSerializerShort(instance=episode).data
+                    if episode in participant_episodes:
+                        ep_data['is_viewed'] = True
+                    else:
+                        ep_data['is_viewed'] = False
+                    dr_data['episodes'].append(ep_data)
+
+                dr_data['panels'] = []
+                panels = participant.panel_set.filter(drag_race=drag_race).all()
+                for _panel in panels:
+                    panel_scores = StatSerializer(
+                        instance=Stats.objects.filter(
+                            stat_type='dragrace_panel_scores',
+                            participant=participant,
+                            drag_race=drag_race,
+                            panel=_panel
+                        ).first()
+                    ).data
+                    panel_data = PanelSerializerMeta(instance=_panel).data
+                    for _p in panel_data['participants']:
+                        _p['scores'] = {}
+                        pk = _p['pk']
+                        if panel_scores.get('data'):
+                            for pscore in panel_scores['data']:
+                                if pscore['participant']['pk'] == pk:
+                                    _p['scores'] = pscore['score']
+                    dr_data['panels'].append(panel_data)
+
+                dashboard_data['drag_races'].append(dr_data)
+        return Response(dashboard_data)

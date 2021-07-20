@@ -20,8 +20,6 @@ def session_request_validation(get_response):
         if 'herokuapp.com' in request.get_host():
             return redirect('{}{}'.format(settings.REDIRECT_TO, request.path))
 
-        # middleware does not have access to the user
-        # session_manager_login is expected to set a session variable to use here
         user_is_authenticated = request.user.is_authenticated
         try:
             resolved_url = resolve(request.path)
@@ -47,6 +45,17 @@ def session_request_validation(get_response):
                     return redirect(reverse(settings.AUTHENTICATION_REQUIRED_REDIRECT))
                 else:
                     request.session['login_redirect_from'] = None
+            if resolved_url.url_name in settings.SITE_ADMIN_VIEWS:
+                participant = request.user.participant
+                if not participant.site_admin:
+                    error_message = 'You do not have permission to view this page.'
+                    status_code = 403
+                    return render(
+                        request,
+                        settings.DEFAULT_FORBIDDEN_TEMPLATE,
+                        context={'message': error_message},
+                        status=status_code
+                    )
 
         except Resolver404:
             if not settings.MIDDLEWARE_DEBUG:

@@ -1,0 +1,67 @@
+{% verbatim %}
+<h4 class="marker">Episodes</h4>
+	<table class="table">
+		<tbody ng-repeat="episode in dragrace.episodes">
+		<tr ng-if="episode.is_viewed" class="clickable">
+			<td class="icon icon-btn help"
+				data-toggle="tooltip" 
+				data-placement="left" title="View Episode Draft"
+				ng-click="toggleEpisodeDraft(episode)">
+				<span ng-if="expandedEpisodes.indexOf(episode) !== -1">
+					<img src="/static/site_images/retract.png" />
+				</span>
+				<span ng-if="expandedEpisodes.indexOf(episode) == -1">
+					<img src="/static/site_images/expand.png" />
+				</span>
+			</td>
+			<td class="help"
+					data-toggle="tooltip" 
+					data-placement="left" title="View Episode Draft"
+					ng-click="toggleEpisodeDraft(episode)">
+				#{{episode.number}} {{episode.title}}
+			</td>
+			<td class="help"
+					data-toggle="tooltip" 
+					data-placement="left" title="View Episode Draft"
+					ng-click="toggleEpisodeDraft(episode)">
+				<span class="icon icon-btn">
+					<a href="{{episode.detail_url}}">
+						<img src="/static/site_images/open.png" />
+					</a>
+				</span>
+			</td>
+		</tr>
+		<tr ng-if="!episode.is_viewed" 
+			class="help"
+			data-toggle="tooltip" 
+			data-placement="left" title="You have not ruvealed scores for this episode">
+			<td></td>
+			<td>
+				<span >
+					#{{episode.number}} {{episode.title}}
+					<span class="entities entities-alert" >&#9733;</span>
+				</span>
+			</td>
+			<td>
+				<span class="icon icon-btn">
+					<a href="{{episode.detail_url}}">
+						<img src="/static/site_images/open.png" />
+					</a>
+				</span>
+			</td>
+		</tr>
+		<tr>
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1"></td>
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<p>Episode Draft</p>
+				<table class="table">
+					<tr><th>Total</th><th>{{dragrace.episode_drafts.data.episodes[episode.number].total}} pts</th></tr>
+					<tr ng-repeat="(queen, score) in dragrace.episode_drafts.data.episodes[episode.number].queens">
+						<td>{{queen}}</td><td>{{score}} pts</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+{% endverbatim %}

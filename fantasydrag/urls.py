@@ -21,9 +21,7 @@ urlpatterns = [
     path('panel/<int:panel_id>/leave/', views.LeavePanel.as_view(), name='panel_leave'),
     path('panel/<uuid:panel_code>/', views.JoinPanel.as_view(), name='panel_join_link'),
     path('panel/invite/<uuid:panel_code>/', views.JoinPanel.as_view(), name='panel_invitation_link'),
-    path('panel/<int:panel_id>/setdrafts/', views.SetDrafts.as_view(), name='panel_set_drafts'),
-    path('panel/<int:panel_id>/wildcards/', views.WildCardList.as_view(), name='panel_wildcards'),
-    path('panel/<int:panel_id>/setdrafts/random/', views.AssignRandomDrafts.as_view(), name='panel_set_random_drafts'),
+    path('panel/<int:panel_id>/draft/', views.SetDrafts.as_view(), name='panel_set_drafts'),
     path(
         'panel/<int:panel_id>/panelist/<int:participant_id>/',
         views.ParticipantPanelStats.as_view(),

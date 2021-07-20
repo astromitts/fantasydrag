@@ -1,0 +1,34 @@
+{% verbatim %}
+<h1>
+	{{dragrace.display_name}}
+</h1>
+<div class="spacer-small"></div>
+
+<span ng-if="dragrace.episode_drafts.data">
+	<p>Points: {{dragrace.general_rank.data.participant_total}}</p>
+	<p>Rank: {{dragrace.general_rank.primary_stat_display}} / {{dragrace.general_rank.data.total_players}}</p>
+</span>
+<p class="marker">
+	<a href="{{dragrace.rules_url}}">Rules</a>
+</p>
+<p class="marker">
+	<a href="{{dragrace.detail_url}}">
+	Stats</a>
+</p>
+<p class="marker" ng-if="user.is_site_admin">
+	<a href="{{dragrace.edit_url}}">
+	Edit Drag Race</a>
+</p>
+<h3 ng-if="dragrace.next_episode">Next episode: #{{dragrace.next_episode.number}}</h3>
+<h4 ng-if="dragrace.next_episode_draft">My Draft:</h4>
+<table class="table" ng-if="dragrace.next_episode_draft">
+	<tr ng-repeat="queen in dragrace.next_episode_draft.selected_queens"><td>{{queen.name}}</td></tr>
+</table>
+<span ng-if="featureFlags.GENERAL_DRAFT">
+	<span ng-if="dragrace.next_episode ">
+		<a href="{{dragrace.next_episode.edit_draft_url}}"><button class="btn btn-primary form-control" ng-if="!dragrace.next_episode_draft">Draft a Team for Episode #{{dragrace.next_episode.number}}</button></a>
+		<a href="{{dragrace.next_episode.edit_draft_url}}"><button class="btn btn-primary form-control" ng-if="dragrace.next_episode_draft">Edit Draft for Episode #{{dragrace.next_episode.number}}</button></a>
+	</span>
+</span>
+<div class="spacer-medium"></div>
+{% endverbatim %}

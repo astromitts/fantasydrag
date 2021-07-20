@@ -272,11 +272,39 @@ h4, .h4 {
   color: #CCCCCC;
 }
 
+.clickable {
+  cursor: pointer;
+  color: #dc61d3;
+  font-weight: bold;
+}
+
+.help {
+  cursor: help;
+  color: #dc61d3;
+  font-weight: bold;
+}
+
 .selectable:hover {
   background-color: #f5a2f2;
 }
 .selectable-selected {
   background-color: #f5d16c;
+}
+
+.icon-bumper {
+  margin-left: 1.8rem;
+}
+
+.icon {
+  display: inline-block;
+}
+.icon-btn img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.icon-placeholder {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .editable {

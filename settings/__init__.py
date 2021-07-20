@@ -156,10 +156,19 @@ AUTHENTICATION_EXEMPT_VIEWS = [
     'eula',
 ]
 
+SITE_ADMIN_VIEWS = [
+    'drag_race_edit',
+    'drag_race_new',
+    'set_episode_scores',
+    'create_episode',
+    'set_episode_wildcards'
+]
+
 MIDDLEWARE_DEBUG = True
 AUTHENTICATION_REQUIRED_REDIRECT = 'login'
 LOGIN_SUCCESS_REDIRECT = 'home'
 # PW_RESET_SUCCESS_REDIRECT = 'dashboard'
 DEFAULT_ERROR_TEMPLATE = 'error.html'
+DEFAULT_FORBIDDEN_TEMPLATE = 'forbidden.html'
 
 REDIRECT_TO = None

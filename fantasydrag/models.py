@@ -2,6 +2,7 @@ import math
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 from fantasydrag.utils import calculate_draft_data, DRAFT_CAPS
 
@@ -181,6 +182,26 @@ class DragRace(models.Model):
         return self.drag_race_type.name
 
     @property
+    def rules_url(self):
+        return reverse('dragrace_rules', kwargs={'drag_race_type': self.drag_race_type_name})
+
+    @property
+    def detail_url(self):
+        return reverse('dragrace_rules', kwargs={'drag_race_type': self.drag_race_type_name})
+
+    @property
+    def edit_url(self):
+        return reverse('drag_race_edit', kwargs={'dragrace_id': self.pk})
+
+    @property
+    def new_panel_url(self):
+        return reverse('panel_create', kwargs={'dragrace_id': self.pk})
+
+    @property
+    def public_panels_url(self):
+        return reverse('panel_list', kwargs={'dragrace_id': self.pk})
+
+    @property
     def rule_set(self):
         return self.drag_race_type.defaultrule_set.all()
 
@@ -222,6 +243,14 @@ class Episode(models.Model):
 
     def __str__(self):
         return '{} episode #{}'.format(self.drag_race, self.number)
+
+    @property
+    def edit_draft_url(self):
+        return reverse('set_episode_draft', kwargs={'episode_id': self.pk})
+
+    @property
+    def detail_url(self):
+        return reverse('episode_detail', kwargs={'episode_id': self.pk})
 
 
 class DefaultRule(models.Model):
@@ -415,6 +444,14 @@ class Panel(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def detail_url(self):
+        return reverse('panel_stats', kwargs={'panel_id': self.pk})
+
+    @property
+    def draft_url(self):
+        return reverse('panel_set_drafts', kwargs={'panel_id': self.pk})
 
     @property
     def queen_draft_allowance(self):

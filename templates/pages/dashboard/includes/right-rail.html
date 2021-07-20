@@ -1,0 +1,55 @@
+{% verbatim %}
+<span ng-if="dragrace.status == 'open' || dragrace.panels">
+	<h4 class="marker">Panels</h4>
+	<table>
+		<tbody ng-repeat="panel in dragrace.panels">
+			<tr class="help"
+					data-toggle="tooltip" 
+					data-placement="left" title="View Panel Details"
+					ng-click="togglePanel(panel)">
+				<td>
+					{{panel.name}}
+				</td>
+				<td>
+					<span class="icon icon-btn">
+					<a ng-if="panel.status != 'in draft' && panel.status != 'wildcards'" href="{{panel.detail_url}}">
+						<img src="/static/site_images/open.png" />
+					</a>
+					<a ng-if="panel.status == 'in draft' || panel.status == 'wildcards'" href="{{panel.draft_url}}">
+						<img src="/static/site_images/open.png" />
+					</a>
+				</span>
+				</td>
+			</tr>
+			<tr>
+				<td ng-if="expandedPanels.indexOf(panel) !== -1">
+					<table class="table">
+						<tbody ng-repeat="participant in panel.participants">
+							<tr>
+								<td>
+									<a href="/panel/{{panel.pk}}/panelist/{{participant.pk}}/">{{participant.name}}</a>
+								</td>
+								<td>{{participant.scores.total_score}} pts</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+				
+			<tr ng-if="panel.status == 'in draft' || panel.status == 'wildcards'">
+				<td>
+					<a href="{{panel.draft_url}}"><button class="btn btn-primary form-control">Go to draft</button></a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<span ng-if="dragrace.status == 'open' && featureFlags.START_PANEL">
+		<div class="spacer-small"></div>
+		<div>
+			<a href="{{dragrace.new_panel_url}}"><button class="btn btn-primary form-control">Start a new panel</button></a>
+		</div><div class="spacer-small"></div>
+		<div>
+			<a href="{{dragrace.public_panels_url}}"><button class="btn btn-info form-control">Find a panel</button></a>
+		</div>
+	</span>
+{% endverbatim %}

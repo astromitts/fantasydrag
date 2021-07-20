@@ -15,6 +15,16 @@ from fantasydrag.models import (
     WildCardAppearance,
     WildCardQueen,
 )
+from fantasydrag.stats import Stats
+
+
+class StatSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Stats
+        fields = [
+            'data',
+            'primary_stat_display'
+        ]
 
 
 class DragRaceTypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -88,17 +98,26 @@ class DragRaceSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class DragRaceSerializerShort(serializers.HyperlinkedModelSerializer):
+class DragRaceSerializerMeta(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DragRace
         fields = [
             'pk',
             'display_name',
+            'status',
+            'season',
+            'franchise',
+            'drag_race_type_name',
+            'rules_url',
+            'detail_url',
+            'edit_url',
+            'new_panel_url',
+            'public_panels_url',
         ]
 
 
 class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
-    drag_race = DragRaceSerializerShort()
+    drag_race = DragRaceSerializerMeta()
 
     class Meta:
         model = Episode
@@ -109,6 +128,21 @@ class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
             'title',
             'has_aired',
             'is_scored'
+        ]
+
+
+class EpisodeSerializerShort(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Episode
+        fields = [
+            'pk',
+            'number',
+            'title',
+            'has_aired',
+            'is_scored',
+            'edit_draft_url',
+            'detail_url'
         ]
 
 
@@ -123,6 +157,17 @@ class EpisodeDraftSerializer(serializers.HyperlinkedModelSerializer):
             'pk',
             'episode',
             'queens',
+            'selected_queens',
+        ]
+
+
+class EpisodeDraftSerializerShort(serializers.HyperlinkedModelSerializer):
+    selected_queens = QueenSerializer(many=True, source='queens')
+
+    class Meta:
+        model = EpisodeDraft
+        fields = [
+            'pk',
             'selected_queens',
         ]
 
@@ -183,6 +228,21 @@ class WQDraftSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['pk', 'participant', 'queen']
 
 
+class PanelSerializerMeta(serializers.HyperlinkedModelSerializer):
+    participants = ParticipantSerializer(many=True)
+
+    class Meta:
+        model = Panel
+        fields = [
+            'pk',
+            'name',
+            'status',
+            'detail_url',
+            'draft_url',
+            'participants',
+        ]
+
+
 class PanelSerializer(serializers.HyperlinkedModelSerializer):
     drag_race = DragRaceSerializer(many=False)
 
@@ -220,7 +280,7 @@ class AppearanceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class QueenSearchSerializer(serializers.HyperlinkedModelSerializer):
-    drag_races = DragRaceSerializerShort(many=True, source='dragrace_set')
+    drag_races = DragRaceSerializerMeta(many=True, source='dragrace_set')
 
     class Meta:
         model = Queen

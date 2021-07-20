@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_content %}
+	<div class="row">
+		<div class="col alert">
+			<p>You aren't allowed on this page. How'd you get here?</p>
+			<img src="{% static 'site_images/forbidden.jpg' %}"  width="300px" />
+		</div>
+	</div>
+{% endblock %}

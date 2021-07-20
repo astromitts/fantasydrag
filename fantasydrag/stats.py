@@ -54,6 +54,14 @@ class Stats(models.Model):
         else:
             return '{}: {}'.format(self.stat_type, self.queen.name)
 
+    @property
+    def primary_stat_display(self):
+        if self.primary_stat == 0:
+            return 0
+        if self.primary_stat % 1 == 0:
+            return int(self.primary_stat)
+        return self.primary_stat
+
     @classmethod
     def set_participant_queen_scores(cls, viewing_participant, drag_race=None, panel=None):
         if panel:
@@ -261,7 +269,8 @@ class Stats(models.Model):
 
     @classmethod
     def set_dragrace_participant_ranks(cls, drag_race, participant):
-        dragrace_drafts = EpisodeDraft.objects.filter(episode__drag_race=drag_race).all()
+        viewed_episodes = drag_race.participant_episodes(participant)
+        dragrace_drafts = EpisodeDraft.objects.filter(episode__in=viewed_episodes).all()
         unique_participants = []
         for draft in dragrace_drafts:
             if draft.participant not in unique_participants:
@@ -332,7 +341,6 @@ class Stats(models.Model):
         }
         for episode in viewed_episodes:
             episode_draft = EpisodeDraft.objects.filter(participant=participant, episode=episode).first()
-
             if episode_draft:
                 episode_draft_data = {
                     'total': 0,
@@ -349,7 +357,6 @@ class Stats(models.Model):
                         episode_draft_data['queens'][queen.name] += score.rule.point_value
                         stat_instance.primary_stat += score.rule.point_value
                 dragrace_draft_data['episodes'][episode.number] = episode_draft_data
-
         stat_instance.data = dragrace_draft_data
         stat_instance.save()
 
