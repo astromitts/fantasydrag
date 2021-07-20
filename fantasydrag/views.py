@@ -561,4 +561,8 @@ class QueenDetail(AuthenticatedView):
 class QueenList(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         self.template = loader.get_template('pages/queenlist.html')
+        self.context.update({
+            'pageModule': 'queenSearchModule',
+            'pageController': 'queenSearchController'
+        })
         return HttpResponse(self.template.render(self.context, request))

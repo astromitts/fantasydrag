@@ -21,6 +21,7 @@ queenSearchApp.controller(
 			if($scope.queenName) {
 				filters['name'] = $scope.queenName;
 			}
+
 			$http.put(
 				'/api/queens/search/', 
 				{'filters': filters}
@@ -43,12 +44,14 @@ queenSearchApp.controller(
 			return drag_race_names.join(', ')
 		}
 
+		$scope.state = 'loading';
 		$http.get('/api/queens/search/').then(
 			function(response) {
 				$scope.queens = response.data;
 				$(function () {
 		  			$('[data-toggle="tooltip"]').tooltip()
 				})
+				$scope.state = 'loaded';
 			}
 		)
 	}

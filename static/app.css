@@ -19,6 +19,7 @@ body {
 
 .container-fluid-shrink {
   width: 90%;
+  min-height: calc(100vh - 200px);
 }
 @media (min-width: 767.98px) {
   .container-fluid-shrink {
