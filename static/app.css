@@ -33,9 +33,31 @@ body {
 
 form label {
   font-family: "Rock Salt", sans-serif;
+  font-size: 1rem;
 }
 form label a {
   /* font-size: 1.7rem; */
+}
+
+.form-control-small {
+  width: 6rem;
+  float: right;
+}
+.form-control-medium {
+  width: 12rem;
+  float: right;
+}
+
+.form-label-small {
+  width: 15rem;
+}
+.form-helptext {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.form-error {
+  font-weight: bold;
+  color: #dc61d3;
 }
 
 .inline {
@@ -381,27 +403,6 @@ h4, .h4 {
   .table {
     font-size: 20px;
   }
-}
-
-.form-control-small {
-  width: 6rem;
-  float: right;
-}
-.form-control-medium {
-  width: 12rem;
-  float: right;
-}
-
-.form-label-small {
-  width: 15rem;
-}
-.form-helptext {
-  font-size: 0.9rem;
-  font-style: italic;
-}
-.form-error {
-  font-weight: bold;
-  color: #dc61d3;
 }
 
 .entities-alert {

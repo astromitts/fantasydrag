@@ -55,6 +55,8 @@ panelApp.controller(
 				$scope.formPhase = 'particintLimit';
 			} else if ($scope.formPhase == 'panelName') {
 				$scope.formPhase = 'wildcardAllowance';
+			} else if ($scope.formPhase == 'wildcardAllowance') {
+				$scope.formPhase = 'draftTime';
 			}
 		}
 
@@ -76,11 +78,19 @@ panelApp.controller(
 				}
 				$scope.formPhase = 'wildcardAllowance';
 			} else if($scope.formPhase == 'wildcardAllowance') {
+				$scope.formPhase = 'draftTime';
+				$scope.error = null;
+			} else if($scope.formPhase == 'draftTime') {
 				$scope.formPhase = 'panelName';
 				$scope.error = null;
 			} else {
 				event.run();
 			}
+		}
+		var query = window.location.search;
+		if(query.includes('phase')) {
+			var parts = query.split('=');
+			$scope.formPhase = parts[1];
 		}
 	}
 );

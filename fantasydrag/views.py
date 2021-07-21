@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
@@ -24,7 +25,10 @@ from fantasydrag.forms import (
     CreateEpisodeForm,
     CreatePanelForm,
 )
-from fantasydrag.utils import refresh_dragrace_stats_for_participant
+from fantasydrag.utils import (
+    refresh_dragrace_stats_for_participant,
+    get_default_draft_date
+)
 
 
 def _login(form, request):
@@ -213,19 +217,31 @@ class CreatePanel(AuthenticatedView):
         self.template = loader.get_template('pages/create-panel.html')
 
     def get(self, request, *args, **kwargs):
-        self.context.update({'form': self.form()})
+        initial_draft_time = get_default_draft_date(self.drag_race.premier_date)
+        self.context.update({'form': self.form(initial={'draft_time': initial_draft_time})})
         return HttpResponse(self.template.render(self.context, request))
 
     def post(self, request, *args, **kwargs):
         form = self.form(request.POST)
-        if form.is_valid():
+        valid = True
+        try:
+            draft_time = datetime.strptime(request.POST['draft_time'], '%m/%d/%Y %I:%M %p')
+        except:
+            valid = False
+
+        if not form.is_valid():
+            if len(form.errors.keys()) and 'draft_time' in form.errors.keys() and valid:
+                pass
+        if valid:
             try:
                 panel = Panel(
                     drag_race=self.drag_race,
                     name=request.POST['name'],
                     participant_limit=request.POST['participant_limit'],
                     panel_type=request.POST['panel_type'],
-                    wildcard_allowance=request.POST['wildcard_allowance']
+                    wildcard_allowance=request.POST['wildcard_allowance'],
+                    draft_time=draft_time,
+                    status='open'
                 )
                 panel.save()
                 panel.participants.add(self.participant)

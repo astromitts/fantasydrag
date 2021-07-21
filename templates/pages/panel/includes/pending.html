@@ -16,7 +16,12 @@
 			{% else %}
 			<p>This is a private panel. To invite people to join, send them this link:</p>
 			{% endif %}
-			<p>{{join_link}}</p>
+			<div class="input-group">
+				<input type="text" class="form-control" id="joinLink" placeholder="Username" aria-describedby="inputGroupAppend3" readonly value="{{join_link}}">
+				<div class="input-group-append">
+					<span class="input-group-text" id="copyJoinLink" onclick="copyLink()">copy</span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

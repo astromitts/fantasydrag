@@ -6,6 +6,25 @@
 {% block extra_scripts %}
 	<script type="text/javascript" src="{% static 'profileUtils.js' %}"></script>
 	<script type="text/javascript" src="{% static 'angular/create-edit-panel.js' %}"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/js/bootstrap.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
+
+	<script type="text/javascript">
+	    $(function () {
+	        $('#id_draft_time').datetimepicker({
+	            inline: true,
+	            sideBySide: true,
+    			stepping: 15 
+	        });
+	    });
+	</script>
+
+{% endblock %}
+
+{% block extra_style %}
+<link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block page_content %}
@@ -23,43 +42,58 @@
 <div class="row">
 	<div class="col">
 		{% if drag_race %}
-			<h1 class="marker">Create Panel for {{drag_race.display_name}}</h1>
+			<h2>{{drag_race.display_name}}</h2>
+			<h1 class="h2"><span class="marker">Create Panel</span></h1>
 		{% else %}
-			<h1 class="marker">Edit Panel {{panel.name}}</h1>
+			<h1 class="h2"><span class="marker">Edit Panel {{panel.name}}</span></h1>
 		{% endif %}
 	</div>
 </div>
 
-<div class="spacer-medium"></div>
 <div class="row">
-	<div class="col-1">
-		<button class="btn btn-primary btn-fullheight" ng-disabled="formPhase=='panelType'" ng-click="reversePhase()"><</button>
+	<div class="col-lg-1 col-sm-12">
+		<button class="btn btn-primary btn-fullheight form-control" ng-disabled="formPhase=='panelType'" ng-click="reversePhase()"><</button>
 	</div>
+	<div class="col-lg-1 col-sm-12"><div class="spacer-small"></div></div>
 	<div class="col">
 		<form method="POST" action="" ng-submit="submitPanel($event)">
-			{% csrf_token %}
-			<table class="table">
-				{% for field in form %}
-				<tr ng-show="{{field.field.widget.attrs.datangshow}}">
-					<th class="form form-label form-label-small">
+		{% csrf_token %}
+			{% for field in form %}
+			<div class="row" ng-show="{{field.field.widget.attrs.datangshow}}">
+				<div class="col">
+					<span class="form form-label form-label-small">
 				    	{{ field.label_tag }} 
-					</th>
-					<td>
-				    	{{ field }}
-					    <div class="form-helptext">
-					    	{{ field.help_text }}
-					    </div>
-					    <div class="form-error" ng-bind-html="sceSafe(error)">
-					    </div>
-					</td>
-				  </tr>
-				{% endfor %}
-				<tr>
-					<td colspan="100%">
-						<input ng-show="formPhase!='panelName'" type="submit" value="Next" class="form-control btn btn-primary" ng-click="advancePhase($event)" />
-						<input ng-show="formPhase=='panelName'" ng-disabled="!submitable" type="submit" value="Create Panel" class="form-control btn btn-primary"/>
-				</tr>
-			</table>
+					</span>
+				</div>
+				{% if field.field.widget.input_type == 'text' %}
+					<div class="col-12">
+				{% else %}
+					<div class="col">
+				{% endif %}
+				{% if item.field.widget.template_name == 'django/forms/widgets/datetime.html' %}
+					<div class="input-group date" id="id_draft_date" data-target-input="nearest">
+					  {{ form.draft_date }}
+					  <div class="input-group-append" data-target="#draft_date" data-toggle="draft_date">
+					    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+					  </div>
+					</div>
+				{% else %}
+					{{ field }}
+				{% endif %}
+			    </div>
+				<div class="col-12">
+				    <div class="form-helptext">
+				    	{{ field.help_text }}
+				    </div>
+				</div>
+				<div class="col-12">
+					<div class="form-error" ng-bind-html="sceSafe(error)">
+				</div>
+				</div>
+			</div>
+			{% endfor %}
+			<input ng-show="formPhase!='panelName'" type="submit" value="Next" class="form-control btn btn-primary" ng-click="advancePhase($event)" />
+			<input ng-show="formPhase=='panelName'" ng-disabled="!submitable" type="submit" value="Create Panel" class="form-control btn btn-primary"/>
 		</form>
 	</div>
 </div>

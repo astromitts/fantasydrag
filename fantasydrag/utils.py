@@ -1,4 +1,5 @@
 import math
+from datetime import timedelta
 
 
 DRAFT_CAPS = {
@@ -111,3 +112,7 @@ def refresh_dragrace_stats_for_participant(participant, drag_race):
     )
     for queen in drag_race.queens.all():
         Stats.set_queen_master_stats(queen, participant)
+
+
+def get_default_draft_date(date):
+    return date - timedelta(minutes=30)

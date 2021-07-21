@@ -146,6 +146,7 @@ class DragRace(models.Model):
         ],
         default='US'
     )
+    premier_date = models.DateTimeField(null=True, blank=True)
     is_current = models.BooleanField(default=False, db_index=True)
     ''' status
         open: season has not yet started and people can create and join panels
@@ -413,6 +414,7 @@ class Panel(models.Model):
         help_text='The number of wildcard queens each player can draft'
     )
     participant_limit = models.IntegerField(default=1)
+    draft_time = models.DateTimeField(blank=True, null=True)
     draft_order = models.JSONField(
         default=list,
         blank=True,
@@ -450,6 +452,11 @@ class Panel(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def display_draft_time(self):
+        if self.draft_time:
+            return self.draft_time.strftime('%m/%d/%Y %I:%M %p')
 
     @property
     def detail_url(self):

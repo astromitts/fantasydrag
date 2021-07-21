@@ -11,12 +11,12 @@
 		<link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Lato">
   		<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  		{% block extra_style %}{% endblock %}
   		<link href="{% static 'app.css' %}" rel="stylesheet">
   		<title>
   			Drag Crush{% block page_title %}{% endblock %}
   		</title>
   		<link rel="shortcut icon" type="/image/png" href="{% static 'site_images/favicon.ico' %}"/>
-  		{% block extra_style %}{% endblock %}
   </head>
 	<body>
 		<div class="container-fluid" id="navModule" ng-controller='navController' >

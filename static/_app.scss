@@ -64,6 +64,34 @@ body {
 
 form label {
 	@include marker;
+	font-size: 1rem;
+}
+
+.form-control {
+	&-small {
+		width: 6rem;
+		float: right;
+	}
+	&-medium {
+		width: 12rem;
+		float: right;
+	}
+}
+
+.form {
+	&-label {
+		&-small {
+			width: 15rem;
+		}
+	}
+	&-helptext {
+		font-size: .9rem;
+		font-style: italic;
+	}
+	&-error {
+		font-weight: bold;
+		color: $highlight-color;
+	}
 }
 
 .inline {
@@ -394,32 +422,6 @@ h4, .h4 {
 		font-size: 20px;
 	}
 
-}
-.form-control {
-	&-small {
-		width: 6rem;
-		float: right;
-	}
-	&-medium {
-		width: 12rem;
-		float: right;
-	}
-}
-
-.form {
-	&-label {
-		&-small {
-			width: 15rem;
-		}
-	}
-	&-helptext {
-		font-size: .9rem;
-		font-style: italic;
-	}
-	&-error {
-		font-weight: bold;
-		color: $highlight-color;
-	}
 }
 
 .entities {

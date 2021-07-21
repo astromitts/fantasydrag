@@ -8,6 +8,8 @@ from django.forms import (
     NumberInput,
     IntegerField,
     RadioSelect,
+    DateTimeField,
+    DateTimeInput
 )
 
 
@@ -106,4 +108,16 @@ class CreatePanelForm(Form):
         help_text='The number of Wildqueens each player can draft, if any',
         label='Wildqueen allowance',
         required=True
+    )
+
+    draft_time = DateTimeField(
+        widget=DateTimeInput(
+            attrs={
+                'class': 'datepicker',
+                'ng-model': 'draftTime',
+                'datangshow': "formPhase=='draftTime'",
+                'format': '%m/%d/%Y %I:%M %p'
+            }
+        ),
+        required=True,
     )

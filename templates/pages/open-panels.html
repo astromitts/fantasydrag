@@ -14,37 +14,38 @@
 </div>
 <div class="spacer-medium"></div>
 {% for panel in panels %}
-<div class="row">
-	<div class="col-2">
-		<strong>{{panel.name}}</strong>
-	</div>
-	<div class="col-2">
-		Max participants: {{panel.participant_limit}}
-	</div>
-	<div class="col-2">
-		Available slots: {{panel.available_slots}}
-	</div>
-	<div class="col-3">
-		Wildqueen allowance: 
-		{% if panel.wildcard_allowance %}
-			{{panel.wildcard_allowance}}
-		{% else %}
-			X
-		{% endif %}
-	</div>
-	<div class="col">
-		{% if participant not in panel.participants.all %}
-			{% if panel.participant_limit > panel.available_slots %}
-				<a href="{% url 'panel_join_link' panel_code=panel.code%}" class="btn btn-primary">Join</a>
+	<div class="row">
+		<div class="col-12 col-md-3">
+			<strong>{{panel.name}}</strong>
+		</div>
+		<div class="col-12 col-md-3">
+			Draft Time<br />
+			{{panel.display_draft_time}}
+		</div>
+		<div class="col-4 col-md-2">
+			Slots<br />
+			{{panel.available_slots}} / {{panel.participant_limit}}
+		</div>
+		<div class="col-4 col-md-2">
+			Wildqueens<br />
+			{% if panel.wildcard_allowance %}
+				{{panel.wildcard_allowance}}
 			{% else %}
-				Panel is full
+				X
 			{% endif %}
-		{% else %}
-			<a href="{% url 'panel_stats' panel_id=panel.pk%}" class="btn btn-info" disabled="disabled">Go to Panel</a>
-		{% endif %}
+		</div>
+		<div class="col-12 col-md-2">
+			{% if participant not in panel.participants.all %}
+				{% if panel.participant_limit > panel.available_slots %}
+					<a href="{% url 'panel_join_link' panel_code=panel.code%}" class="btn btn-primary form-control">Join</a>
+				{% else %}
+					Panel is full
+				{% endif %}
+			{% else %}
+				<a href="{% url 'panel_stats' panel_id=panel.pk%}" class="btn btn-info form-control" disabled="disabled">Go to Panel</a>
+			{% endif %}
+		</div>
 	</div>
-</div>
-
-<div class="row"><div class="col"><hr /></div></div>
-{% endfor %}
+	<div class="row"><div class="col"><hr /></div></div>
+	{% endfor %}
 {% endblock %}
