@@ -1,66 +1,64 @@
 {% extends 'base.html' %}
-{% load helper_tags %}
+{% load helper_tags static %}
 {% block page_title %} | {{queen.name}}{% endblock %}
+
+		
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'angular/queendetail.js' %}"></script>
+{% endblock %}
+
 {% block page_content %}
+<input type="hidden" id="id_queenId" name="queenId" value="{{queen.pk}}" />
+{% verbatim %}
 <div class="row">
 	<div class="col">
 		<h1 class="marker">{{queen.name}}</h1>
 	</div>
-	{% if stats.data.drag_races %}
-	<div class="col">
-		<h2>Total score: {{stats.data.total}}</h2>
+	<div class="col" ng-if="stats.total">
+		<h2>Total score: {{stats.total}}</h2>
 	</div>
-	<div class="col">
-		<h2>Average: {{stats.primary_stat|number}}</h2>
-		
+	<div class="col" ng-if="averageScore">
+		<h2>Average: {{averageScore}}</h2>
 	</div>
-	{% endif %}
 </div>
 <div class="spacer-medium"><hr /></div>
 
-{% if stats.data.drag_races %}
-	<div class="row">
+	<div class="row" ng-if="isScored">
 		<div class="col">
-			<h2 class="marker">Drag Races</h1>
+			<h2 class="h3"><span class="marker">Drag Races</span></h2>
 		</div>
 	</div>
-	{% for drag_race, dr_stats in stats.data.drag_races.items %}
-		<div class="spacer-small"></div>
-		<div class="row">
-			<div class="col-4">
-				<h3>{{dr_stats.display_name}}</h3>
+
+		<div class="row" ng-repeat="(dragrace_pk, dragrace) in stats.drag_races">
+			<div class="col-lg-4 col-sm-12">
+				<h3><a href="/dragrace/{{dragrace_pk}}/">{{dragrace.display_name}}</a></h3>
 			</div>
-			<div class="col-8">
+
+			<div class="col-lg-8 col-sm-12">
 				<table class="table">
-					<tr><td></td><th>Total: {{dr_stats.total}}</th></tr>
-					{% for episode, ep_stats in dr_stats.episodes.items %}
 					<tr>
-						<th>
-							{% if ep_stats.pk not in viewed_episodes %}
-							<span data-toggle="tooltip" data-placement="left" title="You have not ruvealed scores for this episode">
-								<span class="entities entities-alert">&#9733;</span>
-								<a href="{% url 'episode_detail' episode_id=ep_stats.pk %}">{{ep_stats.title}} ({{ep_stats.number}})</a>
-							</span>
-							{% else %}
-							<a href="{% url 'episode_detail' episode_id=ep_stats.pk %}">{{ep_stats.title}} ({{ep_stats.number}})</a>
-							{% endif %}
-						</th>
+						<td></td>
+						<th>Total: {{dragrace.total}} points</th>
+					</tr>
+					<tr ng-repeat="(episodepk, episode) in dragrace.episodes">
+						<th><a href="/dragrace/episode/{{episodepk}}/">{{episode.title}}</a></th>
 						<td>
-							{% for score in ep_stats.scores %}
-							{{score.rule}}: {{score.value}}pts<br />
-							{% endfor %}
+							Scores
+							<table class="table">
+								<tr ng-repeat="(scorepk, score) in episode.scores">
+									<td>{{score.rule}}</td>
+									<td>{{score.value}} pts</td>
+								</tr>
+							</table>
 						</td>
 					</tr>
-					{% endfor %}
 				</table>
 			</div>
-			<div class="col">
-			</div>
+			<div class="spacer-small"></div>
 		</div>
-	{% endfor %}
-{% else %}
-<div class="row">
+
+<div class="row" ng-if="!isScored">
 	<div class="col alert alert-danger">Kittygirl has not scored this queen yet. They are working on it!</div>
 </div>
-{% endif %}
+{% endverbatim %}
 {% endblock %}

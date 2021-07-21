@@ -763,6 +763,27 @@ class SiteUserApi(APIView):
 
 
 class StatsApi(APIView):
+    def get(self, request, *args, **kwargs):
+        setcontext(self, request)
+        result = {}
+        stats = None
+        if kwargs['endpoint'] == 'queen':
+            queen = Queen.objects.get(pk=kwargs['obj_id'])
+            stats = Stats.objects.filter(
+                queen=queen,
+                participant=self.participant,
+                stat_type='queen_scores'
+            ).first()
+            many = False
+            obj = QueenSerializer(instance=queen).data
+            obj_key = 'queen'
+        if stats:
+            result = {
+                obj_key: obj,
+                'stats': StatSerializer(instance=stats, many=many).data,
+            }
+        return Response(result)
+
     def post(self, request, *args, **kwargs):
         setcontext(self, request)
         request_type = request.data['request']

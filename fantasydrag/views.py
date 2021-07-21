@@ -552,7 +552,9 @@ class QueenDetail(AuthenticatedView):
             {
                 'queen': queen,
                 'stats': stats,
-                'viewed_episodes': [episode.pk for episode in self.participant.episodes.all()]
+                'viewed_episodes': [episode.pk for episode in self.participant.episodes.all()],
+                'pageModule': 'queenDetailModule',
+                'pageController': 'queenDetailController'
             }
         )
         return HttpResponse(self.template.render(self.context, request))
