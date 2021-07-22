@@ -1,3 +1,4 @@
 secrets/*
 prod-local.py
 *.DS_Store
+settings/secret.py

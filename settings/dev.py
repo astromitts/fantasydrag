@@ -20,3 +20,5 @@ DATABASES = {
         'PASSWORD': '',
     }
 }
+
+SENDGRID_API_KEY = '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'

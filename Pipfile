@@ -14,6 +14,7 @@ asgiref = "*"
 djangorestframework = "*"
 django-summernote = "*"
 django-cors-headers = "*"
+sendgrid = "*"
 
 [dev-packages]
 

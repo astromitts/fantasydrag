@@ -6,6 +6,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SECRET_KEY = os.environ['PRODUCTION_KEY']
 
+SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 DATABASES['default'] = dj_database_url.config(default=os.environ['DATABASE_URL'])
 

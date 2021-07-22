@@ -172,3 +172,5 @@ DEFAULT_ERROR_TEMPLATE = 'error.html'
 DEFAULT_FORBIDDEN_TEMPLATE = 'forbidden.html'
 
 REDIRECT_TO = None
+
+EMAILS_FROM = 'kittygirl@dragcrush.com'
