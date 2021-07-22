@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'fantasydrag',
     'flags',
     'legal',
+    'messagecenter'
 ]
 
 MIDDLEWARE = [
@@ -174,3 +175,14 @@ DEFAULT_FORBIDDEN_TEMPLATE = 'forbidden.html'
 REDIRECT_TO = None
 
 EMAILS_FROM = 'kittygirl@dragcrush.com'
+
+SUMMERNOTE_CONFIG = {
+    'summernote': {
+        'iframe': False,
+        'toolbar': [
+            ['font', ['bold', 'underline', 'clear']],
+            ['para', ['ul', 'ol']],
+            ['insert', ['link', ]],
+        ]
+    }
+}

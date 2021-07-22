@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from fantasydrag.tasks.tasks import start_drafts
-from fantasydrag.mailer.mailer import Mailer
+from messagecenter.mailer import Mailer
 
 
 class Command(BaseCommand):

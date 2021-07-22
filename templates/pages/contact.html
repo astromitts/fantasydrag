@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static helper_tags %}
+
+{% block page_title %} | Contact{% endblock %}
+
+
+{% block extra_scripts %}
+	<script type="text/javascript" src="{% static 'angular/contact.js' %}"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.js"></script>
+
+	<script type="text/javascript">
+
+	</script>
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+	<div class="col">
+		<h1>Contact</h1>
+	</div>
+</div>
+
+<form method="POST" action="" id="contactMessage">
+	{% csrf_token %}
+	{% for field in form %}
+	{% if field.name == 'content' %}
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col">
+			<span class="form-helptext" ng-show="messageType=='dispute'">
+				Let Kittygirl know that you might have found an error in a score. Be as specific as possible by providing the Drag Race season, episode, and score that you think is incorrect or missing.
+			</span>
+			<span class="form-helptext" ng-show="messageType=='support'">
+				Let Kittygirl know if you found a bug or error on the Drag Crush site. Be as specific as possible by providing relevant URLs and steps to reproduce the error.
+			</span>
+			<span class="form-helptext" ng-show="messageType=='general'">
+				Let Kittygirl know any general feedback you have!
+			</span>
+		</div>
+	</div>
+	{% endif %}
+	{% if field.name == 'dispute_type' %}
+		<div class="row" ng-show="messageType=='dispute'">
+	{% else %}
+		<div class="row">
+	{% endif %}
+		<div class="col-2">
+			<span class="form form-label form-label-small">
+				{{ field.label_tag }} 
+			</span>			
+		</div>
+		<div class="col">
+			{{field.as_widget}}
+			{% if field.name == 'message_type' %}
+				<div class="form-error" ng-show="errors.message_type">Message type is required</div>
+			{% elif field.name == 'dispute_type' %}
+				<div class="form-error" ng-show="errors.dispute_type">Dispute type is required for message type 'disput a score'</div>
+			{% elif field.name == 'content' %}
+				<div class="form-error" ng-show="errors.content">Message content is required</div>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+	<div class="row">
+		<div class="col">
+			<input type="submit" class="form-control btn btn-primary" value="Submit" />
+		</div>
+	</div>
+</form>
+
+
+{% endblock %}

@@ -29,6 +29,8 @@ from fantasydrag.utils import (
     refresh_dragrace_stats_for_participant,
     get_default_draft_date
 )
+from messagecenter.forms import ContactForm
+from messagecenter.models import ContactMessage
 
 
 def _login(form, request):
@@ -152,6 +154,53 @@ class AuthenticatedView(View):
                 self.context.update(
                     {'episode': self.episode}
                 )
+
+
+class Contact(AuthenticatedView):
+    def setup(self, request, *args, **kwargs):
+        super(Contact, self).setup(request, *args, **kwargs)
+        self.context.update({
+            'pageModule': 'contactModule',
+            'pageController': 'contactController',
+        })
+        self.template = loader.get_template('pages/contact.html')
+
+    def get(self, request, *args, **kwargs):
+        form = ContactForm()
+        self.context.update({
+            'form': form
+        })
+        return HttpResponse(self.template.render(self.context, request))
+
+    def post(self, request, *args, **kwargs):
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            valid = True
+            if request.POST['message_type'] == 'dispute':
+                if not request.POST.get('dispute_type'):
+                    valid = False
+                else:
+                    dispute_type = request.POST.get('dispute_type')
+            else:
+                dispute_type = None
+
+            if valid:
+                new_message = ContactMessage(
+                    message_type=request.POST['message_type'],
+                    dispute_type=dispute_type,
+                    from_user=self.request.user,
+                    content=request.POST['content']
+                )
+                new_message.save()
+                self.context.update({'form': ContactForm()})
+                messages.success(request, 'Message sent! Thank you for feedback.')
+            else:
+                self.context.update({'form': form})
+                messages.error(request, 'You must indicate a dispute type to dispute a score')
+        else:
+            messages.error(request, 'Unkown error occurred, please check your input and try again')
+            self.context.update({'form': form})
+        return HttpResponse(self.template.render(self.context, request))
 
 
 class About(AuthenticatedView):
