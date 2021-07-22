@@ -452,7 +452,7 @@ class DraftMetaApi(APIView):
     def get(self, request, *args, **kwargs):
         set_user_context(self, request, kwargs['panel_id'])
         participant_drafts_data = get_draft_data(self)
-        wq_drafts = self.panel.wildcardqueen_set.order_by('participant__display_name', 'pk').all()
+        wq_drafts = self.panel.wildcardqueen_set.order_by('participant__user__username', 'pk').all()
         wq_drafts_data = WQDraftSerializer(instance=wq_drafts, many=True).data
         panel_drafts = Draft.objects.filter(panel=self.panel).order_by('-round_selected', '-pk').all()
         drafts_data = DraftSerializer(instance=panel_drafts, many=True).data
