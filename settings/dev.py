@@ -15,7 +15,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': 'localhost',
         'PORT': '5432',
-        'NAME': 'fantasydrag',
+        'NAME': 'd5hnun3glk4kne',
         'USER': 'bomorin-id',
         'PASSWORD': '',
     }

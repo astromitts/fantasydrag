@@ -114,7 +114,7 @@ addEditDragRaceApp.controller(
 					$http.get('/api/dragrace/' + $scope.dragraceId + '/').then(
 						function(response){
 							$scope.dragRace = response.data;
-							$scope.updateRuleSet($scope.dragRace.drag_race_type.name);
+							$scope.updateRuleSet($scope.dragRace.drag_race_type);
 						}
 					);
 				}
