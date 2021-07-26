@@ -122,7 +122,8 @@ class StatsDashboardApiView(StatApiView):
         for drag_race in current_drag_races:
             panels = self.viewing_participant.panel_set.filter(drag_race=drag_race)
             dragrace_data = DragRaceSerializerMeta(instance=drag_race).data
-            episodes = EpisodeSerializerShort(instance=drag_race.episode_set.all(), many=True).data
+            episodes = EpisodeSerializerShort(
+                instance=drag_race.episode_set.filter(has_aired=True).all(), many=True).data
             for episode in episodes:
                 episode['is_viewed'] = episode['pk'] in viewed_episode_pks
             dragrace_data['episodes'] = episodes
