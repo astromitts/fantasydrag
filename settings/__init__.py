@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'fantasydrag',
     'flags',
     'legal',
-    'messagecenter'
+    'messagecenter',
+    'stats'
 ]
 
 MIDDLEWARE = [

@@ -16,7 +16,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
         'NAME': 'd5hnun3glk4kne',
-        'USER': 'bomorin-id',
+        'USER': 'qdcizgkpfftaih',
         'PASSWORD': '',
     }
 }

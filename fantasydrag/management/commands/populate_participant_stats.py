@@ -1,28 +1,54 @@
 from django.core.management.base import BaseCommand
-from fantasydrag.models import (
-    EpisodeDraft,
-    Panel,
-    Stats,
+from fantasydrag.models import DragRace, Panel
+from stats.models import (
+    PanelistEpisodeScore,
+    PanelistDragRaceScore,
+    QueenEpisodeScore,
+    QueenDragRaceScore
 )
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        panels = Panel.objects.exclude(drag_race__status='pending').all()
-        unique_drag_races = []
+        drag_races = DragRace.objects.exclude(status='pending')
+        panels = Panel.objects.filter(drag_race__in=drag_races)
         for panel in panels:
-            if panel.drag_race not in unique_drag_races:
-                unique_drag_races.append(panel.drag_race)
-            for participant in panel.participants.all():
-                Stats.set_dragrace_draft_scores(
-                    participant=participant,
-                    drag_race=panel.drag_race
-                )
-                Stats.set_dragrace_panel_scores(
-                    viewing_participant=participant,
-                    panel=panel
-                )
+            drag_race = panel.drag_race
+            queens = drag_race.queens.all()
+            viewing_participants = panel.participants.all()
+            target_participants = panel.participants.all()
 
-        for drag_race in unique_drag_races:
-            EpisodeDraft.set_dragrace_stats(drag_race)
+            for vp in viewing_participants:
+                for queen in queens:
+                    for episode in vp.episodes.filter(drag_race=drag_race).all():
+                        queen_ep_score = QueenEpisodeScore.get_or_create(
+                            queen=queen,
+                            episode=episode,
+                            viewing_participant=vp
+                        )
+                        queen_ep_score.set_total_score()
+                    for panelist in target_participants:
+                        panelist_ep_score = PanelistEpisodeScore.get_or_create(
+                            viewing_participant=vp,
+                            panel=panel,
+                            panelist=panelist,
+                            episode=episode
+                        )
+                        panelist_ep_score.set_total_score()
+
+                    queen_dr_score = QueenDragRaceScore.get_or_create(
+                        queen=queen,
+                        drag_race=drag_race,
+                        viewing_participant=vp
+                    )
+                    queen_dr_score.set_total_score()
+
+                for panelist in target_participants:
+                    panelist_dr_score = PanelistDragRaceScore.get_or_create(
+                        viewing_participant=vp,
+                        panel=panel,
+                        panelist=panelist,
+                        drag_race=drag_race
+                    )
+                    panelist_dr_score.set_total_score()

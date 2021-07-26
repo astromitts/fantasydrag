@@ -9,7 +9,7 @@
 <input type="hidden" id="id_episodeId" value="{{episode.pk}}" />
 
 <div class="row">
-	<div class="col">
+	<div class="col-sm-4 col-md-9">
 		<h3><a href="{% url 'dragrace_stats' dragrace_id=drag_race.pk %}">{{drag_race.display_name}}</a></h3>
 	</div>
 	<div class="col-1">
@@ -18,7 +18,7 @@
 </div>
 
 <div class="row">
-	<div class="col">
+	<div class="col-sm-12 col-md-2">
 		<h1 ng-show="!editTitle">
 			<a href="{% url 'episode_detail' episode_id=episode.pk %}">
 		{% verbatim %}Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}{% endverbatim %}</span></a></h1>
