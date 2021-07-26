@@ -1,24 +1,15 @@
 {% verbatim %}
-<h1>
-	{{dragrace.display_name}}
-</h1>
-<div class="spacer-small"></div>
-
 <span ng-if="dragrace.episode_drafts.data">
 	<p>Points: {{dragrace.general_rank.data.participant_total}}</p>
 	<p>Rank: {{dragrace.general_rank.primary_stat_display}} / {{dragrace.general_rank.data.total_players}}</p>
 </span>
-<p class="marker">
-	<a href="{{dragrace.rules_url}}">Rules</a>
-</p>
-<p class="marker">
-	<a href="{{dragrace.detail_url}}">
-	Stats</a>
-</p>
-<p class="marker" ng-if="user.is_site_admin">
-	<a href="{{dragrace.edit_url}}">
-	Edit Drag Race</a>
-</p>
+
+<h3 class="marker">Queens</h3>
+<table class="table">
+	<tr ng-repeat="queen in dragrace.queens">
+		<td><a href="/queens/{{queen.queen.pk}}/">{{queen.queen.name}}</a></td><td>{{queen.total_score}}</td>
+	</tr>
+</table>
 <h3 ng-if="dragrace.next_episode">Next episode: #{{dragrace.next_episode.number}}</h3>
 <h4 ng-if="dragrace.next_episode_draft">My Draft:</h4>
 <table class="table" ng-if="dragrace.next_episode_draft">

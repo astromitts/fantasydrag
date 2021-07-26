@@ -15,12 +15,12 @@
 				<td ng-if="expandedPanels.indexOf(panel) !== -1">
 					<p>Participants</p>
 					<table class="table">
-						<tbody ng-repeat="participant in panel.participants">
+						<tbody ng-repeat="panelist in panel.panelists">
 							<tr>
 								<td>
-									<a href="/panel/{{panel.pk}}/panelist/{{participant.pk}}/">{{participant.name}}</a>
+									<a href="/panel/{{panel.pk}}/panelist/{{panelist.panelist.pk}}/">{{panelist.panelist.name}}</a>
 								</td>
-								<td>{{participant.scores.total_score}} pts</td>
+								<td>{{panelist.total_score}} pts</td>
 							</tr>
 						</tbody>
 					</table>

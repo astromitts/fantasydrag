@@ -20,12 +20,36 @@
 {% endif %}
 <span ng-repeat="dragrace in dragRaces">
 	<div class="row">
-		<div class="col-lg-4 col-sm-12">
-			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
+		<div class="col-md-12 col-sm-6">
+			<h1>
+				{% verbatim %}
+				{{dragrace.display_name}}
+				{% endverbatim %}
+			</h1>
 		</div>
-
-		<div class="col-lg-4 col-sm-12" ng-if="dragrace.panels.length > 0">
+	</div>
+	<div class="row">
+		<div class="col-md-12 col-sm-6"><p class="marker">
+			<a href="{{dragrace.rules_url}}">Rules</a>
+			</p>
+			<p class="marker">
+				<a href="{{dragrace.detail_url}}">
+				Stats</a>
+			</p>
+			<p class="marker" ng-if="user.is_site_admin">
+				<a href="{{dragrace.edit_url}}">
+				Edit Drag Race</a>
+			</p>
+		</div>
+	</div>
+	<div class="spacer-small"></div>
+	<div class="row">
+		
+		<div class="col-md-4 col-sm-12" ng-if="dragrace.panels.length > 0">
 			{% include 'pages/dashboard/includes/panels-rail.html' %}
+		</div>
+		<div class="col-md-4 col-sm-12">
+			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
 		</div>
 		<div class="spacer-small"></div>
 		<div class="col">
@@ -46,12 +70,13 @@
 <div class="spacer-medium"></div>
 <span ng-repeat="dragrace in oldDragRaces" ng-show="showAll">
 	<div class="row">
-		<div class="col-lg-4 col-sm-12">
-			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
-		</div>
 
 		<div class="col-lg-4 col-sm-12" ng-if="dragrace.panels.length > 0">
 			{% include 'pages/dashboard/includes/panels-rail.html' %}
+		</div>
+
+		<div class="col-lg-4 col-sm-12">
+			{% include 'pages/dashboard/includes/dragrace-rail.html' %}
 		</div>
 		<div class="spacer-small"></div>
 		<div class="col">

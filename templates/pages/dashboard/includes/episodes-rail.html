@@ -44,6 +44,14 @@
 			</td>
 		</tr>
 		<tr ng-if="episode.is_viewed">
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<button class="btn btn-warning form-control"
+				ng-click="hideScores(episode, dragrace)">
+					Hide Scores!
+				</button>
+			</td>
+		</tr>
+		<tr ng-if="episode.is_viewed">
 			<td colspan="100%" ng-if="expandedEpisodes.indexOf(episode) !== -1">
 				<a href="{{episode.detail_url}}">
 					<button class="btn btn-info form-control">Episode Detail</button></a>

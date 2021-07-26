@@ -4,6 +4,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from fantasydrag.api.urls import urlpatterns as api_urls
+from stats.api.urls import urlpatterns as stat_api_urls
 from fantasydrag.urls import urlpatterns as app_urls
 from legal.views import PolicyLanding, PrivacyPolicy, EULA
 
@@ -30,4 +31,4 @@ urlpatterns = [
         PolicyLanding.as_view(),
         name='policy_update'
     ),
-] + app_urls + api_urls
+] + app_urls + api_urls + stat_api_urls

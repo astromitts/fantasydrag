@@ -28,14 +28,14 @@ class Command(BaseCommand):
                             viewing_participant=vp
                         )
                         queen_ep_score.set_total_score()
-                    for panelist in target_participants:
-                        panelist_ep_score = PanelistEpisodeScore.get_or_create(
-                            viewing_participant=vp,
-                            panel=panel,
-                            panelist=panelist,
-                            episode=episode
-                        )
-                        panelist_ep_score.set_total_score()
+                        for panelist in target_participants:
+                            panelist_ep_score = PanelistEpisodeScore.get_or_create(
+                                viewing_participant=vp,
+                                panel=panel,
+                                panelist=panelist,
+                                episode=episode
+                            )
+                            panelist_ep_score.set_total_score()
 
                     queen_dr_score = QueenDragRaceScore.get_or_create(
                         queen=queen,

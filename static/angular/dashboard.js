@@ -29,6 +29,9 @@ dashboardApp.controller(
 						$scope.togglePanel(panel);
 					}
 				});
+				if (dragrace.panels.length == 1) {
+					$scope.togglePanel(dragrace.panels[0]);
+				}
 			});
 		}
 
@@ -63,7 +66,7 @@ dashboardApp.controller(
 		$scope.ruvealScores = function(episode, dragrace) {
 			$scope.state = 'loading';
 			$http.post(
-				'/api/dashboard/',
+				'/api/stats/dashboard/',
 				{
 					'request': 'ruveal-episode', 
 					'episode_id': episode.pk
@@ -71,7 +74,25 @@ dashboardApp.controller(
 			).then(
 				function(response){
 					$scope.state = 'loaded';
-					window.location.pathname = episode.detail_url;
+					//window.location.pathname = episode.detail_url;
+					location.reload();
+				}
+			);
+		}
+
+		$scope.hideScores = function(episode, dragrace) {
+			$scope.state = 'loading';
+			$http.post(
+				'/api/stats/dashboard/',
+				{
+					'request': 'hide-episode', 
+					'episode_id': episode.pk
+				}
+			).then(
+				function(response){
+					$scope.state = 'loaded';
+					// window.location.pathname = episode.detail_url;
+					location.reload();
 				}
 			);
 		}
@@ -100,7 +121,7 @@ dashboardApp.controller(
 			$scope.user = response.data.user;
 			$scope.featureFlags = response.data.flags;
 			if ($scope.user.is_authenticated) {
-				$http.get('/api/dashboard/').then(function(response){
+				$http.get('/api/stats/dashboard/').then(function(response){
 					$scope.dragRaces = response.data.drag_races;
 					$scope.initExpandedItems();
 					$(function () {

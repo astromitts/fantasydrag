@@ -26,6 +26,10 @@ class ViewingParticipantStat(models.Model):
             instance.save()
         return instance
 
+    @classmethod
+    def destroy(cls, **kwargs):
+        cls.objects.filter(**kwargs).delete()
+
 
 class QueenEpisodeScore(ViewingParticipantStat):
     viewing_participant = models.ForeignKey(
@@ -42,7 +46,7 @@ class QueenEpisodeScore(ViewingParticipantStat):
         episode_sum = Score.objects.filter(
             episode=self.episode, queen=self.queen
         ).aggregate(Sum('default_rule__point_value'))
-        if episode_sum['default_rule__point_value__sum']:
+        if episode_sum['default_rule__point_value__sum'] is not None:
             self.total_score = episode_sum['default_rule__point_value__sum']
             self.save()
         else:
@@ -55,6 +59,12 @@ class QueenDragRaceScore(ViewingParticipantStat):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     total_score = models.IntegerField(default=0)
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+
+    @property
+    def scores(self):
+        return QueenEpisodeScore.objects.filter(
+            episode__drag_race=self.drag_race, queen=self.queen, viewing_participant=self.viewing_participant
+        ).all()
 
     def set_total_score(self):
         episode_sum = QueenEpisodeScore.objects.filter(
@@ -83,6 +93,14 @@ class PanelistEpisodeScore(ViewingParticipantStat):
             panel=self.panel
         )
         return [d.queen for d in drafts.all()]
+
+    @property
+    def scores(self):
+        return QueenEpisodeScore.objects.filter(
+            episode=self.episode,
+            queen__in=self.drafted_queens,
+            viewing_participant=self.viewing_participant
+        ).all()
 
     def set_total_score(self):
         episode_sum = QueenEpisodeScore.objects.filter(
