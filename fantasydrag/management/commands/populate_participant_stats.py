@@ -11,7 +11,7 @@ from stats.models import (
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        drag_races = DragRace.objects.exclude(status='pending')
+        drag_races = DragRace.objects.filter(status='active')
         panels = Panel.objects.filter(drag_race__in=drag_races)
         for panel in panels:
             drag_race = panel.drag_race
@@ -25,7 +25,8 @@ class Command(BaseCommand):
                         queen_ep_score = QueenEpisodeScore.get_or_create(
                             queen=queen,
                             episode=episode,
-                            viewing_participant=vp
+                            viewing_participant=vp,
+                            drag_race=drag_race
                         )
                         queen_ep_score.set_total_score()
                         for panelist in target_participants:

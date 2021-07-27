@@ -12,7 +12,7 @@ from fantasydrag.models import (
 )
 
 
-class ViewingParticipantStat(models.Model):
+class StatModelBase(models.Model):
     class Meta:
         abstract = True
 
@@ -31,12 +31,14 @@ class ViewingParticipantStat(models.Model):
         cls.objects.filter(**kwargs).delete()
 
 
-class QueenEpisodeScore(ViewingParticipantStat):
-    viewing_participant = models.ForeignKey(
-        Participant, on_delete=models.CASCADE, related_name='viewingparticipant_queen_episode_score')
+class QueenEpisodeScoreBase(StatModelBase):
+    class Meta:
+        abstract = True
+
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     total_score = models.IntegerField(default=0)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
+    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
     @property
     def episode_scores(self):
@@ -53,23 +55,32 @@ class QueenEpisodeScore(ViewingParticipantStat):
             self.delete()
 
 
-class QueenDragRaceScore(ViewingParticipantStat):
+class CanonicalQueenEpisodeScore(QueenEpisodeScoreBase):
+    pass
+
+
+class QueenEpisodeScore(QueenEpisodeScoreBase):
     viewing_participant = models.ForeignKey(
-        Participant, on_delete=models.CASCADE, related_name='viewingparticipant_queen_dragrace_score')
+        Participant, on_delete=models.CASCADE, related_name='viewingparticipant_queen_episode_score')
+
+
+class QueenDragRaceScoreBase(StatModelBase):
+    class Meta:
+        abstract = True
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     total_score = models.IntegerField(default=0)
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
     @property
+    def score_qs(self):
+        return None
+
+    @property
     def scores(self):
-        return QueenEpisodeScore.objects.filter(
-            episode__drag_race=self.drag_race, queen=self.queen, viewing_participant=self.viewing_participant
-        ).all()
+        return self.score_qs.all()
 
     def set_total_score(self):
-        episode_sum = QueenEpisodeScore.objects.filter(
-            episode__drag_race=self.drag_race, queen=self.queen, viewing_participant=self.viewing_participant
-        ).aggregate(Sum('total_score'))
+        episode_sum = self.score_qs.aggregate(Sum('total_score'))
         if episode_sum['total_score__sum']:
             self.total_score = episode_sum['total_score__sum']
         else:
@@ -77,7 +88,27 @@ class QueenDragRaceScore(ViewingParticipantStat):
         self.save()
 
 
-class PanelistEpisodeScore(ViewingParticipantStat):
+class CanonicalQueenDragRaceScore(QueenDragRaceScoreBase):
+
+    @property
+    def score_qs(self):
+        return CanonicalQueenEpisodeScore.objects.filter(
+            episode__drag_race=self.drag_race, queen=self.queen
+        )
+
+
+class QueenDragRaceScore(QueenDragRaceScoreBase):
+    viewing_participant = models.ForeignKey(
+        Participant, on_delete=models.CASCADE, related_name='viewingparticipant_queen_dragrace_score')
+
+    @property
+    def score_qs(self):
+        return QueenEpisodeScore.objects.filter(
+            episode__drag_race=self.drag_race, queen=self.queen, viewing_participant=self.viewing_participant
+        )
+
+
+class PanelistEpisodeScore(StatModelBase):
     viewing_participant = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='viewingparticipant_panelist_episode_score')
     panel = models.ForeignKey(Panel, on_delete=models.CASCADE)
@@ -115,7 +146,7 @@ class PanelistEpisodeScore(ViewingParticipantStat):
         self.save()
 
 
-class PanelistDragRaceScore(ViewingParticipantStat):
+class PanelistDragRaceScore(StatModelBase):
     viewing_participant = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='viewingparticipant_panelist_dragrace_score')
     panel = models.ForeignKey(Panel, on_delete=models.CASCADE)

@@ -2,6 +2,7 @@ import math
 import uuid
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Sum
 from django.urls import reverse
 
 from fantasydrag.utils import (
@@ -380,18 +381,24 @@ class Participant(models.Model):
 class EpisodeDraft(models.Model):
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     participant = models.ForeignKey(Participant, null=True, on_delete=models.SET_NULL)
+    score = models.IntegerField(default=0)
+    rank_tier = models.IntegerField(default=0)
+    total_participants = models.IntegerField(default=0)
     queens = models.ManyToManyField(Queen)
 
     class Meta:
         unique_together = ['episode', 'participant']
 
-    @property
-    def total_score(self):
-        scores = Score.objects.filter(episode=self.episode, queen__in=self.queens.all())
-        total_score = 0
-        for score in scores.all():
-            total_score += score.rule.point_value
-        return total_score
+    def set_total_score(self):
+        episode_sum = Score.objects.filter(
+            episode=self.episode,
+            queen__in=self.queens.all()
+        ).aggregate(Sum('default_rule__point_value'))
+        if episode_sum['default_rule__point_value__sum']:
+            self.score = episode_sum['default_rule__point_value__sum']
+        else:
+            self.score = 0
+        self.save()
 
 
 class Panel(models.Model):
