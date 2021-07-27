@@ -19,12 +19,11 @@
 </div>
 {% endif %}
 <span ng-repeat="dragrace in dragRaces">
+	{% verbatim %}
 	<div class="row">
 		<div class="col-md-12 col-sm-6">
 			<h1>
-				{% verbatim %}
 				{{dragrace.display_name}}
-				{% endverbatim %}
 			</h1>
 		</div>
 	</div>
@@ -42,6 +41,7 @@
 			</p>
 		</div>
 	</div>
+	{% endverbatim %}
 	<div class="spacer-small"></div>
 	<div class="row">
 		

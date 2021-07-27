@@ -30,13 +30,19 @@ class StatModelBase(models.Model):
     def destroy(cls, **kwargs):
         cls.objects.filter(**kwargs).delete()
 
+    @classmethod
+    def create(cls, **kwargs):
+        instance = cls(**kwargs)
+        instance.save()
+        return instance
+
 
 class QueenEpisodeScoreBase(StatModelBase):
     class Meta:
         abstract = True
 
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
-    total_score = models.IntegerField(default=0)
+    total_score = models.IntegerField(default=0, db_index=True)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
@@ -68,7 +74,7 @@ class QueenDragRaceScoreBase(StatModelBase):
     class Meta:
         abstract = True
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
-    total_score = models.IntegerField(default=0)
+    total_score = models.IntegerField(default=0, db_index=True)
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
 
     @property
@@ -114,7 +120,7 @@ class PanelistEpisodeScore(StatModelBase):
     panel = models.ForeignKey(Panel, on_delete=models.CASCADE)
     panelist = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='targetparticipant_panelist_episode_score')
-    total_score = models.IntegerField(default=0)
+    total_score = models.IntegerField(default=0, db_index=True)
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
 
     @property
@@ -153,7 +159,7 @@ class PanelistDragRaceScore(StatModelBase):
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
     panelist = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='targetparticipant_panelist_dragrace_score')
-    total_score = models.IntegerField(default=0)
+    total_score = models.IntegerField(default=0, db_index=True)
 
     def set_total_score(self):
         episode_sum = PanelistEpisodeScore.objects.filter(
