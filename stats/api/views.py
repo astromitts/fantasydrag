@@ -24,8 +24,8 @@ from stats.models import (
 from stats.api.serializers import (
     QueenDragRaceSerializer,
     QueenEpisodeSerializer,
-    PanelEpisodeSerializer,
-    PanelDragRaceSerializer,
+    PanelistEpisodeSerializer,
+    PanelistDragRaceSerializer,
 )
 
 from stats.utils import set_viewing_participant_scores
@@ -83,13 +83,13 @@ class EpisodePanelApiView(StatApiView):
                 episode=self.episode,
                 panelist=self.target_participant
             )
-            result = PanelEpisodeSerializer(instance=instance).data
+            result = PanelistEpisodeSerializer(instance=instance).data
         else:
             instance = PanelistEpisodeScore.objects.filter(
                 viewing_participant=self.viewing_participant,
                 episode=self.episode
             ).all()
-            result = PanelEpisodeSerializer(instance=instance, many=True).data
+            result = PanelistEpisodeSerializer(instance=instance, many=True).data
         return Response(result)
 
 
@@ -100,7 +100,7 @@ class DragRacePanelApiView(StatApiView):
             panel=self.panel,
             viewing_participant=self.viewing_participant
         ).all()
-        panelist_data = PanelDragRaceSerializer(instance=panelist_instance, many=True).data
+        panelist_data = PanelistDragRaceSerializer(instance=panelist_instance, many=True).data
         queen_instance = QueenDragRaceScore.objects.filter(
             viewing_participant=self.viewing_participant,
             drag_race=self.drag_race,
@@ -134,7 +134,7 @@ class StatsDashboardApiView(StatApiView):
                     panel=panel,
                     viewing_participant=self.viewing_participant
                 ).order_by('-total_score').all()
-                panelist_data = PanelDragRaceSerializer(instance=panelist_instances, many=True).data
+                panelist_data = PanelistDragRaceSerializer(instance=panelist_instances, many=True).data
                 panel_data['panelists'] = panelist_data
                 dragrace_data['panels'].append(panel_data)
 

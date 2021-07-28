@@ -605,21 +605,42 @@ class WildCardList(AuthenticatedView):
 
 
 class QueenDetail(AuthenticatedView):
+
     def get(self, request, *args, **kwargs):
         self.template = loader.get_template('pages/queendetail.html')
         queen = Queen.objects.get(pk=kwargs['queen_id'])
-        stats = Stats.objects.filter(
-            queen=queen,
-            participant=self.participant,
-            stat_type='queen_scores'
-        ).first()
+        stats_by_dragrace = {
+            'total_score': 0,
+            'average': 0,
+            'drag_races': {}
+        }
+        episode_count = 0
+
+        active_dragraces = queen.queendragracescore_set.filter(viewing_participant=self.participant).all()
+        for dragrace_score in active_dragraces:
+            stats_by_dragrace['drag_races'][dragrace_score.drag_race] = {'drag_race': dragrace_score}
+            stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'] = queen.queenepisodescore_set.filter(
+                viewing_participant=self.participant).all()
+            episode_count += len(stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'])
+            stats_by_dragrace['total_score'] += dragrace_score.total_score
+
+        canonical_dragraces = queen.canonicalqueendragracescore_set.exclude(
+            drag_race__in=[ad.drag_race for ad in active_dragraces]).all()
+        for dragrace_score in canonical_dragraces:
+            stats_by_dragrace['drag_races'][dragrace_score.drag_race] = {'drag_race': dragrace_score}
+            stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'] = queen.canonicalqueenepisodescore_set.filter(drag_race=dragrace_score.drag_race).all()  # noqa
+            episode_count += len(stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'])
+            stats_by_dragrace['total_score'] += dragrace_score.total_score
+
+        if episode_count:
+            stats_by_dragrace['average'] = round(stats_by_dragrace['total_score'] / episode_count, 2)
+
         self.context.update(
             {
                 'queen': queen,
-                'stats': stats,
-                'viewed_episodes': [episode.pk for episode in self.participant.episodes.all()],
-                'pageModule': 'queenDetailModule',
-                'pageController': 'queenDetailController'
+                'stats': stats_by_dragrace,
+                'viewed_episodes': self.participant.episodes.all(),
+                'is_scored': episode_count > 0
             }
         )
         return HttpResponse(self.template.render(self.context, request))

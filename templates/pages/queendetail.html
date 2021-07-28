@@ -4,61 +4,66 @@
 
 		
 {% block extra_scripts %}
-	<script type="text/javascript" src="{% static 'angular/queendetail.js' %}"></script>
+
 {% endblock %}
 
 {% block page_content %}
 <input type="hidden" id="id_queenId" name="queenId" value="{{queen.pk}}" />
-{% verbatim %}
 <div class="row">
 	<div class="col">
 		<h1 class="marker">{{queen.name}}</h1>
 	</div>
 	<div class="col" ng-if="stats.total">
-		<h2>Total score: {{stats.total}}</h2>
+		<h2>Total score: {{stats.total_score}}</h2>
 	</div>
 	<div class="col" ng-if="averageScore">
-		<h2>Average: {{averageScore}}</h2>
+		<h2>Average: {{stats.average}}</h2>
 	</div>
 </div>
 <div class="spacer-medium"><hr /></div>
 
-	<div class="row" ng-if="isScored">
-		<div class="col">
-			<h2 class="h3"><span class="marker">Drag Races</span></h2>
-		</div>
-	</div>
-
-		<div class="row" ng-repeat="(dragrace_pk, dragrace) in stats.drag_races">
-			<div class="col-lg-4 col-sm-12">
-				<h3><a href="/dragrace/{{dragrace_pk}}/">{{dragrace.display_name}}</a></h3>
+	{% if is_scored %}
+		<div class="row" ng-if="isScored">
+			<div class="col">
+				<h2 class="h3"><span class="marker">Drag Races</span></h2>
 			</div>
-
-			<div class="col-lg-8 col-sm-12">
-				<table class="table">
-					<tr>
-						<td></td>
-						<th>Total: {{dragrace.total}} points</th>
-					</tr>
-					<tr ng-repeat="(episodepk, episode) in dragrace.episodes">
-						<th><a href="/dragrace/episode/{{episodepk}}/">{{episode.title}}</a></th>
-						<td>
-							Scores
-							<table class="table">
-								<tr ng-repeat="(scorepk, score) in episode.scores">
-									<td>{{score.rule}}</td>
-									<td>{{score.value}} pts</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<div class="spacer-small"></div>
 		</div>
 
-<div class="row" ng-if="!isScored">
-	<div class="col alert alert-danger">Kittygirl has not scored this queen yet. They are working on it!</div>
-</div>
-{% endverbatim %}
+		{% for dragrace, dr_stats in stats.drag_races.items %}
+			<div class="row" >
+				<div class="col-lg-4 col-sm-12">
+					<h3><a href="/dragrace/{{dragrace.pk}}/">{{dragrace.display_name}}</a></h3>
+				</div>
+				<div class="col-lg-8 col-sm-12">
+					<table class="table">
+						<tr>
+							<td></td>
+							<th>Total: {{dr_stats.drag_race.total_score}} points</th>
+						</tr>
+						{% for episode in dr_stats.episodes %}
+							<tr>
+								<th><a href="/dragrace/episode/{{episodepk}}/">{{episode.episode.title}}</a></th>
+								<td>
+									Scores
+									<table class="table">
+										{% for score in episode.episode_scores %}
+										<tr>
+											<td>{{score.rule.name}}</td>
+											<td>{{score.rule.point_value}} pts</td>
+										</tr>
+										{% endfor %}
+									</table>
+								</td>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+				<div class="spacer-small"></div>
+			</div>
+		{% endfor %}
+	{% else %}
+		<div class="row">
+			<div class="col alert alert-danger">Kittygirl has not scored this queen yet. They are working on it!</div>
+		</div>
+	{% endif %}
 {% endblock %}

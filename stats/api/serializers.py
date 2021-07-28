@@ -39,7 +39,7 @@ class QueenDragRaceSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class PanelEpisodeSerializer(serializers.HyperlinkedModelSerializer):
+class PanelistEpisodeSerializer(serializers.HyperlinkedModelSerializer):
     panelist = ParticipantSerializer()
 
     class Meta:
@@ -50,7 +50,7 @@ class PanelEpisodeSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class PanelDragRaceSerializer(serializers.HyperlinkedModelSerializer):
+class PanelistDragRaceSerializer(serializers.HyperlinkedModelSerializer):
     panelist = ParticipantSerializer()
 
     class Meta:
