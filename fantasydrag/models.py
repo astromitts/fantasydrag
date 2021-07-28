@@ -158,10 +158,13 @@ class DragRace(models.Model):
     status = models.CharField(
         max_length=25,
         choices=[
-            ('open', 'open'),
-            ('active', 'active'),
-            ('closed', 'closed'),
-            ('pending', 'pending'),
+            ('pending', 'pending'),  # drag races that have been created but not yet scored
+            ('open', 'open'),  # drag races that are upcoming and open for drafts
+            # scores from this drag race should come from active stats models
+            ('active', 'active'),  # a currently airing drag race
+            ('scoring', 'scoring'),  # an old drag race that admin is currently backfilling with scores
+            ('archived', 'archived'),  # a drag race that has been completely scored and closed.
+            # scores from this drag race should come from the canonical stats models
         ],
         default='open',
         db_index=True

@@ -69,6 +69,29 @@
 </div>
 <div class="spacer-medium"></div>
 <span ng-repeat="dragrace in oldDragRaces" ng-show="showAll">
+	{% verbatim %}
+	<div class="row">
+		<div class="col-md-12 col-sm-6">
+			<h1>
+				{{dragrace.display_name}}
+			</h1>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12 col-sm-6"><p class="marker">
+			<a href="{{dragrace.rules_url}}">Rules</a>
+			</p>
+			<p class="marker">
+				<a href="{{dragrace.detail_url}}">
+				Stats</a>
+			</p>
+			<p class="marker" ng-if="user.is_site_admin">
+				<a href="{{dragrace.edit_url}}">
+				Edit Drag Race</a>
+			</p>
+		</div>
+	</div>
+	{% endverbatim %}
 	<div class="row">
 
 		<div class="col-lg-4 col-sm-12" ng-if="dragrace.panels.length > 0">

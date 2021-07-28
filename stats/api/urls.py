@@ -35,6 +35,18 @@ urlpatterns = [
 
     ),
     path(
+        'api/stats/dashboard/<int:dragrace_id>/',
+        views.StatsDashboardApiView.as_view(),
+        name='api_stats_dashboard'
+
+    ),
+    path(
+        'api/stats/dashboard/<str:dragrace_status>/',
+        views.StatsDashboardApiView.as_view(),
+        name='api_stats_dashboard'
+
+    ),
+    path(
         'api/stats/episode/<int:episode_id>/<str:endpoint>/',
         views.StatsEpisodeScoreApiView.as_view(),
         name='api_stats_score'

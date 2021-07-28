@@ -100,7 +100,12 @@ dashboardApp.controller(
 		$scope.fetchPastSeasons = function() {
 			if(!$scope.oldDragRacesLoaded) {
 				$scope.state = 'loading';
-				$http.get('/api/dashboard/?request=old-seasons').then(function(response){
+				if ($scope.user.is_site_admin) {
+					var postUrl = '/api/stats/dashboard/admin/'
+				} else {
+					var postUrl = '/api/stats/dashboard/archived/'
+				}
+				$http.get(postUrl).then(function(response){
 					$scope.oldDragRaces = response.data.drag_races;
 					$(function () {
 		  				$('[data-toggle="tooltip"]').tooltip()

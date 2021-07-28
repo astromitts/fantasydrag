@@ -15,6 +15,7 @@ from fantasydrag.api.serializers import (
 )
 
 from stats.models import (
+    CanonicalQueenDragRaceScore,
     PanelistEpisodeScore,
     PanelistDragRaceScore,
     QueenEpisodeScore,
@@ -115,11 +116,29 @@ class DragRacePanelApiView(StatApiView):
 class StatsDashboardApiView(StatApiView):
     def get(self, request, *args, **kwargs):
         self.set_context(request, *args, **kwargs)
-        current_drag_races = DragRace.objects.filter(status='active')
+        if 'dragrace_id' in kwargs:
+            drag_races = [DragRace.objects.get(pk=kwargs['dragrace_id']), ]
+        elif 'dragrace_status' in kwargs:
+            if kwargs['dragrace_status'] == 'admin':
+                drag_races = DragRace.objects.exclude(status='active')
+            else:
+                drag_races = DragRace.objects.filter(status=kwargs['dragrace_status'])
+        else:
+            drag_races = DragRace.objects.filter(status='active')
         result = {'drag_races': []}
         viewed_episodes = self.viewing_participant.episodes.all()
         viewed_episode_pks = [ve.pk for ve in viewed_episodes]
-        for drag_race in current_drag_races:
+        for drag_race in drag_races:
+            if drag_race.status == 'active':
+                queen_qs = QueenDragRaceScore.objects.filter(
+                    viewing_participant=self.viewing_participant,
+                    drag_race=drag_race,
+                )
+            else:
+                queen_qs = CanonicalQueenDragRaceScore.objects.filter(
+                    drag_race=drag_race,
+                )
+
             panels = self.viewing_participant.panel_set.filter(drag_race=drag_race)
             dragrace_data = DragRaceSerializerMeta(instance=drag_race).data
             episodes = EpisodeSerializerShort(
@@ -138,10 +157,7 @@ class StatsDashboardApiView(StatApiView):
                 panel_data['panelists'] = panelist_data
                 dragrace_data['panels'].append(panel_data)
 
-            queen_instance = QueenDragRaceScore.objects.filter(
-                viewing_participant=self.viewing_participant,
-                drag_race=drag_race,
-            ).order_by('-total_score').all()
+            queen_instance = queen_qs.order_by('-total_score').all()
             queen_data = QueenDragRaceSerializer(instance=queen_instance, many=True).data
             dragrace_data['queens'] = queen_data
             result['drag_races'].append(dragrace_data)
