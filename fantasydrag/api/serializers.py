@@ -228,6 +228,18 @@ class WQDraftSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['pk', 'participant', 'queen']
 
 
+class PanelSerializerMetaShort(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Panel
+        fields = [
+            'pk',
+            'name',
+            'status',
+            'detail_url',
+            'draft_url',
+        ]
+
+
 class PanelSerializerMeta(serializers.HyperlinkedModelSerializer):
     participants = ParticipantSerializer(many=True)
 

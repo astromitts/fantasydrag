@@ -10,9 +10,7 @@ from fantasydrag.api.serializers import (
     QueenSerializer,
     ScoreSerializer,
     EpisodeSerializerShort,
-    DragRaceSerializerMeta,
     ParticipantSerializer,
-    PanelSerializerMeta,
 )
 
 
@@ -27,33 +25,28 @@ class QueenEpisodeSerializer(serializers.HyperlinkedModelSerializer):
             'queen',
             'episode',
             'total_score',
-            'episode_scores'
         ]
 
 
 class QueenDragRaceSerializer(serializers.HyperlinkedModelSerializer):
     queen = QueenSerializer()
-    scores = QueenEpisodeSerializer(many=True)
 
     class Meta:
         model = QueenDragRaceScore
         fields = [
             'queen',
             'total_score',
-            'scores'
         ]
 
 
 class PanelEpisodeSerializer(serializers.HyperlinkedModelSerializer):
     panelist = ParticipantSerializer()
-    scores = QueenEpisodeSerializer(many=True)
 
     class Meta:
         model = PanelistEpisodeScore
         fields = [
             'panelist',
             'total_score',
-            'scores',
         ]
 
 

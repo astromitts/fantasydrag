@@ -9,7 +9,9 @@ from fantasydrag.models import (
     Participant
 )
 from fantasydrag.api.serializers import (
-    PanelSerializerMeta,
+    PanelSerializerMetaShort,
+    DragRaceSerializerMeta,
+    EpisodeSerializerShort
 )
 
 from stats.models import (
@@ -24,8 +26,6 @@ from stats.api.serializers import (
     QueenEpisodeSerializer,
     PanelEpisodeSerializer,
     PanelDragRaceSerializer,
-    DragRaceSerializerMeta,
-    EpisodeSerializerShort
 )
 
 from stats.utils import set_viewing_participant_scores
@@ -129,7 +129,7 @@ class StatsDashboardApiView(StatApiView):
             dragrace_data['episodes'] = episodes
             dragrace_data['panels'] = []
             for panel in panels:
-                panel_data = PanelSerializerMeta(instance=panel).data
+                panel_data = PanelSerializerMetaShort(instance=panel).data
                 panelist_instances = PanelistDragRaceScore.objects.filter(
                     panel=panel,
                     viewing_participant=self.viewing_participant
