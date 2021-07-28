@@ -35,6 +35,12 @@ def get_panelists_for_queen(queen, panel):
     return ', '.join([d.participant.name for d in drafts])
 
 
+@register.filter(name='get_queens_for_panelist')
+def get_queens_for_panelist(participant, panel):
+    drafts = Draft.objects.filter(participant=participant, panel=panel).all()
+    return ', '.join([d.queen.name for d in drafts])
+
+
 @register.filter(name='wildcard_queens')
 def wildcard_queens(participant, panel):
     return participant.wildcardqueen_set.filter(panel=panel).all()

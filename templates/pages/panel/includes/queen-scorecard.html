@@ -6,9 +6,11 @@
 		<tr>
 			<td>
 				<p><a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}">{{queen_stat.queen.name}}</a></p>
-				<p class="text-secondary">{{queen_stat.data.drafts|print_list}}</p>
+				{% with queen_stat.queen|get_panelists_for_queen:panel as draft_list %}
+				<p class="text-secondary">{{draft_list}}</p>
+				{% endwith %}
 			</td>
-			<td>{{queen_stat.primary_stat|number}}</td>
+			<td>{{queen_stat.total_score|number}}</td>
 		</tr>
 	{% endfor %}
 </table>

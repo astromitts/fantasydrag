@@ -25,6 +25,7 @@ from stats.models import (
     CanonicalQueenDragRaceScore,
     QueenEpisodeScore,
     QueenDragRaceScore,
+    PanelistDragRaceScore,
 )
 from stats.utils import set_viewing_participant_scores
 from fantasydrag.forms import (
@@ -151,6 +152,7 @@ class AuthenticatedView(View):
                         'panel': self.panel
                     }
                 )
+                self.drag_race = self.panel.drag_race
             if 'dragrace_id' in kwargs:
                 self.drag_race = DragRace.objects.get(pk=kwargs['dragrace_id'])
                 self.context.update(
@@ -381,20 +383,19 @@ class PanelStats(AuthenticatedView):
         self.template = loader.get_template('pages/panel/detail.html')
 
     def get(self, request, *args, **kwargs):
-        queen_stats = Stats.objects.filter(
-            participant=self.participant,
-            panel=self.panel,
-            stat_type='participant_queen_scores'
-        ).order_by('-primary_stat').all()
-        panel_stats = Stats.objects.filter(
-            participant=self.participant,
-            panel=self.panel,
-            stat_type='dragrace_panel_scores'
-        ).first()
+        queen_stats = QueenDragRaceScore.objects.filter(
+            viewing_participant=self.participant,
+            drag_race=self.drag_race
+        ).order_by('-total_score').all()
+        panel_stats = PanelistDragRaceScore.objects.filter(
+            viewing_participant=self.participant,
+            panel=self.panel
+        ).order_by('-total_score').all()
 
         self.context.update({
             'queen_stats': queen_stats,
             'panel_stats': panel_stats,
+            'panel': self.panel,
             'join_link': self.panel.get_join_link(request)
         })
 

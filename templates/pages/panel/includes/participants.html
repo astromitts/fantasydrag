@@ -2,10 +2,12 @@
 <h2 class="marker">Participants</h2>
 <table class="table">
 	<tr><th>Player</th><th>Current Score</th></tr>
-	{% for panel_stat in panel_stats.data %}
+	{% for panel_stat in panel_stats %}
 		<tr>
-			<td><a href="{% url 'participant_stats' panel_id=panel.pk participant_id=panel_stat.participant.pk %}">{{panel_stat.participant.name}}</td>
-			<td>{{panel_stat.score.total_score}}</td>
+			<td><a href="{% url 'participant_stats' panel_id=panel.pk participant_id=panel_stat.panelist.pk %}">{{panel_stat.panelist.name}}</td>
+			<td>
+				{{panel_stat.total_score|number}}
+			</td>
 		</tr>
 	{% endfor %}
 </table>	
