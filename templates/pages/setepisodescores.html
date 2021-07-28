@@ -18,7 +18,7 @@
 </div>
 
 <div class="row">
-	<div class="col-sm-12 col-md-2">
+	<div class="col-sm-12 col-md-8">
 		<h1 ng-show="!editTitle">
 			<a href="{% url 'episode_detail' episode_id=episode.pk %}">
 		{% verbatim %}Episode #{{episode.number}}<span ng-if="episode.title">: {{episode.title}}{% endverbatim %}</span></a></h1>

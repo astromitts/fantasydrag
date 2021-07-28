@@ -8,7 +8,9 @@ from fantasydrag.models import (
     Panel,
     Participant,
     Queen,
-    Score
+    Score,
+    WildCardQueen,
+    WildCardAppearance
 )
 
 
@@ -120,7 +122,10 @@ class PanelistEpisodeScore(StatModelBase):
     panel = models.ForeignKey(Panel, on_delete=models.CASCADE)
     panelist = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='targetparticipant_panelist_episode_score')
-    total_score = models.IntegerField(default=0, db_index=True)
+    total_score = models.FloatField(
+        default=0,
+        db_index=True
+    )
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
 
     @property
@@ -132,11 +137,26 @@ class PanelistEpisodeScore(StatModelBase):
         return [d.queen for d in drafts.all()]
 
     @property
+    def wildcard_queens(self):
+        wildcard_drafts = WildCardQueen.objects.filter(
+            participant=self.panelist,
+            panel=self.panel
+        )
+        return [d.queen for d in wildcard_drafts.all()]
+
+    @property
     def scores(self):
         return QueenEpisodeScore.objects.filter(
             episode=self.episode,
             queen__in=self.drafted_queens,
             viewing_participant=self.viewing_participant
+        ).all()
+
+    @property
+    def wildcard_scores(self):
+        return WildCardAppearance.objects.filter(
+            episode=self.episode,
+            queen__in=self.wildcard_queens
         ).all()
 
     def set_total_score(self):
@@ -145,10 +165,16 @@ class PanelistEpisodeScore(StatModelBase):
             queen__in=self.drafted_queens,
             viewing_participant=self.viewing_participant
         ).aggregate(Sum('total_score'))
+
+        wildcard_sum = 0
+        for wqa in self.wildcard_scores:
+            wildcard_sum += wqa.appearance.point_value
+
         if episode_sum['total_score__sum']:
-            self.total_score = episode_sum['total_score__sum']
+            self.total_score = float(episode_sum['total_score__sum'])
         else:
             self.total_score = 0
+        self.total_score += float(wildcard_sum)
         self.save()
 
 
@@ -159,14 +185,17 @@ class PanelistDragRaceScore(StatModelBase):
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
     panelist = models.ForeignKey(
         Participant, on_delete=models.CASCADE, related_name='targetparticipant_panelist_dragrace_score')
-    total_score = models.IntegerField(default=0, db_index=True)
+    total_score = models.FloatField(
+        default=0,
+        db_index=True
+    )
 
     def set_total_score(self):
         episode_sum = PanelistEpisodeScore.objects.filter(
             episode__drag_race=self.drag_race, panelist=self.panelist, viewing_participant=self.viewing_participant
         ).aggregate(Sum('total_score'))
         if episode_sum['total_score__sum']:
-            self.total_score = episode_sum['total_score__sum']
+            self.total_score = float(episode_sum['total_score__sum'])
         else:
             self.total_score = 0
         self.save()
