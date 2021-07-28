@@ -762,50 +762,6 @@ class SiteUserApi(APIView):
         })
 
 
-class StatsApi(APIView):
-    def get(self, request, *args, **kwargs):
-        setcontext(self, request)
-        result = {}
-        stats = None
-        if kwargs['endpoint'] == 'queen':
-            queen = Queen.objects.get(pk=kwargs['obj_id'])
-            stats = Stats.objects.filter(
-                queen=queen,
-                participant=self.participant,
-                stat_type='queen_scores'
-            ).first()
-            many = False
-            obj = QueenSerializer(instance=queen).data
-            obj_key = 'queen'
-        if stats:
-            result = {
-                obj_key: obj,
-                'stats': StatSerializer(instance=stats, many=many).data,
-            }
-        return Response(result)
-
-    def post(self, request, *args, **kwargs):
-        setcontext(self, request)
-        request_type = request.data['request']
-        status = 'ok'
-        message = None
-        if request_type == 'reset-episode-scores':
-            episode = Episode.objects.get(pk=request.data['episode_id'])
-            participants = episode.participant_set.all()
-            for participant in participants:
-                refresh_dragrace_stats_for_participant(self.participant, episode.drag_race)
-        else:
-            status = 'error'
-            message = 'Request not recognized'
-
-        response = {
-            'status': status,
-            'message': message,
-            'request': request_type
-        }
-        return Response(response)
-
-
 class DashboardApi(APIView):
     def _serialize_dragrace(self, drag_race):
         dr_data = DragRaceSerializerMeta(instance=drag_race).data

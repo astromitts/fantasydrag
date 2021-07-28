@@ -163,3 +163,13 @@ class StatsDashboardApiView(StatApiView):
             self.viewing_participant.save()
             set_viewing_participant_scores(self.viewing_participant, episode.drag_race)
             return Response({})
+
+
+class StatsEpisodeScoreApiView(StatApiView):
+    def post(self, request, *args, **kwargs):
+        self.set_context(request, *args, **kwargs)
+        endpoint = kwargs['endpoint']
+        if endpoint == 'reset-scores':
+            for participant in Participant.objects.all():
+                set_viewing_participant_scores(participant, self.episode.drag_race)
+        return Response({})

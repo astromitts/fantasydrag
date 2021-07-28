@@ -73,10 +73,9 @@ episodeScoreApp.controller(
 		$scope.resetStats = function() {
 			$scope.state = 'loading';
 			$http.post(
-				'/api/stats/', 
+				'/api/stats/episode/' + $scope.episodeId + '/reset-scores/', 
 				{
-					'request': 'reset-episode-scores',
-					'episode_id': $scope.episodeId,
+					'request': 'reset-scores',
 				}
 			).then(
 				function(response) {

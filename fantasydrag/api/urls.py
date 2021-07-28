@@ -44,6 +44,4 @@ urlpatterns = [
         views.CreatePanelApi.as_view(),
         name='api_create_panel'
     ),
-    path('api/stats/', views.StatsApi.as_view(), name='api_stats'),
-    path('api/stats/<str:endpoint>/<int:obj_id>/', views.StatsApi.as_view(), name='api_stats')
 ]
