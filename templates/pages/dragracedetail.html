@@ -38,36 +38,36 @@
 					<th>Wildcards</th>
 					{% for episode in scored_episodes %}
 						<td>
-						{% for wq_stat in wq_stats %}
-							{% with wq_stat.data.episodes|get_as_str:episode.pk as wq_scores %}
-								{% if wq_scores.scores %}
-									{% for score in wq_scores.scores %}
-										<p>
-											{{wq_stat.queen.name}}: {{score.rule}}		({{score.value|number}}pts)
-										</p>
-									{% endfor %}
-								{% endif %}
-							{% endwith %}
-						{% endfor %}
+						{% with wq_appearances|get:episode as wq_scores %}
+							{% for wq in wq_scores %}
+								<p>
+									{{wq.queen.name}}: {{wq.appearance.name}}		({{wq.appearance.point_value|number}}pts)
+								</p>
+							{% endfor %}
+						{% endwith %}
 						</td>
 					{% endfor %}
 				</tr>
-				{% for queen_stat in queen_stats %}
+				{% for queen, queen_stat in queen_stats.items %}
 					<tr>
 						<th>
-							<a href="{% url 'queen_detail' queen_id=queen_stat.queen.pk %}">{{queen_stat.queen.name}}</a>
-							<p>Total: {{queen_stat.primary_stat|number}}</p>
+							<a href="{% url 'queen_detail' queen_id=queen.pk %}">{{queen.name}}</a>
+							<p>Total: {{queen_stat.stats.total_score}}</p>
 						</th>
+						
 						{% for episode in scored_episodes %}
-						{% with queen_stat.data.episodes|get_as_str:episode.pk as episode_score %}
-						<td>
-							{% if episode_score.scores %}
-								{% for score in episode_score.scores %}
-								<p>{{score.rule}} ({{score.value}}pts)</p>
-								{% endfor %}
-								<p>Episode Total: {{episode_score.total}}pts</p>
+						{% with queen_stat.episodes|get:episode as episode_stat %}
+							{% if episode_stat %}
+								<td>
+									<strong>Total: {{episode_stat.total_score}}</strong>
+									{% for score in episode_stat.episode_scores %}
+										<br />{{score.rule.name}}: 
+										<br />{{score.rule.point_value}} pts
+									{% endfor %}
+								</td> 
+							{% else %}
+								<td style="background-color: #e3e3e3"></td>
 							{% endif %}
-						</td>
 						{% endwith %}
 						{% endfor %}
 					</tr>

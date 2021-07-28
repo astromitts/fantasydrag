@@ -42,7 +42,7 @@
 						</tr>
 						{% for episode in dr_stats.episodes %}
 							<tr>
-								<th><a href="/dragrace/episode/{{episodepk}}/">{{episode.episode.title}}</a></th>
+								<th><a href="{% url 'episode_detail' episode_id=episode.episode.pk %}">{{episode.episode.title}}</a></th>
 								<td>
 									Scores
 									<table class="table">

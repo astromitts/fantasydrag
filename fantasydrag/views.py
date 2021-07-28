@@ -17,8 +17,16 @@ from fantasydrag.models import (
     DragRaceType,
     Episode,
     WildCardQueen,
+    WildCardAppearance,
 )
 from fantasydrag.stats import Stats
+from stats.models import (
+    CanonicalQueenEpisodeScore,
+    CanonicalQueenDragRaceScore,
+    QueenEpisodeScore,
+    QueenDragRaceScore,
+)
+from stats.utils import set_viewing_participant_scores
 from fantasydrag.forms import (
     LoginPasswordForm,
     RegisterForm,
@@ -26,7 +34,6 @@ from fantasydrag.forms import (
     CreatePanelForm,
 )
 from fantasydrag.utils import (
-    refresh_dragrace_stats_for_participant,
     get_default_draft_date
 )
 from messagecenter.forms import ContactForm
@@ -441,24 +448,42 @@ class ParticipantPanelStats(AuthenticatedView):
 class DragRaceStats(AuthenticatedView):
     def get(self, request, *args, **kwargs):
         template = loader.get_template('pages/dragracedetail.html')
-        queen_stats = Stats.objects.filter(
-            participant=self.participant,
-            drag_race=self.drag_race,
-            panel=None,
-            stat_type='participant_queen_scores'
-        ).order_by('-primary_stat').all()
-        wq_queen_stats = Stats.objects.filter(
-            participant=self.participant,
-            drag_race=self.drag_race,
-            panel=None,
-            stat_type='participant_wildqueen_scores'
-        ).order_by('-primary_stat').all()
-        scored_episodes = self.drag_race.episode_set.filter(is_scored=True).all()
+        if self.drag_race.status == 'active':
+            episode_score_qs = QueenEpisodeScore.objects.filter(
+                viewing_participant=self.participant)
+            queen_score_qs = QueenDragRaceScore.objects.filter(
+                viewing_participant=self.participant)
+        else:
+            episode_score_qs = CanonicalQueenEpisodeScore.objects
+            queen_score_qs = CanonicalQueenDragRaceScore.objects
+
+        viewed_episodes = self.participant.episodes.all()
+        formatted_episode_scores = {}
+        queen_scores = queen_score_qs.filter(drag_race=self.drag_race).order_by('-total_score').all()
+        scored_episodes = self.drag_race.episode_set.filter(is_scored=True, has_aired=True).all()
+
+        wq_appearances = WildCardAppearance.objects.filter(episode__in=viewed_episodes)
+        wq_episodes = {episode: [] for episode in viewed_episodes}
+        for wqa in wq_appearances:
+            wq_episodes[wqa.episode].append(wqa)
+
+        for queen_score in queen_scores:
+            queen = queen_score.queen
+            formatted_episode_scores[queen] = {
+                'episodes': {},
+                'stats': queen_score
+            }
+            for episode in scored_episodes:
+                formatted_episode_scores[queen]['episodes'][episode] = episode_score_qs.filter(
+                    queen=queen,
+                    episode=episode
+                ).first()
         self.context.update({
             'viewed_episodes': self.participant.episodes.filter(drag_race=self.drag_race).all(),
             'scored_episodes': scored_episodes,
-            'queen_stats': queen_stats,
-            'wq_stats': wq_queen_stats
+            'viewed_episodes': viewed_episodes,
+            'queen_stats': formatted_episode_scores,
+            'wq_appearances': wq_episodes
         })
         return HttpResponse(template.render(self.context, request))
 
@@ -502,7 +527,7 @@ class EpisodeDetail(AuthenticatedView):
             self.participant.episodes.remove(self.episode)
 
         self.participant.save()
-        refresh_dragrace_stats_for_participant(self.participant, self.episode.drag_race)
+        set_viewing_participant_scores(self.participant, self.episode.drag_race)
         self.context['episode_is_visible'] = self.episode in self.participant.episodes.all()
         return HttpResponse(self.template.render(self.context, request))
 
