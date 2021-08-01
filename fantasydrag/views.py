@@ -645,7 +645,7 @@ class QueenDetail(AuthenticatedView):
         for dragrace_score in active_dragraces:
             stats_by_dragrace['drag_races'][dragrace_score.drag_race] = {'drag_race': dragrace_score}
             stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'] = queen.queenepisodescore_set.filter(
-                viewing_participant=self.participant).all()
+                viewing_participant=self.participant).order_by('-episode__number').all()
             episode_count += len(stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'])
             stats_by_dragrace['total_score'] += dragrace_score.total_score
 
@@ -653,7 +653,8 @@ class QueenDetail(AuthenticatedView):
             drag_race__in=[ad.drag_race for ad in active_dragraces]).all()
         for dragrace_score in canonical_dragraces:
             stats_by_dragrace['drag_races'][dragrace_score.drag_race] = {'drag_race': dragrace_score}
-            stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'] = queen.canonicalqueenepisodescore_set.filter(drag_race=dragrace_score.drag_race).all()  # noqa
+            stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'] = queen.canonicalqueenepisodescore_set.filter(  # noqa
+            drag_race=dragrace_score.drag_race).order_by('-episode__number').all()  # noqa
             episode_count += len(stats_by_dragrace['drag_races'][dragrace_score.drag_race]['episodes'])
             stats_by_dragrace['total_score'] += dragrace_score.total_score
 

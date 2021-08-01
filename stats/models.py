@@ -175,6 +175,13 @@ class QueenDragRaceScoreBase(StatModelBase):
     def episodes(self):
         return self.viewing_participant.episodes.filter(drag_race=self.drag_race).all()
 
+    @property
+    def queen_scores(self):
+        return Score.objects.filter(
+            episode__in=self.episodes,
+            queen=self.queen
+        ).all()
+
     def set_total_score(self):
         episode_sum = self.score_qs.aggregate(Sum('total_score'))
         if episode_sum['total_score__sum']:
@@ -192,15 +199,12 @@ class QueenDragRaceScoreBase(StatModelBase):
         self.eliminated_count = 0
         self.bottom_count = 0
 
-        queen_scores = Score.objects.filter(
-            episode__in=self.episodes,
-            queen=self.queen
-        ).all()
         score_class_map = self.score_class_map
-        for score in queen_scores:
+        for score in self.queen_scores:
             for score_class in score.rule.score_classes.all():
-                current_count = getattr(self, score_class_map[score_class])
-                setattr(self, score_class_map[score_class], current_count + 1)
+                if score_class in score_class_map:
+                    current_count = getattr(self, score_class_map[score_class])
+                    setattr(self, score_class_map[score_class], current_count + 1)
         self.save()
 
 
@@ -211,6 +215,13 @@ class CanonicalQueenDragRaceScore(QueenDragRaceScoreBase):
         return CanonicalQueenEpisodeScore.objects.filter(
             episode__drag_race=self.drag_race, queen=self.queen
         )
+
+    @property
+    def queen_scores(self):
+        return Score.objects.filter(
+            episode__drag_race=self.drag_race,
+            queen=self.queen
+        ).all()
 
 
 class QueenDragRaceScore(QueenDragRaceScoreBase):

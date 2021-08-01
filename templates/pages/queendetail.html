@@ -33,12 +33,41 @@
 			<div class="row" >
 				<div class="col-lg-4 col-sm-12">
 					<h3><a href="/dragrace/{{dragrace.pk}}/">{{dragrace.display_name}}</a></h3>
+					<table class="table">
+						<tr>
+							<th>Total Points:</th>
+							<th>{{dr_stats.drag_race.total_score}}</th>
+						</tr>
+						<tr>
+							<th>Main Challenge Wins:</th>
+							<td>{{dr_stats.drag_race.main_wins}}</td>
+						</tr>
+						<tr>
+							<th>Mini Challenge Wins:</th>
+							<td>{{dr_stats.drag_race.mini_wins}}</td>
+						</tr>
+						<tr>
+							<th>Lip Sync Wins:</th>
+							<td>{{dr_stats.drag_race.lipsync_wins}}</td>
+						</tr>
+						<tr>
+							<th>Times Safe:</th>
+							<td>{{dr_stats.drag_race.safe_count}}</td>
+						</tr>
+						<tr>
+							<th>Times Bottom:</th>
+							<td>{{dr_stats.drag_race.bottom_count}}</td>
+						</tr>
+						<tr>
+							<th>Times Eliminated:</th>
+							<td>{{dr_stats.drag_race.eliminated_count}}</td>
+						</tr>
+					</table>
 				</div>
 				<div class="col-lg-8 col-sm-12">
 					<table class="table">
 						<tr>
-							<td></td>
-							<th>Total: {{dr_stats.drag_race.total_score}} points</th>
+							<th colspan="100%">Episode Scores</th>
 						</tr>
 						{% for episode in dr_stats.episodes %}
 							<tr>
@@ -59,6 +88,11 @@
 					</table>
 				</div>
 				<div class="spacer-small"></div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<hr />
+				</div>
 			</div>
 		{% endfor %}
 	{% else %}
