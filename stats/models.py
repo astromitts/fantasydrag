@@ -5,6 +5,7 @@ from fantasydrag.models import (
     Draft,
     DragRace,
     Episode,
+    EpisodeDraft,
     Panel,
     Participant,
     Queen,
@@ -37,6 +38,70 @@ class StatModelBase(models.Model):
         instance = cls(**kwargs)
         instance.save()
         return instance
+
+
+class ParticipantEpisodeDraftScoreBase(StatModelBase):
+    class Meta:
+        abstract = True
+    total_score = models.IntegerField(default=0)
+    rank_tier = models.IntegerField(default=0)
+    total_participants = models.IntegerField(default=0)
+
+
+class EpisodeDraftScores(ParticipantEpisodeDraftScoreBase):
+    episodedraft = models.ForeignKey(EpisodeDraft, on_delete=models.CASCADE)
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name='episode_draftscore_target_participant'
+
+    )
+
+    @classmethod
+    def set_episode_scores(cls):
+        pass
+
+    def set_total_score(self):
+        episode_sum = Score.objects.filter(
+            episode=self.episodedraft.episode,
+            queen__in=self.episodedraft.queens.all()
+        ).aggregate(Sum('default_rule__point_value'))
+        if episode_sum['default_rule__point_value__sum'] is not None:
+            self.score = episode_sum['default_rule__point_value__sum']
+            self.save()
+        else:
+            self.delete()
+
+
+class DragRaceDraftScores(ParticipantEpisodeDraftScoreBase):
+    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+    participant = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name='dragrace_draftscore_target_participant'
+
+    )
+
+    @property
+    def participant_draft_qs(self):
+        return EpisodeDraft.objects.filter(
+            episode__in=self.drag_race.episode,
+            participant=self.viewing_participant
+        )
+
+    @property
+    def all_draft_qs(self):
+        return EpisodeDraft.objects.filter(
+            episode__in=self.drag_race.episode
+        )
+
+    def set_total_score(self):
+        draft_sum = self.participant_draft_qs.aggregate(Sum('score'))
+        if draft_sum['score__sum'] is not None:
+            self.total_score = draft_sum['score__sum']
+            self.save()
+        else:
+            self.total_score = 0
 
 
 class QueenEpisodeScoreBase(StatModelBase):

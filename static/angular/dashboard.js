@@ -97,6 +97,10 @@ dashboardApp.controller(
 			);
 		}
 
+		$scope.getQueenEpisodeScore = function(queen, queens) {
+			return 100;
+		}
+
 		$scope.fetchPastSeasons = function() {
 			if(!$scope.oldDragRacesLoaded) {
 				$scope.state = 'loading';

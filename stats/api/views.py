@@ -5,13 +5,15 @@ from fantasydrag.models import (
     DragRace,
     Queen,
     Episode,
+    EpisodeDraft,
     Panel,
-    Participant
+    Participant,
 )
 from fantasydrag.api.serializers import (
     PanelSerializerMetaShort,
     DragRaceSerializerMeta,
-    EpisodeSerializerShort
+    EpisodeSerializerShort,
+    EpisodeDraftSerializerShort,
 )
 
 from stats.models import (
@@ -25,6 +27,7 @@ from stats.models import (
 from stats.api.serializers import (
     QueenDragRaceSerializer,
     QueenEpisodeSerializer,
+    QueenEpisodeScoreSerializer,
     PanelistEpisodeSerializer,
     PanelistDragRaceSerializer,
 )
@@ -127,7 +130,6 @@ class StatsDashboardApiView(StatApiView):
             drag_races = DragRace.objects.filter(status='active')
         result = {'drag_races': []}
         viewed_episodes = self.viewing_participant.episodes.all()
-        viewed_episode_pks = [ve.pk for ve in viewed_episodes]
         for drag_race in drag_races:
             if drag_race.status == 'active':
                 queen_qs = QueenDragRaceScore.objects.filter(
@@ -141,10 +143,33 @@ class StatsDashboardApiView(StatApiView):
 
             panels = self.viewing_participant.panel_set.filter(drag_race=drag_race)
             dragrace_data = DragRaceSerializerMeta(instance=drag_race).data
-            episodes = EpisodeSerializerShort(
-                instance=drag_race.episode_set.filter(has_aired=True).all(), many=True).data
-            for episode in episodes:
-                episode['is_viewed'] = episode['pk'] in viewed_episode_pks
+
+            scored_episodes = drag_race.episode_set.filter(is_scored=True).all()
+            next_episode = drag_race.episode_set.filter(is_scored=False).first()
+
+            episodes_to_display = [episode for episode in scored_episodes] + [next_episode, ]
+
+            episodes = []
+            for episode in episodes_to_display:
+                episode_data = EpisodeSerializerShort(instance=episode).data
+                episode_draft = EpisodeDraft.objects.filter(
+                    participant=self.viewing_participant, episode=episode).first()
+                episode_data['draft'] = EpisodeDraftSerializerShort(instance=episode_draft).data
+                episode_data['is_viewed'] = episode in viewed_episodes
+                episode_queen_scores = QueenEpisodeScore.objects.filter(
+                    viewing_participant=self.viewing_participant,
+                    episode=episode
+                ).all()
+                queen_scores_data = QueenEpisodeScoreSerializer(instance=episode_queen_scores, many=True).data
+                queens = {}
+                for queen_score in queen_scores_data:
+                    queens[queen_score['queen']['pk']] = {
+                        'pk': queen_score['queen']['pk'],
+                        'name': queen_score['queen']['name'],
+                        'score': queen_score['total_score']
+                    }
+                episode_data['queens'] = queens
+                episodes.append(episode_data)
             dragrace_data['episodes'] = episodes
             dragrace_data['panels'] = []
             for panel in panels:

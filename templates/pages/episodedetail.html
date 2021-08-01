@@ -6,7 +6,7 @@
 {% if is_site_admin %}
 <div class="row">
 	<div class="col">
-		<a href="{% url 'set_episode_scores' dragrace_id=drag_race.pk episode_id=episode.pk %}" class="form-control btn btn-primary">Score Episode</a>
+		<a href="{% url 'set_episode_scores' episode_id=episode.pk %}" class="form-control btn btn-primary">Score Episode</a>
 	</div>
 </div>
 <div class="spacer-medium"></div>

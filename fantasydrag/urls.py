@@ -59,7 +59,7 @@ urlpatterns = [
         name='create_episode'
     ),
     path(
-        'dragrace/<int:dragrace_id>/episode/<int:episode_id>/score/',
+        'dragrace/episode/<int:episode_id>/score/',
         views.SetEpisodeScores.as_view(),
         name='set_episode_scores'
     ),

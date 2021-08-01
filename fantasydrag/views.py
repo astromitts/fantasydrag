@@ -542,7 +542,6 @@ class Episodes(AuthenticatedView):
 class SetEpisodeScores(AuthenticatedView):
     def setup(self, request, *args, **kwargs):
         super(SetEpisodeScores, self).setup(request, *args, **kwargs)
-        self.episode = Episode.objects.get(pk=kwargs['episode_id'], drag_race__id=kwargs['dragrace_id'])
         self.template = loader.get_template('pages/setepisodescores.html')
         self.context.update({
             'drag_race': self.episode.drag_race,

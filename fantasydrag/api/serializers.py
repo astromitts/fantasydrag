@@ -169,6 +169,9 @@ class EpisodeDraftSerializerShort(serializers.HyperlinkedModelSerializer):
         fields = [
             'pk',
             'selected_queens',
+            'score',
+            'rank_tier',
+            'total_participants'
         ]
 
 

@@ -16,7 +16,7 @@ from fantasydrag.api.serializers import (
 
 class QueenEpisodeSerializer(serializers.HyperlinkedModelSerializer):
     queen = QueenSerializer()
-    episode_scores = ScoreSerializer(many=True)
+    # episode_scores = ScoreSerializer(many=True)
     episode = EpisodeSerializerShort()
 
     class Meta:
@@ -24,6 +24,17 @@ class QueenEpisodeSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             'queen',
             'episode',
+            'total_score',
+        ]
+
+
+class QueenEpisodeScoreSerializer(serializers.HyperlinkedModelSerializer):
+    queen = QueenSerializer()
+
+    class Meta:
+        model = QueenEpisodeScore
+        fields = [
+            'queen',
             'total_score',
         ]
 

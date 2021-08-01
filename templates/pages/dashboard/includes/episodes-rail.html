@@ -4,7 +4,7 @@
 	<a id="episode_{{episode.pk}}"></a>
 	<table class="table">
 		<tbody>
-		<tr ng-if="episode.is_viewed" class="clickable">
+		<tr ng-if="episode.is_scored && episode.is_viewed" class="clickable">
 			<td class="help"
 					data-toggle="tooltip" 
 					data-placement="top" title="Expand Episode Details"
@@ -12,7 +12,19 @@
 				#{{episode.number}} {{episode.title}}
 			</td>
 		</tr>
-		<tr ng-if="!episode.is_viewed" 
+		<tr ng-if="!episode.is_scored" 
+			class="help"
+			data-toggle="tooltip" 
+			data-placement="left" title="This episode has not been scored yet"
+			ng-click="toggleEpisodeDraft(episode)">
+			<td>
+				<span >
+					#{{episode.number}} {{episode.title}}
+					<span class="entities entities-alert" >&#9733;</span>
+				</span>
+			</td>
+		</tr>
+		<tr ng-if="episode.is_scored && !episode.is_viewed" 
 			class="help"
 			data-toggle="tooltip" 
 			data-placement="left" title="You have not ruvealed scores for this episode"
@@ -24,18 +36,21 @@
 				</span>
 			</td>
 		</tr>
-		<tr ng-if="episode.is_viewed" >
-			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
-				<p>Episode Draft</p>
-				<table class="table">
-					<tr><th>Total</th><th>{{dragrace.episode_drafts.data.episodes[episode.number].total}} pts</th></tr>
-					<tr ng-repeat="(queen, score) in dragrace.episode_drafts.data.episodes[episode.number].queens">
-						<td>{{queen}}</td><td>{{score}} pts</td>
-					</tr>
-				</table>
+		<tr ng-if="expandedEpisodes.indexOf(episode) !== -1">
+			<td>
+				<span ng-if="episode.draft.selected_queens.length > 0">
+					<p>Episode Draft</p>
+					<table class="table">
+						<tr ng-if="episode.is_scored"><th>Total</th><th>{{episode.draft.score}} pts</th></tr>
+						<tr ng-repeat="queen in episode.draft.selected_queens">
+							<td>{{queen.name}}</td>
+							<td ng-if="episode.is_scored">{{episode.queens[queen.pk].score}} pts</td>
+						</tr>
+					</table>
+				</span>
 			</td>
 		</tr>
-		<tr ng-if="!episode.is_viewed">
+		<tr ng-if="episode.is_scored && !episode.is_viewed">
 			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
 				<button class="btn btn-warning form-control"
 				ng-click="ruvealScores(episode, dragrace)">
@@ -43,7 +58,7 @@
 				</button>
 			</td>
 		</tr>
-		<tr ng-if="episode.is_viewed">
+		<tr ng-if="episode.is_scored && episode.is_viewed">
 			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
 				<button class="btn btn-warning form-control"
 				ng-click="hideScores(episode, dragrace)">
@@ -56,7 +71,22 @@
 				<a href="{{episode.detail_url}}">
 					<button class="btn btn-info form-control">Episode Detail</button></a>
 				</td>
-			</tr>
+		</tr>
+		<tr ng-if="user.is_site_admin">
+			<td colspan="100%" ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<a href="{{episode.detail_url}}score/">
+					<button class="btn btn-danger form-control">Score Episode</button></a>
+				</td>
+		</tr>
+		<tr ng-if="!episode.has_aired">
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<a class="btn btn-warning form-control"
+				href="{{episode.edit_draft_url}}">
+					<span ng-if="episode.draft.selected_queens.length == 0" >Create Episode Draft!</span>
+					<span ng-if="episode.draft.selected_queens.length > 0" >Edit Episode Draft!</span>
+				</a>
+			</td>
+		</tr>
 		</tbody>
 	</table>
 </span>
