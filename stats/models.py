@@ -11,7 +11,8 @@ from fantasydrag.models import (
     Queen,
     Score,
     WildCardQueen,
-    WildCardAppearance
+    WildCardAppearance,
+    ScoreClass
 )
 
 
@@ -148,18 +149,23 @@ class QueenDragRaceScoreBase(StatModelBase):
     lipsync_wins = models.IntegerField(default=0)
     safe_count = models.IntegerField(default=0)
     eliminated_count = models.IntegerField(default=0)
-
-    score_class_map = {
-        'main_wins': 'main_win',
-        'mini_wins': 'mini_win',
-        'lipsync_wins': 'lipsync_win',
-        'safe_count': 'safe',
-        'eliminated_count': 'elimination'
-    }
+    bottom_count = models.IntegerField(default=0)
 
     @property
     def score_qs(self):
         return None
+
+    @property
+    def score_class_map(self):
+        return {
+            ScoreClass.objects.get(name='main_win'): 'main_wins',
+            ScoreClass.objects.get(name='mini_win'): 'mini_wins',
+            ScoreClass.objects.get(name='lipsync_win'): 'lipsync_wins',
+            ScoreClass.objects.get(name='safe'): 'safe_count',
+            ScoreClass.objects.get(name='elimination'): 'eliminated_count',
+            ScoreClass.objects.get(name='bottom'): 'bottom_count',
+            ScoreClass.objects.get(name='stay'): 'bottom_count',
+        }
 
     @property
     def scores(self):
@@ -184,14 +190,17 @@ class QueenDragRaceScoreBase(StatModelBase):
         self.lipsync_wins = 0
         self.safe_count = 0
         self.eliminated_count = 0
+        self.bottom_count = 0
 
-        for prop, score_class in self.score_class_map.items():
-            scores_count = Score.objects.filter(
-                episode__in=self.episodes,
-                default_rule__score_class=score_class,
-                queen=self.queen
-            ).count()
-            setattr(self, prop, scores_count)
+        queen_scores = Score.objects.filter(
+            episode__in=self.episodes,
+            queen=self.queen
+        ).all()
+        score_class_map = self.score_class_map
+        for score in queen_scores:
+            for score_class in score.rule.score_classes.all():
+                current_count = getattr(self, score_class_map[score_class])
+                setattr(self, score_class_map[score_class], current_count + 1)
         self.save()
 
 
