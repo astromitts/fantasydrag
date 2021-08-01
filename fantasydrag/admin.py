@@ -13,6 +13,7 @@ from fantasydrag.models import (
     WildCardQueen,
     WildCardAppearance,
     AppearanceType,
+    ScoreClass,
 )
 
 from fantasydrag.stats import Stats
@@ -46,6 +47,11 @@ class DefaultRuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'score_type', 'point_value', 'score_class']
     list_editable = ['score_type', 'point_value', 'score_class']
     list_filter = ['score_type', 'drag_race_types']
+
+
+class ScoreClassAdmin(admin.ModelAdmin):
+    form = FormBase
+    list_display = ['name']
 
 
 class ScoreAdmin(admin.ModelAdmin):
@@ -94,6 +100,7 @@ class EpisodeDraftAdmin(admin.ModelAdmin):
     list_display = ['participant', 'episode', 'score']
 
 
+admin.site.register(ScoreClass, ScoreClassAdmin)
 admin.site.register(EpisodeDraft, EpisodeDraftAdmin)
 admin.site.register(DragRace, DragRaceAdmin)
 admin.site.register(Queen, QueenAdmin)

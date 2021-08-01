@@ -262,6 +262,13 @@ class Episode(models.Model):
         return reverse('episode_detail', kwargs={'episode_id': self.pk})
 
 
+class ScoreClass(models.Model):
+    name = models.CharField(max_length=25, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class DefaultRule(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
@@ -291,6 +298,7 @@ class DefaultRule(models.Model):
         ),
         db_index=True
     )
+    score_classes = models.ManyToManyField(ScoreClass)
 
     class Meta:
         ordering = ('score_type', 'point_value', 'name')

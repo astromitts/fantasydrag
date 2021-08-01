@@ -143,6 +143,19 @@ class QueenDragRaceScoreBase(StatModelBase):
     queen = models.ForeignKey(Queen, on_delete=models.CASCADE)
     total_score = models.IntegerField(default=0, db_index=True)
     drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+    main_wins = models.IntegerField(default=0)
+    mini_wins = models.IntegerField(default=0)
+    lipsync_wins = models.IntegerField(default=0)
+    safe_count = models.IntegerField(default=0)
+    eliminated_count = models.IntegerField(default=0)
+
+    score_class_map = {
+        'main_wins': 'main_win',
+        'mini_wins': 'mini_win',
+        'lipsync_wins': 'lipsync_win',
+        'safe_count': 'safe',
+        'eliminated_count': 'elimination'
+    }
 
     @property
     def score_qs(self):
@@ -152,12 +165,33 @@ class QueenDragRaceScoreBase(StatModelBase):
     def scores(self):
         return self.score_qs.all()
 
+    @property
+    def episodes(self):
+        return self.viewing_participant.episodes.filter(drag_race=self.drag_race).all()
+
     def set_total_score(self):
         episode_sum = self.score_qs.aggregate(Sum('total_score'))
         if episode_sum['total_score__sum']:
             self.total_score = episode_sum['total_score__sum']
         else:
             self.total_score = 0
+        self.save()
+        self.set_total_stats()
+
+    def set_total_stats(self):
+        self.main_wins = 0
+        self.mini_wins = 0
+        self.lipsync_wins = 0
+        self.safe_count = 0
+        self.eliminated_count = 0
+
+        for prop, score_class in self.score_class_map.items():
+            scores_count = Score.objects.filter(
+                episode__in=self.episodes,
+                default_rule__score_class=score_class,
+                queen=self.queen
+            ).count()
+            setattr(self, prop, scores_count)
         self.save()
 
 
