@@ -147,7 +147,10 @@ class StatsDashboardApiView(StatApiView):
             scored_episodes = drag_race.episode_set.filter(is_scored=True).all()
             next_episode = drag_race.episode_set.filter(is_scored=False).first()
 
-            episodes_to_display = [episode for episode in scored_episodes] + [next_episode, ]
+            if next_episode:
+                episodes_to_display = [episode for episode in scored_episodes] + [next_episode, ]
+            else:
+                episodes_to_display = scored_episodes
 
             episodes = []
             for episode in episodes_to_display:
