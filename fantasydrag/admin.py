@@ -43,8 +43,8 @@ class EpisodeAdmin(admin.ModelAdmin):
 
 class DefaultRuleAdmin(admin.ModelAdmin):
     form = FormBase
-    list_display = ['name', 'score_type', 'point_value', 'description']
-    list_editable = ['score_type', 'point_value', 'description']
+    list_display = ['name', 'score_type', 'point_value', 'score_class']
+    list_editable = ['score_type', 'point_value', 'score_class']
     list_filter = ['score_type', 'drag_race_types']
 
 

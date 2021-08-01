@@ -274,6 +274,23 @@ class DefaultRule(models.Model):
         )
     )
     drag_race_types = models.ManyToManyField(DragRaceType)
+    score_class = models.CharField(
+        max_length=25,
+        null=True,
+        blank=True,
+        choices=(
+            ('elimination', 'elimination'),
+            ('lipsync_win', 'lipsync_win'),
+            ('stay', 'stay'),
+            ('main_win', 'main_win'),
+            ('mini_win', 'mini_win'),
+            ('safe', 'safe'),
+            ('champion', 'champion'),
+            ('runnerup', 'runnerup'),
+            ('misscongeniality', 'misscongeniality'),
+        ),
+        db_index=True
+    )
 
     class Meta:
         ordering = ('score_type', 'point_value', 'name')
