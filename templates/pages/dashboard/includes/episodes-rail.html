@@ -8,7 +8,7 @@
 			<td class="help"
 					data-toggle="tooltip" 
 					data-placement="top" title="Expand Episode Details"
-					ng-click="toggleEpisodeDraft(episode)">
+					ng-click="toggleEpisodeDetail(episode)">
 				#{{episode.number}} {{episode.title}}
 			</td>
 		</tr>
@@ -16,7 +16,7 @@
 			class="help"
 			data-toggle="tooltip" 
 			data-placement="left" title="This episode has not been scored yet"
-			ng-click="toggleEpisodeDraft(episode)">
+			ng-click="toggleEpisodeDetail(episode)">
 			<td>
 				<span >
 					#{{episode.number}} {{episode.title}}
@@ -28,7 +28,7 @@
 			class="help"
 			data-toggle="tooltip" 
 			data-placement="left" title="You have not ruvealed scores for this episode"
-			ng-click="toggleEpisodeDraft(episode)">
+			ng-click="toggleEpisodeDetail(episode)">
 			<td>
 				<span >
 					#{{episode.number}} {{episode.title}}
@@ -48,6 +48,16 @@
 						</tr>
 					</table>
 				</span>
+			</td>
+		</tr>
+		<tr ng-if="episode.is_scored && episode.is_viewed">
+			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<table class="table">
+					<tr ng-repeat="queen in episode.queens">
+						<td>{{queen.name}}</td>
+						<td>{{queen.score}}pts</td>
+					</tr>
+				</table>
 			</td>
 		</tr>
 		<tr ng-if="episode.is_scored && !episode.is_viewed">
@@ -77,15 +87,6 @@
 				<a href="{{episode.detail_url}}score/">
 					<button class="btn btn-danger form-control">Score Episode</button></a>
 				</td>
-		</tr>
-		<tr ng-if="!episode.has_aired">
-			<td ng-if="featureFlags.GENERAL_DRAFT && expandedEpisodes.indexOf(episode) !== -1">
-				<a class="btn btn-warning form-control"
-				href="{{episode.edit_draft_url}}">
-					<span ng-if="episode.draft.selected_queens.length == 0" >Create Episode Draft!</span>
-					<span ng-if="episode.draft.selected_queens.length > 0" >Edit Episode Draft!</span>
-				</a>
-			</td>
 		</tr>
 		</tbody>
 	</table>

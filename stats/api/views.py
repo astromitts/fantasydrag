@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from flags.models import FeatureFlag
 from fantasydrag.models import (
     DragRace,
     Queen,
@@ -157,12 +158,15 @@ class StatsDashboardApiView(StatApiView):
                 episode_data = EpisodeSerializerShort(instance=episode).data
                 episode_draft = EpisodeDraft.objects.filter(
                     participant=self.viewing_participant, episode=episode).first()
-                episode_data['draft'] = EpisodeDraftSerializerShort(instance=episode_draft).data
+
+                if FeatureFlag.flag_is_true('GENERAL_DRAFT', request.user):
+                    episode_data['draft'] = EpisodeDraftSerializerShort(instance=episode_draft).data
+
                 episode_data['is_viewed'] = episode in viewed_episodes
                 episode_queen_scores = QueenEpisodeScore.objects.filter(
                     viewing_participant=self.viewing_participant,
                     episode=episode
-                ).all()
+                ).order_by('-total_score').all()
                 queen_scores_data = QueenEpisodeScoreSerializer(instance=episode_queen_scores, many=True).data
                 queens = {}
                 for queen_score in queen_scores_data:

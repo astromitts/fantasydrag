@@ -20,7 +20,7 @@ dashboardApp.controller(
 				angular.forEach(dragrace.episodes, function(episode) {
 					var pkStr = episode.pk.toString();
 					if($scope.queryParams.drafts.indexOf(pkStr) >= 0){
-						$scope.toggleEpisodeDraft(episode);
+						$scope.toggleEpisodeDetail(episode);
 					}
 				});				
 				angular.forEach(dragrace.panels, function(panel) {
@@ -35,7 +35,7 @@ dashboardApp.controller(
 			});
 		}
 
-		$scope.toggleEpisodeDraft = function(episode){
+		$scope.toggleEpisodeDetail = function(episode){
 			var pkStr = episode.pk.toString();
 			if($scope.expandedEpisodes.indexOf(episode) !== -1) {
 				$scope.expandedEpisodes.splice($scope.expandedEpisodes.indexOf(episode), 1);

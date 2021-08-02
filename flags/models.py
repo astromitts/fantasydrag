@@ -24,3 +24,11 @@ class FeatureFlag(models.Model):
     @property
     def has_users(self):
         return self.users.count() > 0
+
+    @classmethod
+    def flag_is_true(cls, flag, user):
+        flag = cls.objects.get(title=flag)
+        if flag.has_users and user in flag.users.all():
+            return flag.value == 1
+        else:
+            return flag.value == 1
