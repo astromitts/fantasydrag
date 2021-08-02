@@ -36,7 +36,7 @@
 				</span>
 			</td>
 		</tr>
-		<tr ng-if="expandedEpisodes.indexOf(episode) !== -1">
+		<tr ng-if="featureFlags.GENERAL_DRAFT && expandedEpisodes.indexOf(episode) !== -1">
 			<td>
 				<span ng-if="episode.draft.selected_queens.length > 0">
 					<p>Episode Draft</p>
@@ -79,7 +79,7 @@
 				</td>
 		</tr>
 		<tr ng-if="!episode.has_aired">
-			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+			<td ng-if="featureFlags.GENERAL_DRAFT && expandedEpisodes.indexOf(episode) !== -1">
 				<a class="btn btn-warning form-control"
 				href="{{episode.edit_draft_url}}">
 					<span ng-if="episode.draft.selected_queens.length == 0" >Create Episode Draft!</span>
