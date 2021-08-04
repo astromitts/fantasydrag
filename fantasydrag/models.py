@@ -182,6 +182,7 @@ class DragRace(models.Model):
         if self.franchise != 'US':
             display_name_parts.append(self.franchise)
         if self.drag_race_type.name == 'all star':
+            display_name_parts = []
             display_name_parts.append('All Stars')
         display_name_parts.append('{}'.format(self.season))
         return ' '.join(display_name_parts)

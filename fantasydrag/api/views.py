@@ -146,7 +146,8 @@ def setcontext(view, request):
         view.response = {
             'user': {
                 'is_authenticated': request.user.is_authenticated,
-                'is_site_admin': view.participant.site_admin
+                'is_site_admin': view.participant.site_admin,
+                'pk': view.participant.pk
             }
         }
     else:
@@ -747,8 +748,10 @@ class SiteUserApi(APIView):
         participant = Participant.objects.filter(user=request.user).first()
         if participant:
             site_admin = participant.site_admin
+            pk = participant.pk
         else:
             site_admin = False
+            pk = None
 
         feature_flags = FeatureFlag.objects.all()
         flags = {}
@@ -761,6 +764,7 @@ class SiteUserApi(APIView):
             'user': {
                 'is_authenticated': request.user.is_authenticated,
                 'is_site_admin': site_admin,
+                'pk': pk
             },
             'flags': flags
         })

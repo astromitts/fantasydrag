@@ -19,6 +19,7 @@ from fantasydrag.api.serializers import (
 
 from stats.models import (
     CanonicalQueenDragRaceScore,
+    DragRaceDraftScore,
     EpisodeDraftScore,
     PanelistEpisodeScore,
     PanelistDragRaceScore,
@@ -27,6 +28,7 @@ from stats.models import (
 )
 
 from stats.api.serializers import (
+    DragRaceDraftScoreSerializer,
     EpisodeDraftScoreSerializer,
     QueenDragRaceSerializer,
     QueenEpisodeSerializer,
@@ -35,7 +37,11 @@ from stats.api.serializers import (
     PanelistDragRaceSerializer,
 )
 
-from stats.utils import set_viewing_participant_scores
+from stats.utils import (
+    set_viewing_participant_scores,
+    set_episode_draft_scores,
+    set_dragrace_draft_scores
+)
 
 
 class StatApiView(APIView):
@@ -150,6 +156,15 @@ class StatsDashboardApiView(StatApiView):
             scored_episodes = drag_race.episode_set.filter(is_scored=True).all()
             next_episode = drag_race.episode_set.filter(is_scored=False).first()
 
+            all_episodes_viewed = viewed_episodes.filter(drag_race=drag_race).count() == scored_episodes.count()
+            dragrace_data['all_episodes_viewed'] = all_episodes_viewed
+            has_participated_in_drafts = EpisodeDraftScore.objects.filter(
+                participant=self.viewing_participant).exists()
+            dragrace_data['has_participated_in_drafts'] = has_participated_in_drafts
+            if all_episodes_viewed and has_participated_in_drafts:
+                dragrace_draft_score = DragRaceDraftScore.objects.filter(drag_race=drag_race).all()
+                dragrace_draft_data = DragRaceDraftScoreSerializer(instance=dragrace_draft_score, many=True).data
+                dragrace_data['dragrace_draft_score'] = dragrace_draft_data
             if next_episode:
                 episodes_to_display = [episode for episode in scored_episodes] + [next_episode, ]
             else:
@@ -227,4 +242,6 @@ class StatsEpisodeScoreApiView(StatApiView):
         if endpoint == 'reset-scores':
             for participant in Participant.objects.all():
                 set_viewing_participant_scores(participant, self.episode.drag_race)
+            set_episode_draft_scores(self.episode)
+            set_dragrace_draft_scores(self.episode.drag_race)
         return Response({})

@@ -28,7 +28,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-12 col-sm-6"><p class="marker">
+		<div class="col-4"><p class="marker">
 			<a href="{{dragrace.rules_url}}">Rules</a>
 			</p>
 			<p class="marker">
@@ -39,6 +39,38 @@
 				<a href="{{dragrace.edit_url}}">
 				Edit Drag Race</a>
 			</p>
+			<p class="marker" ng-if="user.is_site_admin">
+				<a href="{{dragrace.detail_url}}episode/new/">
+				Add Episode</a>
+			</p>
+		</div>
+		<div class="col-md-8 col-sm-12 font-weight-bold">
+			<div>Dragrace Draft Scores</div>
+			<span ng-if="!dragrace.all_episodes_viewed">
+				<div class="alert alert-warning">
+					You must ruvealed all episodes for this Drag Race to see scores.
+				</div>
+			</span>
+			<span ng-if="!dragrace.has_participated_in_drafts">
+				<div class="alert alert-warning">
+					You have not participated in any episode drafts :(
+				</div>
+			</span>
+			<span ng-if="dragrace.all_episodes_viewed">
+				<table class="table">
+					<tr>
+						<th>Participant</th><th>Rank</th><th>Score</th>
+					</tr>
+					<tr ng-repeat="score in dragrace.dragrace_draft_score"
+					ng-class="{'selected': score.participant.pk == user.pk}">
+						<td>{{score.participant.name}}</td>
+						<td>{{score.rank_tier}}</td>
+						<td>{{score.total_score}}</td>
+					</tr>
+				</table>
+
+			</span>
+			
 		</div>
 	</div>
 	{% endverbatim %}
