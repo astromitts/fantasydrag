@@ -4,12 +4,22 @@
 	<a id="episode_{{episode.pk}}"></a>
 	<table class="table">
 		<tbody>
-		<tr ng-if="episode.is_scored && episode.is_viewed" class="clickable">
-			<td class="help"
+		<tr ng-if="episode.is_scored && episode.is_viewed">
+			<td>
+				<div class="help clickable"
 					data-toggle="tooltip" 
 					data-placement="top" title="Expand Episode Details"
 					ng-click="toggleEpisodeDetail(episode)">
-				#{{episode.number}} {{episode.title}}
+					#{{episode.number}} {{episode.title}}
+				</div>
+				<div ng-if="episode.draft.rank_tier > 0 && episode.is_viewed">
+					<span style="float: left;">
+						Rank: {{episode.draft.rank_tier}} / {{episode.draft.total_participants}}
+					</span>
+					<span style="float: right;">
+						Score: {{episode.draft.total_score}} pts
+					</span>
+				</div>
 			</td>
 		</tr>
 		<tr ng-if="!episode.is_scored" 
@@ -38,11 +48,11 @@
 		</tr>
 		<tr ng-if="featureFlags.GENERAL_DRAFT && expandedEpisodes.indexOf(episode) !== -1">
 			<td>
-				<span ng-if="episode.draft.selected_queens.length > 0">
-					<p>Episode Draft</p>
+				<span ng-if="episode.draft.drafted_queens.length > 0">
+					<p class="font-weight-bold">Episode Draft</p>
 					<table class="table">
 						<tr ng-if="episode.is_scored"><th>Total</th><th>{{episode.draft.score}} pts</th></tr>
-						<tr ng-repeat="queen in episode.draft.selected_queens">
+						<tr ng-repeat="queen in episode.draft.drafted_queens">
 							<td>{{queen.name}}</td>
 							<td ng-if="episode.is_scored">{{episode.queens[queen.pk].score}} pts</td>
 						</tr>
@@ -50,8 +60,17 @@
 				</span>
 			</td>
 		</tr>
+		<tr ng-if="featureFlags.GENERAL_DRAFT && expandedEpisodes.indexOf(episode) !== -1 && !episode.has_aired">
+			<td>
+				<a href="episode/{{episode.pk}}/draft/" class="btn btn-primary form-control">
+					<span ng-if="episode.draft.pk">Edit Episode Draft</span>
+					<span ng-if="!episode.draft.pk">Create Episode Draft</span>
+				</a>
+			</td>
+		</tr>
 		<tr ng-if="episode.is_scored && episode.is_viewed">
 			<td ng-if="expandedEpisodes.indexOf(episode) !== -1">
+				<p class="font-weight-bold">Episode Scores</p>
 				<table class="table">
 					<tr ng-repeat="queen in episode.queens">
 						<td>{{queen.name}}</td>

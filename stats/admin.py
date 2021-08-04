@@ -3,6 +3,8 @@ from django import forms
 from stats.models import (
     CanonicalQueenEpisodeScore,
     CanonicalQueenDragRaceScore,
+    DragRaceDraftScore,
+    EpisodeDraftScore,
     PanelistDragRaceScore,
     PanelistEpisodeScore,
     QueenDragRaceScore,
@@ -50,6 +52,20 @@ class PanelistDragRaceScoreAdmin(admin.ModelAdmin):
     list_filter = list_display
 
 
+class EpisodeDraftScoreAdmin(admin.ModelAdmin):
+    form = FormBase
+    list_display = ['participant', 'drag_race', 'episode', 'total_score', 'rank_tier', 'total_participants']
+    list_filter = ['episodedraft__episode']
+
+
+class DragRaceDraftScoreAdmin(admin.ModelAdmin):
+    form = FormBase
+    list_display = ['participant', 'drag_race', 'total_score', 'rank_tier', 'total_participants']
+    list_filter = ['participant', 'drag_race']
+
+
+admin.site.register(EpisodeDraftScore, EpisodeDraftScoreAdmin)
+admin.site.register(DragRaceDraftScore, DragRaceDraftScoreAdmin)
 admin.site.register(CanonicalQueenDragRaceScore, CanonicalQueenDragRaceScoreAdmin)
 admin.site.register(CanonicalQueenEpisodeScore, CanonicalQueenEpisodeScoreAdmin)
 admin.site.register(QueenEpisodeScore, QueenEpisodeScoreAdmin)

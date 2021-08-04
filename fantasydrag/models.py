@@ -407,12 +407,10 @@ class Participant(models.Model):
 
 
 class EpisodeDraft(models.Model):
-    episode = models.ForeignKey(Episode, on_delete=models.CASCADE)
-    participant = models.ForeignKey(Participant, null=True, on_delete=models.SET_NULL)
-    score = models.IntegerField(default=0)
-    rank_tier = models.IntegerField(default=0)
-    total_participants = models.IntegerField(default=0)
-    queens = models.ManyToManyField(Queen)
+    drag_race = models.ForeignKey(DragRace, on_delete=models.CASCADE)
+    episode = models.ForeignKey(Episode, blank=True, null=True, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, blank=True, null=True, on_delete=models.SET_NULL)
+    queens = models.ManyToManyField(Queen, blank=True)
 
     class Meta:
         unique_together = ['episode', 'participant']

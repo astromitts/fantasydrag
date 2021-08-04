@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from stats.models import (
+    EpisodeDraftScore,
     PanelistEpisodeScore,
     PanelistDragRaceScore,
     QueenEpisodeScore,
@@ -8,10 +9,22 @@ from stats.models import (
 
 from fantasydrag.api.serializers import (
     QueenSerializer,
-    ScoreSerializer,
     EpisodeSerializerShort,
     ParticipantSerializer,
 )
+
+
+class EpisodeDraftScoreSerializer(serializers.HyperlinkedModelSerializer):
+    drafted_queens = QueenSerializer(many=True)
+
+    class Meta:
+        model = EpisodeDraftScore
+        fields = [
+            'total_score',
+            'rank_tier',
+            'total_participants',
+            'drafted_queens'
+        ]
 
 
 class QueenEpisodeSerializer(serializers.HyperlinkedModelSerializer):

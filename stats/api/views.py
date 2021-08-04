@@ -4,21 +4,22 @@ from rest_framework.views import APIView
 from flags.models import FeatureFlag
 from fantasydrag.models import (
     DragRace,
-    Queen,
     Episode,
     EpisodeDraft,
     Panel,
     Participant,
+    Queen,
 )
 from fantasydrag.api.serializers import (
-    PanelSerializerMetaShort,
     DragRaceSerializerMeta,
     EpisodeSerializerShort,
     EpisodeDraftSerializerShort,
+    PanelSerializerMetaShort,
 )
 
 from stats.models import (
     CanonicalQueenDragRaceScore,
+    EpisodeDraftScore,
     PanelistEpisodeScore,
     PanelistDragRaceScore,
     QueenEpisodeScore,
@@ -26,6 +27,7 @@ from stats.models import (
 )
 
 from stats.api.serializers import (
+    EpisodeDraftScoreSerializer,
     QueenDragRaceSerializer,
     QueenEpisodeSerializer,
     QueenEpisodeScoreSerializer,
@@ -156,11 +158,16 @@ class StatsDashboardApiView(StatApiView):
             episodes = []
             for episode in episodes_to_display:
                 episode_data = EpisodeSerializerShort(instance=episode).data
-                episode_draft = EpisodeDraft.objects.filter(
-                    participant=self.viewing_participant, episode=episode).first()
 
                 if FeatureFlag.flag_is_true('GENERAL_DRAFT', request.user):
-                    episode_data['draft'] = EpisodeDraftSerializerShort(instance=episode_draft).data
+                    if episode.is_scored:
+                        episode_draft = EpisodeDraftScore.objects.filter(
+                            participant=self.viewing_participant, episodedraft__episode=episode).first()
+                        episode_data['draft'] = EpisodeDraftScoreSerializer(instance=episode_draft).data
+                    else:
+                        episode_draft = EpisodeDraft.objects.filter(
+                            participant=self.viewing_participant, episode=episode).first()
+                        episode_data['draft'] = EpisodeDraftSerializerShort(instance=episode_draft).data
 
                 episode_data['is_viewed'] = episode in viewed_episodes
                 episode_queen_scores = QueenEpisodeScore.objects.filter(

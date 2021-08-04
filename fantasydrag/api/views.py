@@ -298,7 +298,11 @@ class EpisodeDraftApi(APIView):
         self.episode_draft = EpisodeDraft.objects.filter(
             episode=self.episode, participant=self.participant).first()
         if not self.episode_draft:
-            self.episode_draft = EpisodeDraft(episode=self.episode, participant=self.participant)
+            self.episode_draft = EpisodeDraft(
+                episode=self.episode,
+                participant=self.participant,
+                drag_race=self.episode.drag_race
+            )
             self.episode_draft.save()
 
     def get(self, request, *args, **kwargs):

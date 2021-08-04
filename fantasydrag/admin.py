@@ -23,6 +23,20 @@ class FormBase(forms.ModelForm):
     fields = '__all__'
 
 
+class FilteredFormBase(FormBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance")
+        self.drag_race = None
+        if instance and hasattr(instance, 'drag_race'):
+            self.drag_race = instance.drag_race
+            if self.drag_race:
+                if hasattr(instance, 'episode'):
+                    self.fields['episode'].queryset = self.drag_race.episode_set.all()
+                if hasattr(instance, 'queens'):
+                    self.fields['queens'].queryset = self.drag_race.queens.all()
+
+
 class DragRaceAdmin(admin.ModelAdmin):
     form = FormBase
     list_display = ['display_name', 'drag_race_type', 'franchise', 'season', 'status', 'is_current']
@@ -96,8 +110,8 @@ class AppearanceTypeAdmin(admin.ModelAdmin):
 
 
 class EpisodeDraftAdmin(admin.ModelAdmin):
-    form = FormBase
-    list_display = ['participant', 'episode', 'score']
+    form = FilteredFormBase
+    list_display = ['participant', 'episode']
 
 
 admin.site.register(ScoreClass, ScoreClassAdmin)

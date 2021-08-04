@@ -162,16 +162,13 @@ class EpisodeDraftSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class EpisodeDraftSerializerShort(serializers.HyperlinkedModelSerializer):
-    selected_queens = QueenSerializer(many=True, source='queens')
+    drafted_queens = QueenSerializer(many=True, source='queens')
 
     class Meta:
         model = EpisodeDraft
         fields = [
             'pk',
-            'selected_queens',
-            'score',
-            'rank_tier',
-            'total_participants'
+            'drafted_queens',
         ]
 
 
