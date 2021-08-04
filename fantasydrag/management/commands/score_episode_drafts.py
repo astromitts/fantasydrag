@@ -8,4 +8,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         drag_races = [DragRace.objects.get(pk=1), ]
         for drag_race in drag_races:
-            set_episode_draft_scores(drag_race)
+            for episode in drag_race.episode_set.all():
+                set_episode_draft_scores(episode)
